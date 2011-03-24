@@ -82,4 +82,25 @@ class RedcarpetTest < Test::Unit::TestCase
     rd = Redcarpet.new("foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b>")
     assert_equal "<p>foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b></p>\n", rd.to_html
   end
+  
+  def xtest_pathological_1
+    star = '*'  * 250000
+    Redcarpet.new("#{star}#{star} hi #{star}#{star}").to_html
+  end
+
+  def xtest_pathological_2
+    crt = '^' * 255
+    str = "#{crt}(\\)"
+    Redcarpet.new("#{str*300}").to_html
+  end
+
+  def xtest_pathological_3
+    c = "`t`t`t`t`t`t" * 20000000
+    Redcarpet.new(c).to_html
+  end
+
+  def xtest_pathological_4
+    Redcarpet.new(" [^a]: #{ "A" * 10000 }\n#{ "[^a][]" * 1000000 }\n").to_html.size
+  end
+
 end

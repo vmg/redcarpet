@@ -66,7 +66,6 @@ static int
 rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type,
 						void *opaque) {
 	if (!link || !link->size) return 0;
-	printf("Autolink: %.*s\n", link->size, link->data);
 	BUFPUTSL(ob, "<a href=\"");
 	if (type == MKDA_IMPLICIT_EMAIL) BUFPUTSL(ob, "mailto:");
 	lus_attr_escape(ob, link->data, link->size);

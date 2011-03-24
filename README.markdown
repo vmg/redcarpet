@@ -4,7 +4,8 @@ Markdown + Ruby + libupskirt
 > Inspired by Rick Astley wearing a kilt
 
 Upskirt is an implementation of John Gruber's Markdown markup
-language. Upskirt is safe, fast and production ready.
+language. Upskirt is safe, fast and production ready. Check out
+the original version at <http://git.instinctive.eu/cgit/libupskirt/>
 
 Redcarpet is Upskirt with a touch of Ruby. It is mostly based on Ryan
 Tomayko's RDiscount wrapper, and inspired by Rick Astley wearing a kilt.
@@ -16,9 +17,9 @@ and a long etcetera.
 
 Redcarpet is a drop-in replacement for BlueCloth, RedCloth and RDiscount.
 
-Upskirt is (C)2009 Natacha Porté
-Upskirt has been brought back to life and made standards-compilant in 2011 by Vicent Marti
-Redcarpet is (C)2011 Vicent Marti
+* Upskirt is (C)2009 Natacha Porté
+* Upskirt has been brought back to life and made standards-compilant in 2011 by Vicent Marti
+* Redcarpet is (C)2011 Vicent Marti
  
 
 License
