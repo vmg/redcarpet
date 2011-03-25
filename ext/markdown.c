@@ -29,6 +29,8 @@
 
 #define MKD_LI_END 8	/* internal list flag */
 
+#define MAX_BLOCK_NESTING 16 /* no more than 16 nested blocks */
+
 
 /***************
  * LOCAL TYPES *
@@ -873,13 +875,12 @@ prefix_uli(char *data, size_t size) {
 
 /* parse_block • parsing of one block, returning next char to parse */
 static void parse_block(struct buf *ob, struct render *rndr,
-			char *data, size_t size);
+			char *data, size_t size, int depth);
 
 
 /* parse_blockquote • hanldes parsing of a blockquote fragment */
 static size_t
-parse_blockquote(struct buf *ob, struct render *rndr,
-			char *data, size_t size) {
+parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size, int depth) {
 	size_t beg, end = 0, pre, work_size = 0;
 	char *work_data = 0;
 	struct buf *out = 0;
@@ -912,11 +913,12 @@ parse_blockquote(struct buf *ob, struct render *rndr,
 			work_size += end - beg; }
 		beg = end; }
 
-	parse_block(out, rndr, work_data, work_size);
+	parse_block(out, rndr, work_data, work_size, depth + 1);
 	if (rndr->make.blockquote)
 		rndr->make.blockquote(ob, out, rndr->make.opaque);
 	rndr->work.size -= 1;
-	return end; }
+	return end;
+}
 
 
 /* parse_blockquote • hanldes parsing of a regular paragraph */
@@ -1028,8 +1030,7 @@ parse_blockcode(struct buf *ob, struct render *rndr,
 /* parse_listitem • parsing of a single list item */
 /*	assuming initial prefix is already removed */
 static size_t
-parse_listitem(struct buf *ob, struct render *rndr,
-			char *data, size_t size, int *flags) {
+parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int *flags, int depth) {
 	struct buf *work = 0, *inter = 0;
 	size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
 	int in_empty = 0, has_inside_empty = 0;
@@ -1110,31 +1111,32 @@ parse_listitem(struct buf *ob, struct render *rndr,
 	if (*flags & MKD_LI_BLOCK) {
 		/* intermediate render of block li */
 		if (sublist && sublist < work->size) {
-			parse_block(inter, rndr, work->data, sublist);
-			parse_block(inter, rndr, work->data + sublist,
-						work->size - sublist); }
+			parse_block(inter, rndr, work->data, sublist, depth + 1);
+			parse_block(inter, rndr, work->data + sublist, work->size - sublist, depth + 1); 
+		}
 		else
-			parse_block(inter, rndr, work->data, work->size); }
-	else {
+			parse_block(inter, rndr, work->data, work->size, depth + 1);
+	} else {
 		/* intermediate render of inline li */
 		if (sublist && sublist < work->size) {
 			parse_inline(inter, rndr, work->data, sublist);
-			parse_block(inter, rndr, work->data + sublist,
-						work->size - sublist); }
+			parse_block(inter, rndr, work->data + sublist, work->size - sublist, depth + 1);
+		}
 		else
-			parse_inline(inter, rndr, work->data, work->size); }
+			parse_inline(inter, rndr, work->data, work->size);
+	}
 
 	/* render of li itself */
 	if (rndr->make.listitem)
 		rndr->make.listitem(ob, inter, *flags, rndr->make.opaque);
 	rndr->work.size -= 2;
-	return beg; }
+	return beg;
+}
 
 
 /* parse_list • parsing ordered or unordered list block */
 static size_t
-parse_list(struct buf *ob, struct render *rndr,
-			char *data, size_t size, int flags) {
+parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int flags, int depth) {
 	struct buf *work = 0;
 	size_t i = 0, j;
 
@@ -1146,20 +1148,23 @@ parse_list(struct buf *ob, struct render *rndr,
 		parr_push(&rndr->work, work); }
 
 	while (i < size) {
-		j = parse_listitem(work, rndr, data + i, size - i, &flags);
+		j = parse_listitem(work, rndr, data + i, size - i, &flags, depth + 1);
 		i += j;
-		if (!j || (flags & MKD_LI_END)) break; }
+
+		if (!j || (flags & MKD_LI_END))
+			break;
+	}
 
 	if (rndr->make.list)
 		rndr->make.list(ob, work, flags, rndr->make.opaque);
 	rndr->work.size -= 1;
-	return i; }
+	return i;
+}
 
 
 /* parse_atxheader • parsing of atx-style headers */
 static size_t
-parse_atxheader(struct buf *ob, struct render *rndr,
-			char *data, size_t size) {
+parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size) {
 	size_t level = 0;
 	size_t i, end, skip;
 	struct buf work = { data, 0, 0, 0, 0 };
@@ -1208,8 +1213,7 @@ htmlblock_end(struct html_tag *tag, char *data, size_t size) {
 
 /* parse_htmlblock • parsing of inline HTML block */
 static size_t
-parse_htmlblock(struct buf *ob, struct render *rndr,
-			char *data, size_t size) {
+parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size) {
 	size_t i, j = 0;
 	struct html_tag *curtag;
 	int found;
@@ -1304,11 +1308,14 @@ parse_htmlblock(struct buf *ob, struct render *rndr,
 
 /* parse_block • parsing of one block, returning next char to parse */
 static void
-parse_block(struct buf *ob, struct render *rndr,
-			char *data, size_t size) {
+parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int depth) {
 	size_t beg, end, i;
 	char *txt_data;
 	beg = 0;
+
+	if (depth >= MAX_BLOCK_NESTING)
+		return;
+
 	while (beg < size) {
 		txt_data = data + beg;
 		end = size - beg;
@@ -1325,16 +1332,17 @@ parse_block(struct buf *ob, struct render *rndr,
 			while (beg < size && data[beg] != '\n') beg += 1;
 			beg += 1; }
 		else if (prefix_quote(txt_data, end))
-			beg += parse_blockquote(ob, rndr, txt_data, end);
+			beg += parse_blockquote(ob, rndr, txt_data, end, depth + 1);
 		else if (prefix_code(txt_data, end))
 			beg += parse_blockcode(ob, rndr, txt_data, end);
 		else if (prefix_uli(txt_data, end))
-			beg += parse_list(ob, rndr, txt_data, end, 0);
+			beg += parse_list(ob, rndr, txt_data, end, 0, depth + 1);
 		else if (prefix_oli(txt_data, end))
-			beg += parse_list(ob, rndr, txt_data, end,
-						MKD_LIST_ORDERED);
+			beg += parse_list(ob, rndr, txt_data, end, MKD_LIST_ORDERED, depth + 1);
 		else
-			beg += parse_paragraph(ob, rndr, txt_data, end); } }
+			beg += parse_paragraph(ob, rndr, txt_data, end);
+	}
+}
 
 
 
@@ -1511,7 +1519,7 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 		bufputc(text, '\n');
 
 	/* second pass: actual rendering */
-	parse_block(ob, &rndr, text->data, text->size);
+	parse_block(ob, &rndr, text->data, text->size, 0 /* initial depth */);
 
 	/* clean-up */
 	bufrelease(text);
