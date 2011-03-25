@@ -21,9 +21,41 @@
 #include <stdlib.h>
 
 
+static int is_safe_link(const char *link, size_t link_len)
+{
+	static const size_t valid_uris_count = 4;
+	static const char *valid_uris[] = {
+		"http:", "https:", "ftp:", "mailto:"
+	};
+
+	size_t i;
+
+	for (i = 0; i < valid_uris_count; ++i) {
+		size_t len = strlen(valid_uris[i]);
+
+		if (link_len > len && memcmp(link, valid_uris[i], len) == 0)
+			return 1;
+	}
+
+	return 0;
+}
+
+static int
+put_scaped_char(struct buf *ob, char c)
+{
+	switch (c) {
+		case '<': BUFPUTSL(ob, "&lt;"); return 1;
+		case '>': BUFPUTSL(ob, "&gt;"); return 1;
+		case '&': BUFPUTSL(ob, "&amp;"); return 1;
+		case '"': BUFPUTSL(ob, "&quot;"); return 1;
+		default: return 0;
+	}
+}
+
+
 /* lus_attr_escape • copy the buffer entity-escaping '<', '>', '&' and '"' */
-void
-lus_attr_escape(struct buf *ob, char *src, size_t size) {
+static void
+lus_attr_escape(struct buf *ob, const char *src, size_t size) {
 	size_t  i = 0, org;
 	while (i < size) {
 		/* copying directly unescaped characters */
@@ -35,14 +67,13 @@ lus_attr_escape(struct buf *ob, char *src, size_t size) {
 
 		/* escaping */
 		if (i >= size) break;
-		else if (src[i] == '<') BUFPUTSL(ob, "&lt;");
-		else if (src[i] == '>') BUFPUTSL(ob, "&gt;");
-		else if (src[i] == '&') BUFPUTSL(ob, "&amp;");
-		else if (src[i] == '"') BUFPUTSL(ob, "&quot;");
-		i += 1; }
+
+		put_scaped_char(ob, src[i]);
+		i++;
+	}
 }
 
-int
+static int
 is_html_tag(struct buf *tag, const char *tagname)
 {
 	size_t i;
@@ -62,18 +93,31 @@ is_html_tag(struct buf *tag, const char *tagname)
  * GENERIC RENDERER *
  ********************/
 
-static int
-rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type,
-						void *opaque) {
-	if (!link || !link->size) return 0;
+static void
+rndr_autolink2(struct buf *ob, const char *link, size_t link_size, enum mkd_autolink type)
+{
 	BUFPUTSL(ob, "<a href=\"");
 	if (type == MKDA_IMPLICIT_EMAIL) BUFPUTSL(ob, "mailto:");
-	lus_attr_escape(ob, link->data, link->size);
+	lus_attr_escape(ob, link, link_size);
 	BUFPUTSL(ob, "\">");
-	if (type == MKDA_EXPLICIT_EMAIL && link->size > 7)
-		lus_attr_escape(ob, link->data + 7, link->size - 7);
-	else	lus_attr_escape(ob, link->data, link->size);
+	if (type == MKDA_EXPLICIT_EMAIL && link_size > 7)
+		lus_attr_escape(ob, link + 7, link_size - 7);
+	else	lus_attr_escape(ob, link, link_size);
 	BUFPUTSL(ob, "</a>");
+}
+
+static int
+rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *opaque)
+{
+	unsigned int flags = *(unsigned int *)opaque;
+
+	if (!link || !link->size)
+		return 0;
+
+	if ((flags & RENDER_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
+		return 0;
+
+	rndr_autolink2(ob, link->data, link->size, type);
 	return 1;
 }
 
@@ -127,8 +171,13 @@ rndr_header(struct buf *ob, struct buf *text, int level, void *opaque) {
 }
 
 static int
-rndr_link(struct buf *ob, struct buf *link, struct buf *title,
-			struct buf *content, void *opaque) {
+rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, void *opaque)
+{
+	unsigned int flags = *(unsigned int *)opaque;
+
+	if ((flags & RENDER_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
+		return 0;
+
 	BUFPUTSL(ob, "<a href=\"");
 	if (link && link->size) lus_attr_escape(ob, link->data, link->size);
 	if (title && title->size) {
@@ -262,8 +311,8 @@ rndr_raw_html(struct buf *ob, struct buf *text, void *opaque) {
 
 static struct {
     char c0;
-    char *pattern;
-    char *entity;
+    const char *pattern;
+    const char *entity;
     int skip;
 } smartypants_subs[] = {
     { '\'', "'s>",      "&rsquo;",  0 },
@@ -288,8 +337,8 @@ static struct {
     { '&',  "&#0;",      0,       3 },
 };
 
-static char *smartypants_squotes[] = {"&lsquo;", "&rsquo;"};
-static char *smartypants_dquotes[] = {"&ldquo;", "&rdquo;"};
+static const char *smartypants_squotes[] = {"&lsquo;", "&rsquo;"};
+static const char *smartypants_dquotes[] = {"&ldquo;", "&rdquo;"};
 
 #define SUBS_COUNT (sizeof(smartypants_subs) / sizeof(smartypants_subs[0]))
 
@@ -333,59 +382,74 @@ smartypants_cmpsub(const struct buf *buf, size_t start, const char *prefix)
 /* Smarty-pants-style chrome for quotes, -, ellipses, and (r)(c)(tm)
  */
 static void
-smartypants(struct buf *ob, struct buf *text)
+smartypants_and_autolink(struct buf *ob, struct buf *text, unsigned int flags)
 {
 	size_t i;
 	int open_single = 0, open_double = 0;
+
+	int autolink = (flags & RENDER_AUTOLINK);
+	int smartypants = (flags & RENDER_SMARTYPANTS);
 
 	for (i = 0; i < text->size; ++i) {
 		size_t sub;
 		char c = text->data[i];
 
-		for (sub = 0; sub < SUBS_COUNT; ++sub) {
-			if (c == smartypants_subs[sub].c0 &&
-				smartypants_cmpsub(text, i, smartypants_subs[sub].pattern)) {
+		if (autolink && is_safe_link(text->data + i, text->size - i)) {
+			size_t j = i;
 
-				if (smartypants_subs[sub].entity)
-					bufputs(ob, smartypants_subs[sub].entity);
+			while (j < text->size && !isspace(text->data[j])) j++;
 
-				i += smartypants_subs[sub].skip;
-				break;
+			rndr_autolink2(ob, &text->data[i], j - i, MKDA_NORMAL);
+			i = j;
+			continue;
+		}
+
+		if (smartypants) {
+			for (sub = 0; sub < SUBS_COUNT; ++sub) {
+				if (c == smartypants_subs[sub].c0 &&
+					smartypants_cmpsub(text, i, smartypants_subs[sub].pattern)) {
+
+					if (smartypants_subs[sub].entity)
+						bufputs(ob, smartypants_subs[sub].entity);
+
+					i += smartypants_subs[sub].skip;
+					break;
+				}
+			}
+
+			if (sub < SUBS_COUNT)
+				continue;
+
+			switch (c) {
+			case '\"':
+				bufputs(ob, smartypants_dquotes[open_double]);
+				open_double = !open_double;
+				continue;
+
+			case '\'':
+				bufputs(ob, smartypants_squotes[open_single]);
+				open_single = !open_single;
+				continue;
+
+				/* TODO: advanced quotes like `` and '' */
 			}
 		}
 
-		if (sub < SUBS_COUNT)
-			continue;
-
-		switch (c) {
-		case '\"':
-			bufputs(ob, smartypants_dquotes[open_double]);
-			open_double = !open_double;
-			continue;
-
-		case '\'':
-			bufputs(ob, smartypants_squotes[open_single]);
-			open_single = !open_single;
-			continue;
-
-			/* TODO: advanced quotes like `` and '' */
-		}
-
-		bufputc(ob, text->data[i]);
+		if (!put_scaped_char(ob, c))
+			bufputc(ob, c);
 	}
-
-} /* smartypants */
-
+}
 
 static void
 rndr_normal_text(struct buf *ob, struct buf *text, void *opaque) {
+
 	unsigned int flags = *(unsigned int *)opaque;
 
 	if (!text)
 		return;
 
-	if (flags & RENDER_SMARTYPANTS)
-		smartypants(ob, text);
+	if (flags & RENDER_SMARTYPANTS || flags & RENDER_AUTOLINK)
+		smartypants_and_autolink(ob, text, flags);
 	else 
 		lus_attr_escape(ob, text->data, text->size);
 }

@@ -52,10 +52,10 @@ class Redcarpet
   attr_accessor :strict #TODO 
 
   # Convert URL in links, even if they aren't encased in <tt><></tt>
-  attr_accessor :autolink # TODO
+  attr_accessor :autolink
 
   # Don't make hyperlinks from <tt>[][]</tt> links that have unknown URL types.
-  attr_accessor :safelink # TODO
+  attr_accessor :safelink
 
   def initialize(text, *extensions)
     @text  = text

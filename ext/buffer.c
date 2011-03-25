@@ -115,6 +115,8 @@ bufprefix(const struct buf *buf, const char *prefix)
 		if (buf->data[i] != prefix[i])
 			return buf->data[i] - prefix[i];
 	}
+
+	return 0;
 }
 
 
@@ -295,14 +297,22 @@ vbufprintf(struct buf *buf, const char *fmt, va_list ap) {
 	if (buf == 0
 	|| (buf->size >= buf->asize && !bufgrow (buf, buf->size + 1)))
 		return;
+
 	va_copy(ap_save, ap);
 	n = vsnprintf(buf->data + buf->size, buf->asize - buf->size, fmt, ap);
-	if (n >= buf->asize - buf->size) {
-		if (!bufgrow (buf, buf->size + n + 1)) return;
-		n = vsnprintf (buf->data + buf->size,
-				buf->asize - buf->size, fmt, ap_save); }
+
+	if (n < 0 || (size_t)n >= buf->asize - buf->size) {
+		if (!bufgrow (buf, buf->size + n + 1))
+			return;
+
+		n = vsnprintf (buf->data + buf->size, buf->asize - buf->size, fmt, ap_save);
+	}
 	va_end(ap_save);
-	if (n < 0) return;
-	buf->size += n; }
+
+	if (n < 0)
+		return;
+
+	buf->size += n;
+}
 
 /* vim: set filetype=c: */

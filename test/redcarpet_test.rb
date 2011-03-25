@@ -69,7 +69,7 @@ class RedcarpetTest < Test::Unit::TestCase
   end
 
   def test_that_autolink_flag_works
-    rd = Redcarpet.new("Check this out at http://github.com/rtomayko/rdiscount and don't forget to ", :autolink)
+    rd = Redcarpet.new("http://github.com/rtomayko/rdiscount", :autolink)
     assert_equal "<p><a href=\"http://github.com/rtomayko/rdiscount\">http://github.com/rtomayko/rdiscount</a></p>\n", rd.to_html
   end
 

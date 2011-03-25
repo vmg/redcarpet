@@ -56,13 +56,15 @@ struct render {
 	struct mkd_renderer	make;
 	struct array		refs;
 	char_trigger		active_char[256];
-	struct parray		work; };
+	struct parray		work;
+};
 
 
 /* html_tag • structure for quick HTML tag search (inspired from discount) */
 struct html_tag {
-	char *	text;
-	int	size; };
+	const char *text;
+	size_t size;
+};
 
 
 
@@ -124,7 +126,7 @@ static int
 cmp_html_tag(const void *a, const void *b) {
 	const struct html_tag *hta = a;
 	const struct html_tag *htb = b;
-	if (hta->size != htb->size) return hta->size - htb->size;
+	if (hta->size != htb->size) return (int)((ssize_t)hta->size - (ssize_t)htb->size);
 	return strncasecmp(hta->text, htb->text, hta->size); }
 
 
@@ -187,16 +189,21 @@ tag_length(char *data, size_t size, enum mkd_autolink *autolink) {
 
 	/* scheme test */
 	*autolink = MKDA_NOT_AUTOLINK;
-	if (size > 6 && strncasecmp(data + 1, "http", 4) == 0 && (data[5] == ':'
-	|| ((data[5] == 's' || data[5] == 'S') && data[6] == ':'))) {
-		i = data[5] == ':' ? 6 : 7;
-		*autolink = MKDA_NORMAL; }
-	else if (size > 5 && strncasecmp(data + 1, "ftp:", 4) == 0) {
-		i = 5;
-		*autolink = MKDA_NORMAL; }
-	else if (size > 7 && strncasecmp(data + 1, "mailto:", 7) == 0) {
-		i = 8;
-		/* not changing *autolink to go to the address test */ }
+
+	/* try to find the beggining of an URI */
+	while (i < size && (isalpha(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-'))
+		i++;
+
+	if (i > 2 && data[i] == ':') {
+		*autolink = MKDA_NORMAL;
+		i++;
+	}
+
+	/* 
+	 * FIXME: check for double slashes after the URI id?
+	 * There are some protocols that don't have them, e.g.
+	 *	news:resource
+	 */
 
 	/* completing autolink test: no whitespace or ' or " */
 	if (i >= size || i == '>')
@@ -747,8 +754,9 @@ char_link(struct buf *ob, struct render *rndr,
 	else ret = rndr->make.link(ob, link, title, content, rndr->make.opaque);
 
 	/* cleanup */
-	rndr->work.size = org_work_size;
-	return ret ? i : 0; }
+	rndr->work.size = (int)org_work_size;
+	return ret ? i : 0;
+}
 
 
 
@@ -1152,7 +1160,7 @@ parse_list(struct buf *ob, struct render *rndr,
 static size_t
 parse_atxheader(struct buf *ob, struct render *rndr,
 			char *data, size_t size) {
-	int level = 0;
+	size_t level = 0;
 	size_t i, end, skip;
 	struct buf work = { data, 0, 0, 0, 0 };
 
@@ -1167,8 +1175,9 @@ parse_atxheader(struct buf *ob, struct render *rndr,
 	while (end && (data[end - 1] == ' ' || data[end - 1] == '\t')) end -= 1;
 	work.size = end - i;
 	if (rndr->make.header)
-		rndr->make.header(ob, &work, level, rndr->make.opaque);
-	return skip; }
+		rndr->make.header(ob, &work, (int)level, rndr->make.opaque);
+	return skip;
+}
 
 
 /* htmlblock_end • checking end of HTML block : </tag>[ \t]*\n[ \t*]\n */
@@ -1507,13 +1516,13 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 	/* clean-up */
 	bufrelease(text);
 	lr = rndr.refs.base;
-	for (i = 0; i < rndr.refs.size; i += 1) {
+	for (i = 0; i < (size_t)rndr.refs.size; i += 1) {
 		bufrelease(lr[i].id);
 		bufrelease(lr[i].link);
 		bufrelease(lr[i].title); }
 	arr_free(&rndr.refs);
 	assert(rndr.work.size == 0);
-	for (i = 0; i < rndr.work.asize; i += 1)
+	for (i = 0; i < (size_t)rndr.work.asize; i += 1)
 		bufrelease(rndr.work.item[i]);
 	parr_free(&rndr.work); }
 
