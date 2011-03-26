@@ -1481,6 +1481,32 @@ is_ref(char *data, size_t beg, size_t end, size_t *last, struct array *refs) {
 /**********************
  * EXPORTED FUNCTIONS *
  **********************/
+static void expand_tabs(struct buf *ob, const char *line, size_t size)
+{
+	size_t  i = 0, tab = 0;
+
+	while (i < size) {
+		size_t org = i;
+
+		while (i < size && line[i] != '\t') {
+			i++; tab++;
+		}
+
+		if (i > org)
+			bufput(ob, line + org, i - org);
+
+		if (i >= size)
+			break;
+
+		bufputc(ob, ' '); tab++;
+
+		while ((tab % 4) != 0) {
+			bufputc(ob, ' '); tab++;
+		}
+
+		i++;
+	}
+}
 
 /* markdown • parses the input buffer and renders it into the output buffer */
 void
@@ -1517,20 +1543,22 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 			beg = end;
 		else { /* skipping to the next line */
 			end = beg;
-			while (end < ib->size
-			&& ib->data[end] != '\n' && ib->data[end] != '\r')
+			while (end < ib->size && ib->data[end] != '\n' && ib->data[end] != '\r')
 				end += 1;
+
 			/* adding the line body if present */
-			if (end > beg) bufput(text, ib->data + beg, end - beg);
-			while (end < ib->size
-			&& (ib->data[end] == '\n' || ib->data[end] == '\r')) {
+			if (end > beg)
+				expand_tabs(text, ib->data + beg, end - beg);
+
+			while (end < ib->size && (ib->data[end] == '\n' || ib->data[end] == '\r')) {
 				/* add one \n per newline */
-				if (ib->data[end] == '\n'
-				|| (end + 1 < ib->size
-						&& ib->data[end + 1] != '\n'))
+				if (ib->data[end] == '\n' || (end + 1 < ib->size && ib->data[end + 1] != '\n'))
 					bufputc(text, '\n');
-				end += 1; }
-			beg = end; }
+				end += 1;
+			}
+
+			beg = end;
+		}
 
 	/* sorting the reference array */
 	if (rndr.refs.size)
