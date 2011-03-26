@@ -107,14 +107,12 @@ rndr_autolink2(struct buf *ob, const char *link, size_t link_size, enum mkd_auto
 }
 
 static int
-rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *opaque)
+rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, struct mkd_renderopt *options)
 {
-	unsigned int flags = *(unsigned int *)opaque;
-
 	if (!link || !link->size)
 		return 0;
 
-	if ((flags & RENDER_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
+	if ((options->flags & RENDER_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
 		return 0;
 
 	rndr_autolink2(ob, link->data, link->size, type);
@@ -122,7 +120,7 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 }
 
 static void
-rndr_blockcode(struct buf *ob, struct buf *text, void *opaque) {
+rndr_blockcode(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "<pre><code>");
 	if (text) lus_attr_escape(ob, text->data, text->size);
@@ -130,14 +128,14 @@ rndr_blockcode(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static void
-rndr_blockquote(struct buf *ob, struct buf *text, void *opaque) {
+rndr_blockquote(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
 	BUFPUTSL(ob, "<blockquote>\n");
 	if (text) bufput(ob, text->data, text->size);
 	BUFPUTSL(ob, "</blockquote>");
 }
 
 static int
-rndr_codespan(struct buf *ob, struct buf *text, void *opaque) {
+rndr_codespan(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
 	BUFPUTSL(ob, "<code>");
 	if (text) lus_attr_escape(ob, text->data, text->size);
 	BUFPUTSL(ob, "</code>");
@@ -145,7 +143,7 @@ rndr_codespan(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static int
-rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
+rndr_double_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options) {
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<strong>");
 	bufput(ob, text->data, text->size);
@@ -154,7 +152,7 @@ rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
 }
 
 static int
-rndr_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
+rndr_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options) {
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<em>");
 	if (text) bufput(ob, text->data, text->size);
@@ -163,7 +161,7 @@ rndr_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
 }
 
 static void
-rndr_header(struct buf *ob, struct buf *text, int level, void *opaque) {
+rndr_header(struct buf *ob, struct buf *text, int level, struct mkd_renderopt *options) {
 	if (ob->size) bufputc(ob, '\n');
 	bufprintf(ob, "<h%d>", level);
 	if (text) bufput(ob, text->data, text->size);
@@ -171,11 +169,9 @@ rndr_header(struct buf *ob, struct buf *text, int level, void *opaque) {
 }
 
 static int
-rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, void *opaque)
+rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, struct mkd_renderopt *options)
 {
-	unsigned int flags = *(unsigned int *)opaque;
-
-	if ((flags & RENDER_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
+	if ((options->flags & RENDER_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
 		return 0;
 
 	BUFPUTSL(ob, "<a href=\"");
@@ -190,7 +186,7 @@ rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *conte
 }
 
 static void
-rndr_list(struct buf *ob, struct buf *text, int flags, void *opaque) {
+rndr_list(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *options) {
 	if (ob->size) bufputc(ob, '\n');
 	bufput(ob, flags & MKD_LIST_ORDERED ? "<ol>\n" : "<ul>\n", 5);
 	if (text) bufput(ob, text->data, text->size);
@@ -198,7 +194,7 @@ rndr_list(struct buf *ob, struct buf *text, int flags, void *opaque) {
 }
 
 static void
-rndr_listitem(struct buf *ob, struct buf *text, int flags, void *opaque) {
+rndr_listitem(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *options) {
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "<li>\n");
 	if (text) {
@@ -209,7 +205,7 @@ rndr_listitem(struct buf *ob, struct buf *text, int flags, void *opaque) {
 }
 
 static void
-rndr_paragraph(struct buf *ob, struct buf *text, void *opaque) {
+rndr_paragraph(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
 	size_t i = 0;
 
 	if (ob->size) bufputc(ob, '\n');
@@ -227,7 +223,7 @@ rndr_paragraph(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static void
-rndr_raw_block(struct buf *ob, struct buf *text, void *opaque) {
+rndr_raw_block(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
 	size_t org, sz;
 	if (!text) return;
 	sz = text->size;
@@ -241,7 +237,7 @@ rndr_raw_block(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static int
-rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
+rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options) {
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<strong><em>");
 	bufput(ob, text->data, text->size);
@@ -255,14 +251,13 @@ rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
  **********************/
 
 static void
-rndr_hrule(struct buf *ob, void *opaque) {
+rndr_hrule(struct buf *ob, struct mkd_renderopt *options) {
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "<hr />\n");
 }
 
 static int
-rndr_image(struct buf *ob, struct buf *link, struct buf *title,
-			struct buf *alt, void *opaque) {
+rndr_image(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, struct mkd_renderopt *options) {
 	if (!link || !link->size) return 0;
 	BUFPUTSL(ob, "<img src=\"");
 	lus_attr_escape(ob, link->data, link->size);
@@ -277,26 +272,25 @@ rndr_image(struct buf *ob, struct buf *link, struct buf *title,
 }
 
 static int
-rndr_linebreak(struct buf *ob, void *opaque) {
+rndr_linebreak(struct buf *ob, struct mkd_renderopt *options) {
 	BUFPUTSL(ob, "<br />\n");
 	return 1;
 }
 
 static int
-rndr_raw_html(struct buf *ob, struct buf *text, void *opaque) {
-	unsigned int flags = *(unsigned int *)opaque;
+rndr_raw_html(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
 	int escape_html = 0;
 
-	if (flags & RENDER_SKIP_HTML)
+	if (options->flags & RENDER_SKIP_HTML)
 		escape_html = 1;
 
-	else if ((flags & RENDER_SKIP_STYLE) != 0 && is_html_tag(text, "<style>"))
+	else if ((options->flags & RENDER_SKIP_STYLE) != 0 && is_html_tag(text, "<style>"))
 		escape_html = 1;
 
-	else if ((flags & RENDER_SKIP_LINKS) != 0 && is_html_tag(text, "<a>"))
+	else if ((options->flags & RENDER_SKIP_LINKS) != 0 && is_html_tag(text, "<a>"))
 		escape_html = 1;
 
-	else if ((flags & RENDER_SKIP_IMAGES) != 0 && is_html_tag(text, "<img>"))
+	else if ((options->flags & RENDER_SKIP_IMAGES) != 0 && is_html_tag(text, "<img>"))
 		escape_html = 1;
 
 
@@ -441,20 +435,21 @@ smartypants_and_autolink(struct buf *ob, struct buf *text, unsigned int flags)
 }
 
 static void
-rndr_normal_text(struct buf *ob, struct buf *text, void *opaque) {
-
-	unsigned int flags = *(unsigned int *)opaque;
-
+rndr_normal_text(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
+{
 	if (!text)
 		return;
 
-	if (flags & RENDER_SMARTYPANTS || flags & RENDER_AUTOLINK)
-		smartypants_and_autolink(ob, text, flags);
+	if (options->flags & RENDER_SMARTYPANTS || options->flags & RENDER_AUTOLINK)
+		smartypants_and_autolink(ob, text, options->flags);
 	else 
 		lus_attr_escape(ob, text->data, text->size);
 }
 
-void init_renderer(struct mkd_renderer *renderer, unsigned int flags, int recursion_depth)
+void
+init_renderer(struct mkd_renderer *renderer,
+		unsigned int render_flags, void *opaque,
+		unsigned int parser_flags, int recursion_depth)
 {
 	static const struct mkd_renderer renderer_default = {
 		rndr_blockcode,
@@ -480,24 +475,25 @@ void init_renderer(struct mkd_renderer *renderer, unsigned int flags, int recurs
 		rndr_normal_text,
 
 		"*_",
-		NULL 
+
+		{ NULL, 0 },
+		{ 0, 0 },
 	};
 
 	memcpy(renderer, &renderer_default, sizeof(struct mkd_renderer));
 
-	renderer->opaque = malloc(sizeof(unsigned int));
-	memcpy(renderer->opaque, &flags, sizeof(unsigned int));
-
-	if (flags & RENDER_SKIP_IMAGES)
+	if (render_flags & RENDER_SKIP_IMAGES)
 		renderer->image = NULL;
 
-	if (flags & RENDER_SKIP_LINKS) {
+	if (render_flags & RENDER_SKIP_LINKS) {
 		renderer->link = NULL;
 		renderer->autolink = NULL;
 	}
 
-	renderer->recursion_depth = recursion_depth;
-	if (renderer->recursion_depth < 8)
-		renderer->recursion_depth = 8;
+	renderer->parser_options.recursion_depth = recursion_depth;
+	renderer->parser_options.flags = parser_flags;
+
+	renderer->render_options.opaque = opaque;
+	renderer->render_options.flags = render_flags;
 }
 

@@ -89,9 +89,19 @@ class MarkdownTest < Test::Unit::TestCase
     html_equal "<p><a href=\"/search?query=Markdown+Test&amp;page=2\">Page 2</a></p>\n", markdown.to_html
   end
 
+  # FIXME:
+  # The markdown standard requires a blank newline after a HTML tag,
+  #     </tag>[ \t]*\n[ \t*]\n
+  #
+  # This test shouldn't pass unless there's a blank newline before the `after`
+  # word in the original Markdown.
+  #
+  # You can change this behavior by #undef'ing UPSKIRT_NEWLINE_AFTER_TAGS
+  # before compiling the library
   def test_simple_inline_html
-    markdown = Markdown.new("before\n\n<div>\n  foo\n</div>\nafter")
-    html_equal "<p>before</p>\n\n<div>\n  foo\n</div>\n\n\n<p>after</p>\n",
+    #markdown = Markdown.new("before\n\n<div>\n  foo\n</div>\nafter")
+    markdown = Markdown.new("before\n\n<div>\n  foo\n</div>\n\nafter")
+    html_equal "<p>before</p>\n\n<div>\n  foo\n</div>\n\n<p>after</p>\n",
       markdown.to_html
   end
 

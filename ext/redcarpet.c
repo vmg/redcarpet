@@ -7,37 +7,44 @@ static VALUE rb_cRedcarpet;
 
 static void rb_redcarpet__setup_render(VALUE ruby_obj, struct mkd_renderer *rnd)
 {
-	unsigned int flags = RENDER_EXPAND_TABS;
+	unsigned int render_flags = RENDER_EXPAND_TABS;
+	unsigned int parser_flags = 0;
 
 	/* smart */
 	if (rb_funcall(ruby_obj, rb_intern("smart"), 0) == Qtrue)
-		flags |= RENDER_SMARTYPANTS;
+		render_flags |= RENDER_SMARTYPANTS;
 
 	/* filter_html */
 	if (rb_funcall(ruby_obj, rb_intern("filter_html"), 0) == Qtrue)
-		flags |= RENDER_SKIP_HTML;
+		render_flags |= RENDER_SKIP_HTML;
 
 	/* no_image */
 	if (rb_funcall(ruby_obj, rb_intern("no_image"), 0) == Qtrue)
-		flags |= RENDER_SKIP_IMAGES;
+		render_flags |= RENDER_SKIP_IMAGES;
 
 	/* no_links */
 	if (rb_funcall(ruby_obj, rb_intern("no_links"), 0) == Qtrue)
-		flags |= RENDER_SKIP_LINKS;
+		render_flags |= RENDER_SKIP_LINKS;
 
 	/* filter_style */
 	if (rb_funcall(ruby_obj, rb_intern("filter_styles"), 0) == Qtrue)
-		flags |= RENDER_SKIP_STYLE;
+		render_flags |= RENDER_SKIP_STYLE;
 
 	/* autolink */
 	if (rb_funcall(ruby_obj, rb_intern("autolink"), 0) == Qtrue)
-		flags |= RENDER_AUTOLINK;
+		render_flags |= RENDER_AUTOLINK;
 
 	/* safelink */
 	if (rb_funcall(ruby_obj, rb_intern("safelink"), 0) == Qtrue)
-		flags |= RENDER_SAFELINK;
+		render_flags |= RENDER_SAFELINK;
 
-	init_renderer(rnd, flags, 16);
+
+	/* parser - strict */
+	if (rb_funcall(ruby_obj, rb_intern("strict"), 0) == Qtrue)
+		parser_flags |= PARSER_STRICT;
+
+
+	init_renderer(rnd, render_flags, NULL, parser_flags, 16);
 }
 
 static VALUE rb_redcarpet_to_html(int argc, VALUE *argv, VALUE self)

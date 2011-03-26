@@ -243,7 +243,8 @@ parse_inline(struct buf *ob, struct render *rndr, char *data, size_t size) {
 		if (rndr->make.normal_text) {
 			work.data = data + i;
 			work.size = end - i;
-			rndr->make.normal_text(ob, &work, rndr->make.opaque); }
+			rndr->make.normal_text(ob, &work, &rndr->make.render_options);
+		}
 		else
 			bufput(ob, data + i, end - i);
 		if (end >= size) break;
@@ -330,20 +331,33 @@ parse_emph1(struct buf *ob, struct render *rndr,
 
 		if (i + 1 < size && data[i + 1] == c) {
 			i += 1;
-			continue; }
-		if (data[i] == c && data[i - 1] != ' '
-		&& data[i - 1] != '\t' && data[i - 1] != '\n') {
+			continue;
+		}
+
+		if (data[i] == c && !isspace(data[i - 1])) {
+
+			if ((rndr->make.parser_options.flags & PARSER_STRICT) == 0) {
+				if (!(i + 1 == size || isspace(data[i + 1]) || ispunct(data[i + 1])))
+					continue;
+			}
+
 			if (rndr->work.size < rndr->work.asize) {
 				work = rndr->work.item[rndr->work.size ++];
-				work->size = 0; }
-			else {
+				work->size = 0;
+			} else {
 				work = bufnew(WORK_UNIT);
-				parr_push(&rndr->work, work); }
+				parr_push(&rndr->work, work);
+			}
+
 			parse_inline(work, rndr, data, i);
-			r = rndr->make.emphasis(ob, work, c, rndr->make.opaque);
+			r = rndr->make.emphasis(ob, work, c, &rndr->make.render_options);
 			rndr->work.size -= 1;
-			return r ? i + 1 : 0; } }
-	return 0; }
+			return r ? i + 1 : 0;
+		}
+	}
+
+	return 0;
+}
 
 
 /* parse_emph2 • parsing single emphase */
@@ -371,7 +385,7 @@ parse_emph2(struct buf *ob, struct render *rndr,
 				parr_push(&rndr->work, work); }
 			parse_inline(work, rndr, data, i);
 			r = rndr->make.double_emphasis(ob, work, c,
-				rndr->make.opaque);
+				&rndr->make.render_options);
 			rndr->work.size -= 1;
 			return r ? i + 2 : 0; }
 		i += 1; }
@@ -408,7 +422,7 @@ parse_emph3(struct buf *ob, struct render *rndr,
 				parr_push(&rndr->work, work); }
 			parse_inline(work, rndr, data, i);
 			r = rndr->make.triple_emphasis(ob, work, c,
-							rndr->make.opaque);
+							&rndr->make.render_options);
 			rndr->work.size -= 1;
 			return r ? i + 3 : 0; }
 		else if (i + 1 < size && data[i + 1] == c) {
@@ -460,7 +474,7 @@ char_linebreak(struct buf *ob, struct render *rndr, char *data, size_t offset, s
 	while (ob->size && ob->data[ob->size - 1] == ' ')
 		ob->size--;
 
-	return rndr->make.linebreak(ob, rndr->make.opaque) ? 1 : 0;
+	return rndr->make.linebreak(ob, &rndr->make.render_options) ? 1 : 0;
 }
 
 
@@ -491,10 +505,10 @@ char_codespan(struct buf *ob, struct render *rndr,
 	/* real code span */
 	if (f_begin < f_end) {
 		struct buf work = { data + f_begin, f_end - f_begin, 0, 0, 0 };
-		if (!rndr->make.codespan(ob, &work, rndr->make.opaque))
+		if (!rndr->make.codespan(ob, &work, &rndr->make.render_options))
 			end = 0; }
 	else {
-		if (!rndr->make.codespan(ob, 0, rndr->make.opaque))
+		if (!rndr->make.codespan(ob, 0, &rndr->make.render_options))
 			end = 0; }
 	return end; }
 
@@ -508,7 +522,7 @@ char_escape(struct buf *ob, struct render *rndr,
 		if (rndr->make.normal_text) {
 			work.data = data + 1;
 			work.size = 1;
-			rndr->make.normal_text(ob, &work, rndr->make.opaque); }
+			rndr->make.normal_text(ob, &work, &rndr->make.render_options); }
 		else bufputc(ob, data[1]); }
 	return 2; }
 
@@ -535,7 +549,7 @@ char_entity(struct buf *ob, struct render *rndr,
 	if (rndr->make.entity) {
 		work.data = data;
 		work.size = end;
-		rndr->make.entity(ob, &work, rndr->make.opaque); }
+		rndr->make.entity(ob, &work, &rndr->make.render_options); }
 	else bufput(ob, data, end);
 	return end; }
 
@@ -553,10 +567,10 @@ char_langle_tag(struct buf *ob, struct render *rndr,
 			work.data = data + 1;
 			work.size = end - 2;
 			ret = rndr->make.autolink(ob, &work, altype,
-							rndr->make.opaque); }
+							&rndr->make.render_options); }
 		else if (rndr->make.raw_html_tag)
 			ret = rndr->make.raw_html_tag(ob, &work,
-							rndr->make.opaque); }
+							&rndr->make.render_options); }
 	if (!ret) return 0;
 	else return end; }
 
@@ -754,8 +768,8 @@ char_link(struct buf *ob, struct render *rndr,
 	if (is_img) {
 		if (ob->size && ob->data[ob->size - 1] == '!') ob->size -= 1;
 		ret = rndr->make.image(ob, link, title, content,
-							rndr->make.opaque); }
-	else ret = rndr->make.link(ob, link, title, content, rndr->make.opaque);
+							&rndr->make.render_options); }
+	else ret = rndr->make.link(ob, link, title, content, &rndr->make.render_options);
 
 	/* cleanup */
 	rndr->work.size = (int)org_work_size;
@@ -917,7 +931,7 @@ parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size, i
 
 	parse_block(out, rndr, work_data, work_size, depth + 1);
 	if (rndr->make.blockquote)
-		rndr->make.blockquote(ob, out, rndr->make.opaque);
+		rndr->make.blockquote(ob, out, &rndr->make.render_options);
 	rndr->work.size -= 1;
 	return end;
 }
@@ -956,7 +970,7 @@ parse_paragraph(struct buf *ob, struct render *rndr,
 			parr_push(&rndr->work, tmp); }
 		parse_inline(tmp, rndr, work.data, work.size);
 		if (rndr->make.paragraph)
-			rndr->make.paragraph(ob, tmp, rndr->make.opaque);
+			rndr->make.paragraph(ob, tmp, &rndr->make.render_options);
 		rndr->work.size -= 1; }
 	else {
 		if (work.size) {
@@ -979,13 +993,13 @@ parse_paragraph(struct buf *ob, struct render *rndr,
 				parse_inline(tmp, rndr, work.data, work.size);
 				if (rndr->make.paragraph)
 					rndr->make.paragraph(ob, tmp,
-							rndr->make.opaque);
+							&rndr->make.render_options);
 				rndr->work.size -= 1;
 				work.data += beg;
 				work.size = i - beg; }
 			else work.size = i; }
 		if (rndr->make.header)
-			rndr->make.header(ob, &work, level,rndr->make.opaque);}
+			rndr->make.header(ob, &work, level, &rndr->make.render_options);}
 	return end; }
 
 
@@ -1024,7 +1038,7 @@ parse_blockcode(struct buf *ob, struct render *rndr,
 		work->size -= 1;
 	bufputc(work, '\n');
 	if (rndr->make.blockcode)
-		rndr->make.blockcode(ob, work, rndr->make.opaque);
+		rndr->make.blockcode(ob, work, &rndr->make.render_options);
 	rndr->work.size -= 1;
 	return beg; }
 
@@ -1130,7 +1144,7 @@ parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int
 
 	/* render of li itself */
 	if (rndr->make.listitem)
-		rndr->make.listitem(ob, inter, *flags, rndr->make.opaque);
+		rndr->make.listitem(ob, inter, *flags, &rndr->make.render_options);
 	rndr->work.size -= 2;
 	return beg;
 }
@@ -1158,7 +1172,7 @@ parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int fla
 	}
 
 	if (rndr->make.list)
-		rndr->make.list(ob, work, flags, rndr->make.opaque);
+		rndr->make.list(ob, work, flags, &rndr->make.render_options);
 	rndr->work.size -= 1;
 	return i;
 }
@@ -1182,7 +1196,7 @@ parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size) {
 	while (end && (data[end - 1] == ' ' || data[end - 1] == '\t')) end -= 1;
 	work.size = end - i;
 	if (rndr->make.header)
-		rndr->make.header(ob, &work, (int)level, rndr->make.opaque);
+		rndr->make.header(ob, &work, (int)level, &rndr->make.render_options);
 	return skip;
 }
 
@@ -1208,9 +1222,18 @@ htmlblock_end(struct html_tag *tag, char *data, size_t size) {
 		return 0; /* non-blank after tag */
 	i += w;
 	w = 0;
+
+		 
+#ifdef UPSKIRT_NEWLINE_AFTER_TAGS
 	if (i < size && (w = is_empty(data + i, size - i)) == 0)
 		return 0; /* non-blank line after tag line */
-	return i + w; }
+#else
+	if (i < size)
+		w = is_empty(data + i, size - i);
+#endif
+
+	return i + w;
+}
 
 
 /* parse_htmlblock • parsing of inline HTML block */
@@ -1242,7 +1265,7 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size) {
 					work.size = i + j;
 					if (rndr->make.blockhtml)
 						rndr->make.blockhtml(ob, &work,
-							rndr->make.opaque);
+							&rndr->make.render_options);
 					return work.size; } }
 
 		/* HR, which is the only self-closing block tag considered */
@@ -1259,7 +1282,7 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size) {
 					work.size = i + j;
 					if (rndr->make.blockhtml)
 						rndr->make.blockhtml(ob, &work,
-							rndr->make.opaque);
+							&rndr->make.render_options);
 					return work.size; } } }
 
 		/* no special case recognised */
@@ -1304,7 +1327,7 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size) {
 	/* the end of the block has been found */
 	work.size = i;
 	if (rndr->make.blockhtml)
-		rndr->make.blockhtml(ob, &work, rndr->make.opaque);
+		rndr->make.blockhtml(ob, &work, &rndr->make.render_options);
 	return i; }
 
 
@@ -1315,7 +1338,7 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int de
 	char *txt_data;
 	beg = 0;
 
-	if (depth >= rndr->make.recursion_depth)
+	if (depth >= rndr->make.parser_options.recursion_depth)
 		return;
 
 	while (beg < size) {
@@ -1330,7 +1353,7 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int de
 			beg += i;
 		else if (is_hrule(txt_data, end)) {
 			if (rndr->make.hrule)
-				rndr->make.hrule(ob, rndr->make.opaque);
+				rndr->make.hrule(ob, &rndr->make.render_options);
 			while (beg < size && data[beg] != '\n') beg += 1;
 			beg += 1; }
 		else if (prefix_quote(txt_data, end))
