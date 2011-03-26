@@ -454,7 +454,7 @@ rndr_normal_text(struct buf *ob, struct buf *text, void *opaque) {
 		lus_attr_escape(ob, text->data, text->size);
 }
 
-void init_renderer(struct mkd_renderer *renderer, unsigned int flags)
+void init_renderer(struct mkd_renderer *renderer, unsigned int flags, int recursion_depth)
 {
 	static const struct mkd_renderer renderer_default = {
 		rndr_blockcode,
@@ -495,5 +495,9 @@ void init_renderer(struct mkd_renderer *renderer, unsigned int flags)
 		renderer->link = NULL;
 		renderer->autolink = NULL;
 	}
+
+	renderer->recursion_depth = recursion_depth;
+	if (renderer->recursion_depth < 8)
+		renderer->recursion_depth = 8;
 }
 

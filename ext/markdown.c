@@ -29,9 +29,6 @@
 
 #define MKD_LI_END 8	/* internal list flag */
 
-#define MAX_BLOCK_NESTING 16 /* no more than 16 nested blocks */
-
-
 /***************
  * LOCAL TYPES *
  ***************/
@@ -1313,7 +1310,7 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int de
 	char *txt_data;
 	beg = 0;
 
-	if (depth >= MAX_BLOCK_NESTING)
+	if (depth >= rndr->make.recursion_depth)
 		return;
 
 	while (beg < size) {

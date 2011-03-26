@@ -37,7 +37,7 @@ static void rb_redcarpet__setup_render(VALUE ruby_obj, struct mkd_renderer *rnd)
 	if (rb_funcall(ruby_obj, rb_intern("safelink"), 0) == Qtrue)
 		flags |= RENDER_SAFELINK;
 
-	init_renderer(rnd, flags);
+	init_renderer(rnd, flags, 16);
 }
 
 static VALUE rb_redcarpet_to_html(int argc, VALUE *argv, VALUE self)

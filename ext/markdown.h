@@ -71,6 +71,7 @@ struct mkd_renderer {
 	/* renderer data */
 	const char *emph_chars; /* chars that trigger emphasis rendering */
 	void *opaque; /* opaque data send to every rendering callback */
+	int recursion_depth;
 };
 
 
@@ -103,7 +104,7 @@ void
 markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr);
 
 void
-init_renderer(struct mkd_renderer *renderer, unsigned int flags);
+init_renderer(struct mkd_renderer *renderer, unsigned int flags, int recursion_depth);
 
 
 #endif /* ndef LITHIUM_MARKDOWN_H */
