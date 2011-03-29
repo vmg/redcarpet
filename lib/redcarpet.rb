@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '0.1.0'
+  VERSION = '1.0.0'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -49,7 +49,7 @@ class Redcarpet
   attr_accessor :no_links
 
   # Disable superscript and relaxed emphasis processing.
-  attr_accessor :strict #TODO 
+  attr_accessor :strict
 
   # Convert URL in links, even if they aren't encased in <tt><></tt>
   attr_accessor :autolink

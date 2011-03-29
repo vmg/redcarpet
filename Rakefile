@@ -93,6 +93,9 @@ task :install => package('.gem') do
   sh "gem install #{package('.gem')}"
 end
 
+desc 'Update the gemspec'
+task :update_gem => file('redcarpet.gemspec')
+
 directory 'pkg/'
 
 file package('.gem') => %w[pkg/ redcarpet.gemspec] + $spec.files do |f|

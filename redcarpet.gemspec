@@ -1,52 +1,34 @@
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '0.1.0'
+  s.version = '1.0.0'
   s.summary = "Ruby bindings for libupskirt"
-  s.date = '2011-03-25'
+  s.date = '2011-03-29'
   s.email = 'vicent@github.com'
-  s.homepage = 'http://github.com/tanoki/redcarpet'
+  s.homepage = 'http://github.com/tanoku/redcarpet'
   s.has_rdoc = true
   s.authors = ["Natacha Porté", "Vicent Martí"]
   # = MANIFEST =
   s.files = %w[
-    BUILDING
     COPYING
     README.markdown
     Rakefile
-    bin/rdiscount
-    discount
-    ext/Csio.c
-    ext/amalloc.h
-    ext/basename.c
-    ext/config.h
-    ext/css.c
-    ext/cstring.h
-    ext/docheader.c
-    ext/dumptree.c
-    ext/emmatch.c
+    bin/redcarpet
+    ext/array.c
+    ext/array.h
+    ext/buffer.c
+    ext/buffer.h
     ext/extconf.rb
-    ext/generate.c
-    ext/html5.c
     ext/markdown.c
     ext/markdown.h
-    ext/mkdio.c
-    ext/mkdio.h
-    ext/rdiscount.c
-    ext/resource.c
-    ext/tags.c
-    ext/tags.h
-    ext/toc.c
-    ext/xml.c
+    ext/redcarpet.c
+    ext/render.c
     lib/markdown.rb
-    lib/rdiscount.rb
-    man/markdown.7
-    man/rdiscount.1
-    man/rdiscount.1.ronn
-    rdiscount.gemspec
+    lib/redcarpet.rb
+    redcarpet.gemspec
     test/benchmark.rb
     test/benchmark.txt
     test/markdown_test.rb
-    test/rdiscount_test.rb
+    test/redcarpet_test.rb
   ]
   # = MANIFEST =
   s.test_files = ["test/markdown_test.rb", "test/redcarpet_test.rb"]
