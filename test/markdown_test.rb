@@ -128,6 +128,16 @@ class MarkdownTest < Test::Unit::TestCase
       markdown.to_html
   end
 
+  def test_para_before_block_html_should_not_wrap_in_p_tag
+    markdown = Redcarpet.new(
+      "Things to watch out for\n" +
+      "<ul>\n<li>Blah</li>\n</ul>\n"
+    )
+    assert_equal "<p>Things to watch out for</p>\n\n" +
+      "<ul>\n<li>Blah</li>\n</ul>\n",
+      markdown.to_html
+  end
+
  # FIXME: These two tests are not really on the standard
  # def test_ul_with_zero_space_indent
  #   markdown = Markdown.new("- foo\n\n- bar\n\n  baz\n")
