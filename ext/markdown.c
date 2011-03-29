@@ -936,6 +936,8 @@ parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size, i
 	return end;
 }
 
+static size_t
+parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, int do_render);
 
 /* parse_blockquote • hanldes parsing of a regular paragraph */
 static size_t
@@ -946,16 +948,29 @@ parse_paragraph(struct buf *ob, struct render *rndr,
 	struct buf work = { data, 0, 0, 0, 0 }; /* volatile working buffer */
 
 	while (i < size) {
-		for (end = i + 1; end < size && data[end - 1] != '\n';
-								end += 1);
-		if (is_empty(data + i, size - i)
-		|| (level = is_headerline(data + i, size - i)) != 0)
+		size_t html_size;
+
+		for (end = i + 1; end < size && data[end - 1] != '\n'; end++) /* empty */;
+
+		if (is_empty(data + i, size - i) || (level = is_headerline(data + i, size - i)) != 0)
 			break;
-		if (data[i] == '#'
-		|| is_hrule(data + i, size - i)) {
+
+		/* HTML blocks should not nest inside the paragraph, even if they
+		 * are not separated by a blank line; we run `parse_htmlblock` without
+		 * actually generating any output, to make sure that this is indeed
+		 * a HTML block */
+		if (data[i] == '<' && rndr->make.blockhtml && parse_htmlblock(ob, rndr, data + i, size - i, 0)) {
 			end = i;
-			break; }
-		i = end; }
+			break;
+		}
+
+		if (data[i] == '#' || is_hrule(data + i, size - i)) {
+			end = i;
+			break;
+		}
+
+		i = end;
+	}
 
 	work.size = i;
 	while (work.size && data[work.size - 1] == '\n')
@@ -1238,7 +1253,7 @@ htmlblock_end(struct html_tag *tag, char *data, size_t size) {
 
 /* parse_htmlblock • parsing of inline HTML block */
 static size_t
-parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size) {
+parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, int do_render) {
 	size_t i, j = 0;
 	struct html_tag *curtag;
 	int found;
@@ -1250,43 +1265,48 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size) {
 
 	/* handling of special cases */
 	if (!curtag) {
+
 		/* HTML comment, laxist form */
-		if (size > 5 && data[1] == '!'
-		&& data[2] == '-' && data[3] == '-') {
+		if (size > 5 && data[1] == '!' && data[2] == '-' && data[3] == '-') {
 			i = 5;
-			while (i < size
-			&& !(data[i - 2] == '-' && data[i - 1] == '-'
-						&& data[i] == '>'))
-				i += 1;
-			i += 1;
+
+			while (i < size && !(data[i - 2] == '-' && data[i - 1] == '-' && data[i] == '>'))
+				i++;
+
+			i++;
+
 			if (i < size)
 				j = is_empty(data + i, size - i);
-				if (j) {
-					work.size = i + j;
-					if (rndr->make.blockhtml)
-						rndr->make.blockhtml(ob, &work,
-							&rndr->make.render_options);
-					return work.size; } }
+
+			if (j) {
+				work.size = i + j;
+				if (do_render && rndr->make.blockhtml)
+					rndr->make.blockhtml(ob, &work, &rndr->make.render_options);
+				return work.size;
+			} 
+		}
 
 		/* HR, which is the only self-closing block tag considered */
-		if (size > 4
-		&& (data[1] == 'h' || data[1] == 'H')
-		&& (data[2] == 'r' || data[2] == 'R')) {
+		if (size > 4 && (data[1] == 'h' || data[1] == 'H') && (data[2] == 'r' || data[2] == 'R')) {
 			i = 3;
 			while (i < size && data[i] != '>')
 				i += 1;
+
 			if (i + 1 < size) {
 				i += 1;
 				j = is_empty(data + i, size - i);
 				if (j) {
 					work.size = i + j;
-					if (rndr->make.blockhtml)
-						rndr->make.blockhtml(ob, &work,
-							&rndr->make.render_options);
-					return work.size; } } }
+					if (do_render && rndr->make.blockhtml)
+						rndr->make.blockhtml(ob, &work, &rndr->make.render_options);
+					return work.size;
+				}
+			} 
+		}
 
 		/* no special case recognised */
-		return 0; }
+		return 0;
+	}
 
 	/* looking for an unindented matching closing tag */
 	/*	followed by a blank line */
@@ -1311,24 +1331,32 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size) {
 	if (!found && curtag != INS_TAG && curtag != DEL_TAG) {
 		i = 1;
 		while (i < size) {
-			i += 1;
-			while (i < size
-			&& !(data[i - 1] == '<' && data[i] == '/'))
-				i += 1;
-		if (i + 2 + curtag->size >= size) break;
-		j = htmlblock_end(curtag, data + i - 1, size - i + 1);
-		if (j) {
-			i += j - 1;
-			found = 1;
-			break; } } }
+			i++;
+			while (i < size && !(data[i - 1] == '<' && data[i] == '/'))
+				i++;
+
+			if (i + 2 + curtag->size >= size)
+				break;
+
+			j = htmlblock_end(curtag, data + i - 1, size - i + 1);
+
+			if (j) {
+				i += j - 1;
+				found = 1;
+				break;
+			}
+		} 
+	}
 
 	if (!found) return 0;
 
 	/* the end of the block has been found */
 	work.size = i;
-	if (rndr->make.blockhtml)
+	if (do_render && rndr->make.blockhtml)
 		rndr->make.blockhtml(ob, &work, &rndr->make.render_options);
-	return i; }
+
+	return i;
+}
 
 
 /* parse_block • parsing of one block, returning next char to parse */
@@ -1347,7 +1375,7 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int de
 		if (data[beg] == '#')
 			beg += parse_atxheader(ob, rndr, txt_data, end);
 		else if (data[beg] == '<' && rndr->make.blockhtml
-			&& (i = parse_htmlblock(ob, rndr, txt_data, end)) != 0)
+			&& (i = parse_htmlblock(ob, rndr, txt_data, end, 1)) != 0)
 			beg += i;
 		else if ((i = is_empty(txt_data, end)) != 0)
 			beg += i;
