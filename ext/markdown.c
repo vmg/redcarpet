@@ -1062,35 +1062,44 @@ parse_blockcode(struct buf *ob, struct render *rndr,
 /* parse_listitem • parsing of a single list item */
 /*	assuming initial prefix is already removed */
 static size_t
-parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int *flags, int depth) {
+parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int *flags, int depth)
+{
 	struct buf *work = 0, *inter = 0;
 	size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
 	int in_empty = 0, has_inside_empty = 0;
 
 	/* keeping book of the first indentation prefix */
-	if (size > 1 && data[0] == ' ') { orgpre = 1;
-	if (size > 2 && data[1] == ' ') { orgpre = 2;
-	if (size > 3 && data[2] == ' ') { orgpre = 3; } } }
+	while (orgpre < 3 && orgpre < size && data[orgpre] == ' ')
+		orgpre++;
+
 	beg = prefix_uli(data, size);
-	if (!beg) beg = prefix_oli(data, size);
-	if (!beg) return 0;
+	if (!beg)
+		beg = prefix_oli(data, size);
+
+	if (!beg)
+		return 0;
+
 	/* skipping to the beginning of the following line */
 	end = beg;
-	while (end < size && data[end - 1] != '\n') end += 1;
+	while (end < size && data[end - 1] != '\n')
+		end++;
 
 	/* getting working buffers */
 	if (rndr->work.size < rndr->work.asize) {
 		work = rndr->work.item[rndr->work.size ++];
-		work->size = 0; }
-	else {
+		work->size = 0;
+	} else {
 		work = bufnew(WORK_UNIT);
-		parr_push(&rndr->work, work); }
+		parr_push(&rndr->work, work);
+	}
+
 	if (rndr->work.size < rndr->work.asize) {
 		inter = rndr->work.item[rndr->work.size ++];
-		inter->size = 0; }
-	else {
+		inter->size = 0;
+	} else {
 		inter = bufnew(WORK_UNIT);
-		parr_push(&rndr->work, inter); }
+		parr_push(&rndr->work, inter);
+	}
 
 	/* putting the first line into the working buffer */
 	bufput(work, data + beg, end - beg);
@@ -1098,45 +1107,55 @@ parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int
 
 	/* process the following lines */
 	while (beg < size) {
-		end += 1;
-		while (end < size && data[end - 1] != '\n') end += 1;
+		end++;
+
+		while (end < size && data[end - 1] != '\n')
+			end++;
 
 		/* process an empty line */
 		if (is_empty(data + beg, end - beg)) {
 			in_empty = 1;
 			beg = end;
-			continue; }
+			continue;
+		}
 
 		/* calculating the indentation */
 		i = 0;
-		if (end - beg > 1 && data[beg] == ' ') { i = 1;
-		if (end - beg > 2 && data[beg + 1] == ' ') { i = 2;
-		if (end - beg > 3 && data[beg + 2] == ' ') { i = 3;
-		if (end - beg > 3 && data[beg + 3] == ' ') { i = 4; } } } }
+		while (i < 4 && beg + i < end && data[beg + i] == ' ')
+			i++;
+
 		pre = i;
 		if (data[beg] == '\t') { i = 1; pre = 8; }
 
 		/* checking for a new item */
-		if ((prefix_uli(data + beg + i, end - beg - i)
-			&& !is_hrule(data + beg + i, end - beg - i))
-		||  prefix_oli(data + beg + i, end - beg - i)) {
-			if (in_empty) has_inside_empty = 1;
+		if ((prefix_uli(data + beg + i, end - beg - i) &&
+			!is_hrule(data + beg + i, end - beg - i)) ||
+			prefix_oli(data + beg + i, end - beg - i)) {
+			if (in_empty)
+				has_inside_empty = 1;
+
 			if (pre == orgpre) /* the following item must have */
 				break;             /* the same indentation */
-			if (!sublist) sublist = work->size; }
 
+			if (!sublist)
+				sublist = work->size;
+		}
 		/* joining only indented stuff after empty lines */
 		else if (in_empty && i < 4 && data[beg] != '\t') {
 				*flags |= MKD_LI_END;
-				break; }
+				break;
+		}
 		else if (in_empty) {
 			bufputc(work, '\n');
-			has_inside_empty = 1; }
+			has_inside_empty = 1;
+		}
+
 		in_empty = 0;
 
 		/* adding the line without prefix into the working buffer */
 		bufput(work, data + beg + i, end - beg - i);
-		beg = end; }
+		beg = end;
+	}
 
 	/* render of li contents */
 	if (has_inside_empty) *flags |= MKD_LI_BLOCK;
@@ -1161,6 +1180,7 @@ parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int
 	/* render of li itself */
 	if (rndr->make.listitem)
 		rndr->make.listitem(ob, inter, *flags, &rndr->make.render_options);
+
 	rndr->work.size -= 2;
 	return beg;
 }
@@ -1527,11 +1547,9 @@ static void expand_tabs(struct buf *ob, const char *line, size_t size)
 		if (i >= size)
 			break;
 
-		bufputc(ob, ' '); tab++;
-
-		while ((tab % 4) != 0) {
+		do {
 			bufputc(ob, ' '); tab++;
-		}
+		} while (tab % 4);
 
 		i++;
 	}
@@ -1550,17 +1568,25 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 	rndr.make = *rndrer;
 	arr_init(&rndr.refs, sizeof (struct link_ref));
 	parr_init(&rndr.work);
-	for (i = 0; i < 256; i += 1) rndr.active_char[i] = 0;
-	if ((rndr.make.emphasis || rndr.make.double_emphasis
-						|| rndr.make.triple_emphasis)
-	&& rndr.make.emph_chars)
+
+	for (i = 0; i < 256; i += 1)
+		rndr.active_char[i] = 0;
+
+	if ((rndr.make.emphasis || rndr.make.double_emphasis || rndr.make.triple_emphasis) &&
+		rndr.make.emph_chars) {
 		for (i = 0; rndr.make.emph_chars[i]; i += 1)
-			rndr.active_char[(unsigned char)rndr.make.emph_chars[i]]
-				= char_emphasis;
-	if (rndr.make.codespan) rndr.active_char['`'] = char_codespan;
-	if (rndr.make.linebreak) rndr.active_char['\n'] = char_linebreak;
+			rndr.active_char[(unsigned char)rndr.make.emph_chars[i]] = char_emphasis;
+	}
+
+	if (rndr.make.codespan)
+		rndr.active_char['`'] = char_codespan;
+
+	if (rndr.make.linebreak)
+		rndr.active_char['\n'] = char_linebreak;
+
 	if (rndr.make.image || rndr.make.link)
 		rndr.active_char['['] = char_link;
+
 	rndr.active_char['<'] = char_langle_tag;
 	rndr.active_char['\\'] = char_escape;
 	rndr.active_char['&'] = char_entity;
@@ -1609,11 +1635,20 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 	for (i = 0; i < (size_t)rndr.refs.size; i += 1) {
 		bufrelease(lr[i].id);
 		bufrelease(lr[i].link);
-		bufrelease(lr[i].title); }
+		bufrelease(lr[i].title);
+	}
+
 	arr_free(&rndr.refs);
-	assert(rndr.work.size == 0);
+
+	/* Do not assert this; a malformed Markdown
+	 * file will result in parts of the work queue not being
+	 * printed. We cannot crash the library in that case. Duh. */
+	//assert(rndr.work.size == 0);
+
 	for (i = 0; i < (size_t)rndr.work.asize; i += 1)
 		bufrelease(rndr.work.item[i]);
-	parr_free(&rndr.work); }
+
+	parr_free(&rndr.work);
+}
 
 /* vim: set filetype=c: */

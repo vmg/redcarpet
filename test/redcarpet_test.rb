@@ -103,4 +103,10 @@ class RedcarpetTest < Test::Unit::TestCase
     Redcarpet.new(" [^a]: #{ "A" * 10000 }\n#{ "[^a][]" * 1000000 }\n").to_html.size
   end
 
+  def test_link_syntax_is_not_processed_within_code_blocks
+    markdown = Markdown.new("    This is a code block\n    This is a link [[1]] inside\n")
+
+    assert_equal "<pre><code>This is a code block\nThis is a link [[1]] inside\n</code></pre>\n",
+      markdown.to_html
+  end
 end
