@@ -480,8 +480,8 @@ char_linebreak(struct buf *ob, struct render *rndr, char *data, size_t offset, s
 
 /* char_codespan • '`' parsing a code span (assuming codespan != 0) */
 static size_t
-char_codespan(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+char_codespan(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
+{
 	size_t end, nb = 0, i, f_begin, f_end;
 
 	/* counting the number of backticks in the delimiter */
@@ -510,7 +510,8 @@ char_codespan(struct buf *ob, struct render *rndr,
 	else {
 		if (!rndr->make.codespan(ob, 0, &rndr->make.render_options))
 			end = 0; }
-	return end; }
+	return end;
+}
 
 
 /* char_escape • '\\' backslash escape */

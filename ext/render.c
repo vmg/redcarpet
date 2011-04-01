@@ -19,6 +19,7 @@
 
 #include <strings.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 static int is_safe_link(const char *link, size_t link_len)
@@ -55,7 +56,8 @@ put_scaped_char(struct buf *ob, char c)
 
 /* lus_attr_escape • copy the buffer entity-escaping '<', '>', '&' and '"' */
 static void
-lus_attr_escape(struct buf *ob, const char *src, size_t size) {
+lus_attr_escape(struct buf *ob, const char *src, size_t size)
+{
 	size_t  i = 0, org;
 	while (i < size) {
 		/* copying directly unescaped characters */
@@ -120,7 +122,8 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, struct m
 }
 
 static void
-rndr_blockcode(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
+rndr_blockcode(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
+{
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "<pre><code>");
 	if (text) lus_attr_escape(ob, text->data, text->size);
@@ -128,14 +131,16 @@ rndr_blockcode(struct buf *ob, struct buf *text, struct mkd_renderopt *options) 
 }
 
 static void
-rndr_blockquote(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
+rndr_blockquote(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
+{
 	BUFPUTSL(ob, "<blockquote>\n");
 	if (text) bufput(ob, text->data, text->size);
 	BUFPUTSL(ob, "</blockquote>");
 }
 
 static int
-rndr_codespan(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
+rndr_codespan(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
+{
 	BUFPUTSL(ob, "<code>");
 	if (text) lus_attr_escape(ob, text->data, text->size);
 	BUFPUTSL(ob, "</code>");
@@ -143,7 +148,8 @@ rndr_codespan(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
 }
 
 static int
-rndr_double_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options) {
+rndr_double_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options)
+{
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<strong>");
 	bufput(ob, text->data, text->size);
@@ -152,7 +158,8 @@ rndr_double_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_render
 }
 
 static int
-rndr_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options) {
+rndr_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options)
+{
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<em>");
 	if (text) bufput(ob, text->data, text->size);
@@ -161,7 +168,8 @@ rndr_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *op
 }
 
 static void
-rndr_header(struct buf *ob, struct buf *text, int level, struct mkd_renderopt *options) {
+rndr_header(struct buf *ob, struct buf *text, int level, struct mkd_renderopt *options)
+{
 	if (ob->size) bufputc(ob, '\n');
 	bufprintf(ob, "<h%d>", level);
 	if (text) bufput(ob, text->data, text->size);
@@ -186,7 +194,8 @@ rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *conte
 }
 
 static void
-rndr_list(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *options) {
+rndr_list(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *options)
+{
 	if (ob->size) bufputc(ob, '\n');
 	bufput(ob, flags & MKD_LIST_ORDERED ? "<ol>\n" : "<ul>\n", 5);
 	if (text) bufput(ob, text->data, text->size);
@@ -194,9 +203,9 @@ rndr_list(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *opt
 }
 
 static void
-rndr_listitem(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *options) {
-	if (ob->size) bufputc(ob, '\n');
-	BUFPUTSL(ob, "<li>\n");
+rndr_listitem(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *options)
+{
+	BUFPUTSL(ob, "<li>");
 	if (text) {
 		while (text->size && text->data[text->size - 1] == '\n')
 			text->size -= 1;
@@ -205,7 +214,8 @@ rndr_listitem(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt 
 }
 
 static void
-rndr_paragraph(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
+rndr_paragraph(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
+{
 	size_t i = 0;
 
 	if (ob->size) bufputc(ob, '\n');
@@ -223,7 +233,8 @@ rndr_paragraph(struct buf *ob, struct buf *text, struct mkd_renderopt *options) 
 }
 
 static void
-rndr_raw_block(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
+rndr_raw_block(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
+{
 	size_t org, sz;
 	if (!text) return;
 	sz = text->size;
@@ -237,7 +248,8 @@ rndr_raw_block(struct buf *ob, struct buf *text, struct mkd_renderopt *options) 
 }
 
 static int
-rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options) {
+rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *options)
+{
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<strong><em>");
 	bufput(ob, text->data, text->size);
@@ -251,13 +263,15 @@ rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_render
  **********************/
 
 static void
-rndr_hrule(struct buf *ob, struct mkd_renderopt *options) {
+rndr_hrule(struct buf *ob, struct mkd_renderopt *options)
+{
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "<hr />\n");
 }
 
 static int
-rndr_image(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, struct mkd_renderopt *options) {
+rndr_image(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, struct mkd_renderopt *options)
+{
 	if (!link || !link->size) return 0;
 	BUFPUTSL(ob, "<img src=\"");
 	lus_attr_escape(ob, link->data, link->size);
@@ -272,13 +286,15 @@ rndr_image(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt,
 }
 
 static int
-rndr_linebreak(struct buf *ob, struct mkd_renderopt *options) {
+rndr_linebreak(struct buf *ob, struct mkd_renderopt *options)
+{
 	BUFPUTSL(ob, "<br />\n");
 	return 1;
 }
 
 static int
-rndr_raw_html(struct buf *ob, struct buf *text, struct mkd_renderopt *options) {
+rndr_raw_html(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
+{
 	int escape_html = 0;
 
 	if (options->flags & RENDER_SKIP_HTML)
@@ -331,12 +347,9 @@ static struct {
     { '&',  "&#0;",      0,       3 },
 };
 
-static const char *smartypants_squotes[] = {"&lsquo;", "&rsquo;"};
-static const char *smartypants_dquotes[] = {"&ldquo;", "&rdquo;"};
-
 #define SUBS_COUNT (sizeof(smartypants_subs) / sizeof(smartypants_subs[0]))
 
-static int
+static inline
 word_boundary(char c)
 {
 	return isspace(c) || ispunct(c);
@@ -373,31 +386,69 @@ smartypants_cmpsub(const struct buf *buf, size_t start, const char *prefix)
 	return (*prefix == '>');
 }
 
-/* Smarty-pants-style chrome for quotes, -, ellipses, and (r)(c)(tm)
- */
+static int
+smartypants_quotes(struct buf *ob, struct buf *text, size_t i, int is_open)
+{
+	char ent[8];
+
+	if (is_open && i + 1 < text->size && !word_boundary(text->data[i + 1]))
+		return 0;
+
+	if (!is_open && i > 0 && !word_boundary(text->data[i - 1]))
+		return 0;
+
+	snprintf(ent, sizeof(ent), "&%c%cquo;",
+		is_open ? 'r' : 'l',
+		text->data[i] == '\'' ? 's' : 'd');
+
+	bufputs(ob, ent);
+	return 1;
+}
+
 static void
-smartypants_and_autolink(struct buf *ob, struct buf *text, unsigned int flags)
+rndr_normal_text(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
 {
 	size_t i;
-	int open_single = 0, open_double = 0;
+	int open_single = 0, open_double = 0, open_tag = 0;
 
-	int autolink = (flags & RENDER_AUTOLINK);
-	int smartypants = (flags & RENDER_SMARTYPANTS);
+	int autolink = (options->flags & RENDER_AUTOLINK);
+	int smartypants = (options->flags & RENDER_SMARTYPANTS);
+
+	if (!text)
+		return;
+
+	if (!autolink && !smartypants) {
+		lus_attr_escape(ob, text->data, text->size);
+		return;
+	}
 
 	for (i = 0; i < text->size; ++i) {
 		size_t sub;
 		char c = text->data[i];
 
-		if (autolink && is_safe_link(text->data + i, text->size - i)) {
-			size_t j = i;
+		/*
+		 * Autolinking
+		 */
+		if (autolink) {
+			/* Autolinking is not standarized in the Markdown spec.
+			 * We only check for links after special characters, i.e.
+			 * immediately after a space or a parenthesis */
+			if (i == 0 || (isspace(text->data[i - 1]) || text->data[i - 1] == '(') &&
+				is_safe_link(text->data + i, text->size - i)) {
+				size_t j = i + i;
 
-			while (j < text->size && !isspace(text->data[j])) j++;
+				while (j < text->size && !isspace(text->data[j]))
+					j++;
 
-			rndr_autolink2(ob, &text->data[i], j - i, MKDA_NORMAL);
-			i = j;
-			continue;
+				rndr_autolink2(ob, &text->data[i], j - i, MKDA_NORMAL);
+				i = j;
+				continue;
+			}
 		}
 
+		/*
+		 * Smartypants subsitutions
+		 */
 		if (smartypants) {
 			for (sub = 0; sub < SUBS_COUNT; ++sub) {
 				if (c == smartypants_subs[sub].c0 &&
@@ -415,35 +466,89 @@ smartypants_and_autolink(struct buf *ob, struct buf *text, unsigned int flags)
 				continue;
 
 			switch (c) {
+			case '<':
+				open_tag = 1;
+				break;
+
+			case '>':
+				open_tag = 0;
+				break;
+
+#if 0
+			/*
+			 * FIXME: this is bongos.
+			 *
+			 * The markdown spec defines that code blocks can be delimited
+			 * by more than one backtick, e.g.
+			 *
+			 *		``There is a literal backtick (`) here.``
+			 *		<p><code>There is a literal backtick (`) here.</code></p>
+			 *
+			 * Obviously, there's no way to differentiate between the start
+			 * of a code block and the start of a quoted string for smartypants
+			 *
+			 * Look at this piece of Python code:
+			 *
+			 *		``result = ''.join(['this', 'is', 'bongos'])``
+			 *
+			 * This MD expression is clearly ambiguous since it can be parsed as:
+			 *
+			 *		<p>&ldquo;result = &rdquo;.join ...</p>
+			 *
+			 * Or also as:
+			 *
+			 *		<p><code>result = ''.join(['this', 'is', 'bongos'])</code></p>
+			 *
+			 * Fuck everything about this. This is temporarily disabled, because at GitHub
+			 * it's probably smarter to prioritize code blocks than pretty cutesy punctuation.
+			 *
+			 * The equivalent closing tag for the (``), ('') has also been disabled, because
+			 * it makes no sense to have closing tags without opening tags.
+			 */
+			case '`':
+				if (open_tag == 0) {
+					if (i + 1 < text->size && text->data[i + 1] == '`') {
+						BUFPUTSL(ob, "&ldquo;"); i++;
+						continue;
+					}
+				}
+				break;
+#endif
+
 			case '\"':
-				bufputs(ob, smartypants_dquotes[open_double]);
-				open_double = !open_double;
-				continue;
+				if (open_tag == 0) {
+					if (smartypants_quotes(ob, text, i, open_double)) {
+						open_double = !open_double;
+						continue;
+					}
+				}
+				break;
 
 			case '\'':
-				bufputs(ob, smartypants_squotes[open_single]);
-				open_single = !open_single;
-				continue;
+				if (open_tag == 0) {
 
-				/* TODO: advanced quotes like `` and '' */
+#if 0 /* temporarily disabled, see previous comment */
+					if (i + 1 < text->size && text->data[i + 1] == '\'') {
+						BUFPUTSL(ob, "&rdquo;"); i++;
+						continue;
+					} 
+#endif
+
+					if (smartypants_quotes(ob, text, i, open_single)) {
+						open_single = !open_single;
+						continue;
+					}
+				}
+				break;
 			}
 		}
 
+		/*
+		 * Copy raw character
+		 */
 		if (!put_scaped_char(ob, c))
 			bufputc(ob, c);
 	}
-}
-
-static void
-rndr_normal_text(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
-{
-	if (!text)
-		return;
-
-	if (options->flags & RENDER_SMARTYPANTS || options->flags & RENDER_AUTOLINK)
-		smartypants_and_autolink(ob, text, options->flags);
-	else 
-		lus_attr_escape(ob, text->data, text->size);
 }
 
 void
