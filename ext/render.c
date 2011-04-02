@@ -433,7 +433,7 @@ rndr_normal_text(struct buf *ob, struct buf *text, struct mkd_renderopt *options
 			/* Autolinking is not standarized in the Markdown spec.
 			 * We only check for links after special characters, i.e.
 			 * immediately after a space or a parenthesis */
-			if (i == 0 || (isspace(text->data[i - 1]) || text->data[i - 1] == '(') &&
+			if ((i == 0 || isspace(text->data[i - 1]) || text->data[i - 1] == '(') &&
 				is_safe_link(text->data + i, text->size - i)) {
 				size_t j = i + i;
 
