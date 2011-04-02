@@ -3,9 +3,17 @@
 
 #include "markdown.h"
 
+#define REDCARPET_RECURSION_LIMIT 16
+
+typedef enum
+{
+	REDCARPET_RENDER_XHTML,
+	REDCARPET_RENDER_TOC
+} RendererType;
+
 static VALUE rb_cRedcarpet;
 
-static void rb_redcarpet__setup_render(VALUE ruby_obj, struct mkd_renderer *rnd)
+static void rb_redcarpet__setup_xhtml(struct mkd_renderer *rnd, VALUE ruby_obj)
 {
 	unsigned int render_flags = RENDER_EXPAND_TABS;
 	unsigned int parser_flags = 0;
@@ -38,22 +46,23 @@ static void rb_redcarpet__setup_render(VALUE ruby_obj, struct mkd_renderer *rnd)
 	if (rb_funcall(ruby_obj, rb_intern("safelink"), 0) == Qtrue)
 		render_flags |= RENDER_SAFELINK;
 
+	if (rb_funcall(ruby_obj, rb_intern("generate_toc"), 0) == Qtrue)
+		render_flags |= RENDER_TOC;
 
 	/* parser - strict */
 	if (rb_funcall(ruby_obj, rb_intern("strict"), 0) == Qtrue)
 		parser_flags |= PARSER_STRICT;
 
-
-	init_renderer(rnd, render_flags, NULL, parser_flags, 16);
+	init_xhtml_renderer(rnd, render_flags, parser_flags, REDCARPET_RECURSION_LIMIT);
 }
 
-static VALUE rb_redcarpet_to_html(int argc, VALUE *argv, VALUE self)
+static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 {
 	VALUE text = rb_funcall(self, rb_intern("text"), 0);
 	VALUE result;
 
 	struct buf input_buf, *output_buf;
-	struct mkd_renderer redcarpet_render;
+	struct mkd_renderer renderer;
 
 	Check_Type(text, T_STRING);
 
@@ -63,8 +72,20 @@ static VALUE rb_redcarpet_to_html(int argc, VALUE *argv, VALUE self)
 
 	output_buf = bufnew(64);
 
-	rb_redcarpet__setup_render(self, &redcarpet_render);
-	markdown(output_buf, &input_buf, &redcarpet_render);
+	switch (render_type) {
+	case REDCARPET_RENDER_XHTML:
+		rb_redcarpet__setup_xhtml(&renderer, self);
+		break;
+
+	case REDCARPET_RENDER_TOC:
+		init_toc_renderer(&renderer, REDCARPET_RECURSION_LIMIT);
+		break;
+
+	default:
+		return Qnil;
+	}
+
+	markdown(output_buf, &input_buf, &renderer);
 
 	result = rb_str_new(output_buf->data, output_buf->size);
 	bufrelease(output_buf);
@@ -78,9 +99,22 @@ static VALUE rb_redcarpet_to_html(int argc, VALUE *argv, VALUE self)
 	return result;
 }
 
+static VALUE
+rb_redcarpet_toc(int argc, VALUE *argv, VALUE self)
+{
+	return rb_redcarpet__render(self, REDCARPET_RENDER_TOC);
+}
+
+static VALUE
+rb_redcarpet_to_html(int argc, VALUE *argv, VALUE self)
+{
+	return rb_redcarpet__render(self, REDCARPET_RENDER_XHTML);
+}
+
 void Init_redcarpet()
 {
     rb_cRedcarpet = rb_define_class("Redcarpet", rb_cObject);
     rb_define_method(rb_cRedcarpet, "to_html", rb_redcarpet_to_html, -1);
+    rb_define_method(rb_cRedcarpet, "toc_content", rb_redcarpet_toc, -1);
 }
 

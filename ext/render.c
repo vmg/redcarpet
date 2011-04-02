@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2011, Vicent Marti
  * Copyright (c) 2009, Natacha Porté
+ * Copyright (c) 2011, Vicent Marti
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -52,7 +52,6 @@ put_scaped_char(struct buf *ob, char c)
 		default: return 0;
 	}
 }
-
 
 /* lus_attr_escape • copy the buffer entity-escaping '<', '>', '&' and '"' */
 static void
@@ -168,9 +167,14 @@ rndr_emphasis(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *op
 }
 
 static void
-rndr_header(struct buf *ob, struct buf *text, int level, struct mkd_renderopt *options)
+rndr_header(struct buf *ob, struct buf *text, int level, int header_count, struct mkd_renderopt *options)
 {
-	if (ob->size) bufputc(ob, '\n');
+	if (ob->size)
+		bufputc(ob, '\n');
+
+	if (options->flags & RENDER_TOC)
+		bufprintf(ob, "<a name=\"toc_%d\"></a>", header_count);
+
 	bufprintf(ob, "<h%d>", level);
 	if (text) bufput(ob, text->data, text->size);
 	bufprintf(ob, "</h%d>\n", level);
@@ -552,8 +556,8 @@ rndr_normal_text(struct buf *ob, struct buf *text, struct mkd_renderopt *options
 }
 
 void
-init_renderer(struct mkd_renderer *renderer,
-		unsigned int render_flags, void *opaque,
+init_xhtml_renderer(struct mkd_renderer *renderer,
+		unsigned int render_flags,
 		unsigned int parser_flags, int recursion_depth)
 {
 	static const struct mkd_renderer renderer_default = {
@@ -578,10 +582,11 @@ init_renderer(struct mkd_renderer *renderer,
 
 		NULL,
 		rndr_normal_text,
+		NULL,
 
 		"*_",
 
-		{ NULL, 0 },
+		{ 0, 0 },
 		{ 0, 0 },
 	};
 
@@ -597,8 +602,6 @@ init_renderer(struct mkd_renderer *renderer,
 
 	renderer->parser_options.recursion_depth = recursion_depth;
 	renderer->parser_options.flags = parser_flags;
-
-	renderer->render_options.opaque = opaque;
 	renderer->render_options.flags = render_flags;
 }
 

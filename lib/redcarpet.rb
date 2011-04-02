@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.1.1'
+  VERSION = '1.2.0'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -57,13 +57,12 @@ class Redcarpet
   # Don't make hyperlinks from <tt>[][]</tt> links that have unknown URL types.
   attr_accessor :safelink
 
+  # Add TOC anchors to every header
+  attr_accessor :generate_toc
+
   def initialize(text, *extensions)
     @text  = text
     extensions.each { |e| send("#{e}=", true) }
-  end
-
-  def generate_toc
-    raise NotImplementedError
   end
 end
 

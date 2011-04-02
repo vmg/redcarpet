@@ -109,4 +109,17 @@ class RedcarpetTest < Test::Unit::TestCase
     assert_equal "<pre><code>This is a code block\nThis is a link [[1]] inside\n</code></pre>\n",
       markdown.to_html
   end
+
+  def test_that_generate_toc_sets_toc_ids
+    rd = Redcarpet.new("# Level 1\n\n## Level 2", :generate_toc)
+    assert rd.generate_toc
+    assert_equal %(<a name="toc_1"></a><h1>Level 1</h1>\n\n<a name="toc_2"></a><h2>Level 2</h2>\n), rd.to_html
+  end
+
+  def test_should_get_the_generated_toc
+    rd = Redcarpet.new("# Level 1\n\n## Level 2", :generate_toc)
+    exp = %(<ul>\n<li><a href="#toc_1">Level 1</a></li>\n<li><ul>\n<li><a href="#toc_2">Level 2</a></li>\n</ul></li>\n</ul>)
+    assert_equal exp, rd.toc_content.strip
+  end
+
 end

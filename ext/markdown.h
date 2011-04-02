@@ -37,7 +37,11 @@ enum mkd_autolink {
 };
 
 struct mkd_renderopt {
-	void *opaque;
+	union {
+		int data;
+		void *ptr;
+	} opaque;
+
 	unsigned int flags;
 };
 
@@ -52,7 +56,7 @@ struct mkd_renderer {
 	void (*blockcode)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
 	void (*blockquote)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
 	void (*blockhtml)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
-	void (*header)(struct buf *ob, struct buf *text, int level, struct mkd_renderopt *opaque);
+	void (*header)(struct buf *ob, struct buf *text, int level, int header_count, struct mkd_renderopt *opaque);
 	void (*hrule)(struct buf *ob, struct mkd_renderopt *opaque);
 	void (*list)(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *opaque);
 	void (*listitem)(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *opaque);
@@ -72,6 +76,9 @@ struct mkd_renderer {
 	/* low level callbacks - NULL copies input directly into the output */
 	void (*entity)(struct buf *ob, struct buf *entity, struct mkd_renderopt *opaque);
 	void (*normal_text)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
+
+	/* finalizer */
+	void (*finalize)(struct buf *ob, struct mkd_renderopt *opaque);
 
 	/* renderer data */
 	const char *emph_chars; /* chars that trigger emphasis rendering */
@@ -99,6 +106,7 @@ typedef enum {
 	RENDER_EXPAND_TABS = (1 << 5),
 	RENDER_AUTOLINK = (1 << 6),
 	RENDER_SAFELINK = (1 << 7),
+	RENDER_TOC = (1 << 8),
 } render_mode;
 
 typedef enum {
@@ -114,10 +122,12 @@ void
 markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr);
 
 void
-init_renderer(struct mkd_renderer *renderer,
-		unsigned int render_flags, void *opaque,
+init_xhtml_renderer(struct mkd_renderer *renderer,
+		unsigned int render_flags,
 		unsigned int parser_flags, int recursion_depth);
 
+void
+init_toc_renderer(struct mkd_renderer *renderer, int recursion_depth);
 
 #endif /* ndef LITHIUM_MARKDOWN_H */
 
