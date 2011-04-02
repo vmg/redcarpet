@@ -2,6 +2,7 @@
 
 /*
  * Copyright (c) 2009, Natacha Porté
+ * Copyright (c) 2011, Vicent Marti
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -35,10 +36,10 @@
 
 /* link_ref • reference to a link */
 struct link_ref {
-	struct buf *	id;
-	struct buf *	link;
-	struct buf *	title; };
-
+	struct buf *id;
+	struct buf *link;
+	struct buf *title;
+};
 
 /* char_trigger • function pointer to render active chars */
 /*   returns the number of chars taken care of */
@@ -46,26 +47,22 @@ struct link_ref {
 /*   offset is the number of valid chars before data */
 struct render;
 typedef size_t
-(*char_trigger)(struct buf *ob, struct render *rndr,
-		char *data, size_t offset, size_t size);
+(*char_trigger)(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size);
 
 
 /* render • structure containing one particular render */
 struct render {
 	struct mkd_renderer	make;
-	struct array		refs;
-	char_trigger		active_char[256];
-	struct parray		work;
+	struct array refs;
+	char_trigger active_char[256];
+	struct parray work;
 };
-
 
 /* html_tag • structure for quick HTML tag search (inspired from discount) */
 struct html_tag {
 	const char *text;
 	size_t size;
 };
-
-
 
 /********************
  * GLOBAL VARIABLES *
@@ -94,12 +91,11 @@ static struct html_tag block_tags[] = {
 	{ "script",	6 },
 	{ "fieldset",	8 },
 	{ "noscript",	8 },
-	{ "blockquote",	10 } };
+	{ "blockquote",	10 }
+};
 
 #define INS_TAG (block_tags + 12)
 #define DEL_TAG (block_tags + 10)
-
-
 
 /***************************
  * STATIC HELPER FUNCTIONS *
@@ -107,31 +103,36 @@ static struct html_tag block_tags[] = {
 
 /* cmp_link_ref • comparison function for link_ref sorted arrays */
 static int
-cmp_link_ref(void *key, void *array_entry) {
+cmp_link_ref(void *key, void *array_entry)
+{
 	struct link_ref *lr = array_entry;
-	return bufcasecmp(key, lr->id); }
-
+	return bufcasecmp(key, lr->id);
+}
 
 /* cmp_link_ref_sort • comparison function for link_ref qsort */
 static int
-cmp_link_ref_sort(const void *a, const void *b) {
+cmp_link_ref_sort(const void *a, const void *b)
+{
 	const struct link_ref *lra = a;
 	const struct link_ref *lrb = b;
-	return bufcasecmp(lra->id, lrb->id); }
-
+	return bufcasecmp(lra->id, lrb->id);
+}
 
 /* cmp_html_tag • comparison function for bsearch() (stolen from discount) */
 static int
-cmp_html_tag(const void *a, const void *b) {
+cmp_html_tag(const void *a, const void *b)
+{
 	const struct html_tag *hta = a;
 	const struct html_tag *htb = b;
 	if (hta->size != htb->size) return (int)((ssize_t)hta->size - (ssize_t)htb->size);
-	return strncasecmp(hta->text, htb->text, hta->size); }
+	return strncasecmp(hta->text, htb->text, hta->size);
+}
 
 
 /* find_block_tag • returns the current block tag */
 static struct html_tag *
-find_block_tag(char *data, size_t size) {
+find_block_tag(char *data, size_t size)
+{
 	size_t i = 0;
 	struct html_tag key;
 
@@ -147,9 +148,8 @@ find_block_tag(char *data, size_t size) {
 	key.size = i;
 	return bsearch(&key, block_tags,
 				sizeof block_tags / sizeof block_tags[0],
-				sizeof block_tags[0], cmp_html_tag); }
-
-
+				sizeof block_tags[0], cmp_html_tag);
+}
 
 /****************************
  * INLINE PARSING FUNCTIONS *
@@ -158,7 +158,8 @@ find_block_tag(char *data, size_t size) {
 /* is_mail_autolink • looks for the address part of a mail autolink and '>' */
 /* this is less strict than the original markdown e-mail address matching */
 static size_t
-is_mail_autolink(char *data, size_t size) {
+is_mail_autolink(char *data, size_t size)
+{
 	size_t i = 0, nb = 0;
 	/* address is assumed to be: [-@._a-zA-Z0-9]+ with exactly one '@' */
 	while (i < size && (data[i] == '-' || data[i] == '.'
@@ -169,12 +170,13 @@ is_mail_autolink(char *data, size_t size) {
 		if (data[i] == '@') nb += 1;
 		i += 1; }
 	if (i >= size || data[i] != '>' || nb != 1) return 0;
-	return i + 1; }
-
+	return i + 1;
+}
 
 /* tag_length • returns the length of the given tag, or 0 is it's not valid */
 static size_t
-tag_length(char *data, size_t size, enum mkd_autolink *autolink) {
+tag_length(char *data, size_t size, enum mkd_autolink *autolink)
+{
 	size_t i, j;
 
 	/* a valid tag can't be shorter than 3 chars */
@@ -225,12 +227,13 @@ tag_length(char *data, size_t size, enum mkd_autolink *autolink) {
 	/* looking for sometinhg looking like a tag end */
 	while (i < size && data[i] != '>') i += 1;
 	if (i >= size) return 0;
-	return i + 1; }
-
+	return i + 1;
+}
 
 /* parse_inline • parses inline markdown elements */
 static void
-parse_inline(struct buf *ob, struct render *rndr, char *data, size_t size) {
+parse_inline(struct buf *ob, struct render *rndr, char *data, size_t size)
+{
 	size_t i = 0, end = 0;
 	char_trigger action = 0;
 	struct buf work = { 0, 0, 0, 0, 0 };
@@ -256,12 +259,13 @@ parse_inline(struct buf *ob, struct render *rndr, char *data, size_t size) {
 			end = i + 1;
 		else { 
 			i += end;
-			end = i; } } }
-
+			end = i; } }
+}
 
 /* find_emph_char • looks for the next emph char, skipping other constructs */
 static size_t
-find_emph_char(char *data, size_t size, char c) {
+find_emph_char(char *data, size_t size, char c)
+{
 	size_t i = 1;
 
 	while (i < size) {
@@ -306,14 +310,14 @@ find_emph_char(char *data, size_t size, char c) {
 				i += 1; }
 			if (i >= size) return tmp_i;
 			i += 1; } }
-	return 0; }
-
+	return 0;
+}
 
 /* parse_emph1 • parsing single emphase */
 /* closed by a symbol not preceded by whitespace and not followed by symbol */
 static size_t
-parse_emph1(struct buf *ob, struct render *rndr,
-			char *data, size_t size, char c) {
+parse_emph1(struct buf *ob, struct render *rndr, char *data, size_t size, char c)
+{
 	size_t i = 0, len;
 	struct buf *work = 0;
 	int r;
@@ -359,11 +363,10 @@ parse_emph1(struct buf *ob, struct render *rndr,
 	return 0;
 }
 
-
 /* parse_emph2 • parsing single emphase */
 static size_t
-parse_emph2(struct buf *ob, struct render *rndr,
-			char *data, size_t size, char c) {
+parse_emph2(struct buf *ob, struct render *rndr, char *data, size_t size, char c)
+{
 	size_t i = 0, len;
 	struct buf *work = 0;
 	int r;
@@ -389,14 +392,14 @@ parse_emph2(struct buf *ob, struct render *rndr,
 			rndr->work.size -= 1;
 			return r ? i + 2 : 0; }
 		i += 1; }
-	return 0; }
-
+	return 0;
+}
 
 /* parse_emph3 • parsing single emphase */
 /* finds the first closing tag, and delegates to the other emph */
 static size_t
-parse_emph3(struct buf *ob, struct render *rndr,
-			char *data, size_t size, char c) {
+parse_emph3(struct buf *ob, struct render *rndr, char *data, size_t size, char c)
+{
 	size_t i = 0, len;
 	int r;
 
@@ -435,13 +438,13 @@ parse_emph3(struct buf *ob, struct render *rndr,
 			len = parse_emph2(ob, rndr, data - 1, size + 1, c);
 			if (!len) return 0;
 			else return len - 1; } }
-	return 0; }
-
+	return 0; 
+}
 
 /* char_emphasis • single and double emphasis parsing */
 static size_t
-char_emphasis(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+char_emphasis(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
+{
 	char c = data[0];
 	size_t ret;
 	if (size > 2 && data[1] != c) {
@@ -460,13 +463,14 @@ char_emphasis(struct buf *ob, struct render *rndr,
 		|| (ret = parse_emph3(ob, rndr, data + 3, size - 3, c)) == 0)
 			return 0;
 		return ret + 3; }
-	return 0; }
+	return 0; 
+}
 
 
 /* char_linebreak • '\n' preceded by two spaces (assuming linebreak != 0) */
 static size_t
-char_linebreak(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size) {
-
+char_linebreak(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
+{
 	if (offset < 2 || data[-1] != ' ' || data[-2] != ' ')
 		return 0;
 
@@ -516,8 +520,8 @@ char_codespan(struct buf *ob, struct render *rndr, char *data, size_t offset, si
 
 /* char_escape • '\\' backslash escape */
 static size_t
-char_escape(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+char_escape(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
+{
 	struct buf work = { 0, 0, 0, 0, 0 };
 	if (size > 1) {
 		if (rndr->make.normal_text) {
@@ -525,14 +529,14 @@ char_escape(struct buf *ob, struct render *rndr,
 			work.size = 1;
 			rndr->make.normal_text(ob, &work, &rndr->make.render_options); }
 		else bufputc(ob, data[1]); }
-	return 2; }
-
+	return 2;
+}
 
 /* char_entity • '&' escaped when it doesn't belong to an entity */
 /* valid entities are assumed to be anything mathing &#?[A-Za-z0-9]+; */
 static size_t
-char_entity(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+char_entity(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
+{
 	size_t end = 1;
 	struct buf work;
 	if (end < size && data[end] == '#') end += 1;
@@ -552,13 +556,13 @@ char_entity(struct buf *ob, struct render *rndr,
 		work.size = end;
 		rndr->make.entity(ob, &work, &rndr->make.render_options); }
 	else bufput(ob, data, end);
-	return end; }
-
+	return end;
+}
 
 /* char_langle_tag • '<' when tags or autolinks are allowed */
 static size_t
-char_langle_tag(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
+{
 	enum mkd_autolink altype = MKDA_NOT_AUTOLINK;
 	size_t end = tag_length(data, size, &altype);
 	struct buf work = { data, end, 0, 0, 0 };
@@ -573,13 +577,14 @@ char_langle_tag(struct buf *ob, struct render *rndr,
 			ret = rndr->make.raw_html_tag(ob, &work,
 							&rndr->make.render_options); }
 	if (!ret) return 0;
-	else return end; }
+	else return end;
+}
 
 
 /* char_link • '[': parsing a link or an image */
 static size_t
-char_link(struct buf *ob, struct render *rndr,
-				char *data, size_t offset, size_t size) {
+char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
+{
 	int is_img = (offset && data[-1] == '!'), level;
 	size_t i = 1, txt_e, link_b = 0, link_e = 0, title_b = 0, title_e = 0;
 	struct buf *content = 0;
@@ -785,16 +790,18 @@ char_link(struct buf *ob, struct render *rndr,
 
 /* is_empty • returns the line length when it is empty, 0 otherwise */
 static size_t
-is_empty(char *data, size_t size) {
+is_empty(char *data, size_t size)
+{
 	size_t i;
 	for (i = 0; i < size && data[i] != '\n'; i += 1)
 		if (data[i] != ' ' && data[i] != '\t') return 0;
-	return i + 1; }
-
+	return i + 1;
+}
 
 /* is_hrule • returns whether a line is a horizontal rule */
 static int
-is_hrule(char *data, size_t size) {
+is_hrule(char *data, size_t size)
+{
 	size_t i = 0, n = 0;
 	char c;
 
@@ -817,12 +824,13 @@ is_hrule(char *data, size_t size) {
 			return 0;
 		i += 1; }
 
-	return n >= 3; }
-
+	return n >= 3;
+}
 
 /* is_headerline • returns whether the line is a setext-style hdr underline */
 static int
-is_headerline(char *data, size_t size) {
+is_headerline(char *data, size_t size)
+{
 	size_t i = 0;
 
 	/* test of level 1 header */
@@ -837,12 +845,13 @@ is_headerline(char *data, size_t size) {
 		while (i < size && (data[i] == ' ' || data[i] == '\t')) i += 1;
 		return (i >= size || data[i] == '\n') ? 2 : 0; }
 
-	return 0; }
-
+	return 0;
+}
 
 /* prefix_quote • returns blockquote prefix length */
 static size_t
-prefix_quote(char *data, size_t size) {
+prefix_quote(char *data, size_t size)
+{
 	size_t i = 0;
 	if (i < size && data[i] == ' ') i += 1;
 	if (i < size && data[i] == ' ') i += 1;
@@ -851,20 +860,23 @@ prefix_quote(char *data, size_t size) {
 		if (i + 1 < size && (data[i + 1] == ' ' || data[i+1] == '\t'))
 			return i + 2;
 		else return i + 1; }
-	else return 0; }
-
+	else return 0;
+}
 
 /* prefix_code • returns prefix length for block code*/
 static size_t
-prefix_code(char *data, size_t size) {
+prefix_code(char *data, size_t size)
+{
 	if (size > 0 && data[0] == '\t') return 1;
 	if (size > 3 && data[0] == ' ' && data[1] == ' '
 			&& data[2] == ' ' && data[3] == ' ') return 4;
-	return 0; }
+	return 0;
+}
 
 /* prefix_oli • returns ordered list item prefix */
 static size_t
-prefix_oli(char *data, size_t size) {
+prefix_oli(char *data, size_t size)
+{
 	size_t i = 0;
 	if (i < size && data[i] == ' ') i += 1;
 	if (i < size && data[i] == ' ') i += 1;
@@ -873,12 +885,13 @@ prefix_oli(char *data, size_t size) {
 	while (i < size && data[i] >= '0' && data[i] <= '9') i += 1;
 	if (i + 1 >= size || data[i] != '.'
 	|| (data[i + 1] != ' ' && data[i + 1] != '\t')) return 0;
-	return i + 2; }
-
+	return i + 2;
+}
 
 /* prefix_uli • returns ordered list item prefix */
 static size_t
-prefix_uli(char *data, size_t size) {
+prefix_uli(char *data, size_t size)
+{
 	size_t i = 0;
 	if (i < size && data[i] == ' ') i += 1;
 	if (i < size && data[i] == ' ') i += 1;
@@ -887,7 +900,8 @@ prefix_uli(char *data, size_t size) {
 	|| (data[i] != '*' && data[i] != '+' && data[i] != '-')
 	|| (data[i + 1] != ' ' && data[i + 1] != '\t'))
 		return 0;
-	return i + 2; }
+	return i + 2;
+}
 
 
 /* parse_block • parsing of one block, returning next char to parse */
@@ -897,7 +911,8 @@ static void parse_block(struct buf *ob, struct render *rndr,
 
 /* parse_blockquote • hanldes parsing of a blockquote fragment */
 static size_t
-parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size, int depth) {
+parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size, int depth)
+{
 	size_t beg, end = 0, pre, work_size = 0;
 	char *work_data = 0;
 	struct buf *out = 0;
@@ -942,8 +957,8 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, in
 
 /* parse_blockquote • hanldes parsing of a regular paragraph */
 static size_t
-parse_paragraph(struct buf *ob, struct render *rndr,
-			char *data, size_t size) {
+parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
+{
 	size_t i = 0, end = 0;
 	int level = 0;
 	struct buf work = { data, 0, 0, 0, 0 }; /* volatile working buffer */
@@ -1016,13 +1031,13 @@ parse_paragraph(struct buf *ob, struct render *rndr,
 			else work.size = i; }
 		if (rndr->make.header)
 			rndr->make.header(ob, &work, level, &rndr->make.render_options);}
-	return end; }
-
+	return end;
+}
 
 /* parse_blockquote • hanldes parsing of a block-level code fragment */
 static size_t
-parse_blockcode(struct buf *ob, struct render *rndr,
-			char *data, size_t size) {
+parse_blockcode(struct buf *ob, struct render *rndr, char *data, size_t size)
+{
 	size_t beg, end, pre;
 	struct buf *work = 0;
 
@@ -1056,8 +1071,8 @@ parse_blockcode(struct buf *ob, struct render *rndr,
 	if (rndr->make.blockcode)
 		rndr->make.blockcode(ob, work, &rndr->make.render_options);
 	rndr->work.size -= 1;
-	return beg; }
-
+	return beg;
+}
 
 /* parse_listitem • parsing of a single list item */
 /*	assuming initial prefix is already removed */
@@ -1188,7 +1203,8 @@ parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int
 
 /* parse_list • parsing ordered or unordered list block */
 static size_t
-parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int flags, int depth) {
+parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int flags, int depth)
+{
 	struct buf *work = 0;
 	size_t i = 0, j;
 
@@ -1216,7 +1232,8 @@ parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int fla
 
 /* parse_atxheader • parsing of atx-style headers */
 static size_t
-parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size) {
+parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size)
+{
 	size_t level = 0;
 	size_t i, end, skip;
 	struct buf work = { data, 0, 0, 0, 0 };
@@ -1240,7 +1257,8 @@ parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size) {
 /* htmlblock_end • checking end of HTML block : </tag>[ \t]*\n[ \t*]\n */
 /*	returns the length on match, 0 otherwise */
 static size_t
-htmlblock_end(struct html_tag *tag, char *data, size_t size) {
+htmlblock_end(struct html_tag *tag, char *data, size_t size)
+{
 	size_t i, w;
 
 	/* assuming data[0] == '<' && data[1] == '/' already tested */
@@ -1274,7 +1292,8 @@ htmlblock_end(struct html_tag *tag, char *data, size_t size) {
 
 /* parse_htmlblock • parsing of inline HTML block */
 static size_t
-parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, int do_render) {
+parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, int do_render)
+{
 	size_t i, j = 0;
 	struct html_tag *curtag;
 	int found;
@@ -1382,7 +1401,8 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, in
 
 /* parse_block • parsing of one block, returning next char to parse */
 static void
-parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int depth) {
+parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int depth)
+{
 	size_t beg, end, i;
 	char *txt_data;
 	beg = 0;
@@ -1426,7 +1446,8 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int de
 
 /* is_ref • returns whether a line is a reference or not */
 static int
-is_ref(char *data, size_t beg, size_t end, size_t *last, struct array *refs) {
+is_ref(char *data, size_t beg, size_t end, size_t *last, struct array *refs)
+{
 /*	int n; */
 	size_t i = 0;
 	size_t id_offset, id_end;
@@ -1523,13 +1544,9 @@ is_ref(char *data, size_t beg, size_t end, size_t *last, struct array *refs) {
 		bufput(lr->title, data + title_offset,
 					title_end - title_offset); }
 	else lr->title = 0;
-	return 1; }
+	return 1; 
+}
 
-
-
-/**********************
- * EXPORTED FUNCTIONS *
- **********************/
 static void expand_tabs(struct buf *ob, const char *line, size_t size)
 {
 	size_t  i = 0, tab = 0;
@@ -1554,6 +1571,10 @@ static void expand_tabs(struct buf *ob, const char *line, size_t size)
 		i++;
 	}
 }
+
+/**********************
+ * EXPORTED FUNCTIONS *
+ **********************/
 
 /* markdown • parses the input buffer and renders it into the output buffer */
 void
