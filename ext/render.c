@@ -22,7 +22,8 @@
 #include <stdio.h>
 
 
-static int is_safe_link(const char *link, size_t link_len)
+static int
+is_safe_link(const char *link, size_t link_len)
 {
 	static const size_t valid_uris_count = 4;
 	static const char *valid_uris[] = {
@@ -39,6 +40,12 @@ static int is_safe_link(const char *link, size_t link_len)
 	}
 
 	return 0;
+}
+
+static inline int
+is_uri_char(char c)
+{
+	return isalnum(c) || strchr("/:$-_.+!*'(),", c) != NULL;
 }
 
 static int
@@ -435,17 +442,16 @@ rndr_normal_text(struct buf *ob, struct buf *text, struct mkd_renderopt *options
 		 */
 		if (autolink) {
 			/* Autolinking is not standarized in the Markdown spec.
-			 * We only check for links after special characters, i.e.
-			 * immediately after a space or a parenthesis */
-			if ((i == 0 || isspace(text->data[i - 1]) || text->data[i - 1] == '(') &&
+			 * We only check for links immediately after a space  */
+			if ((i == 0 || isspace(text->data[i - 1])) &&
 				is_safe_link(text->data + i, text->size - i)) {
 				size_t j = i + i;
 
-				while (j < text->size && !isspace(text->data[j]))
+				while (j < text->size && is_uri_char(text->data[j]))
 					j++;
 
 				rndr_autolink2(ob, &text->data[i], j - i, MKDA_NORMAL);
-				i = j;
+				i = j - 1;
 				continue;
 			}
 		}

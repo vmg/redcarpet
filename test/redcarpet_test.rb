@@ -122,4 +122,10 @@ class RedcarpetTest < Test::Unit::TestCase
     assert_equal exp, rd.toc_content.strip
   end
 
+  def test_whitespace_after_urls
+    rd = Redcarpet.new("Japan: http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm (yes, japan)", :autolink)
+    exp = %{<p>Japan: <a href="http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm">http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm</a> (yes, japan)</p>}
+    assert_equal exp, rd.to_html.strip
+  end
+
 end
