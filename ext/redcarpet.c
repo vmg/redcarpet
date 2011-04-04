@@ -70,7 +70,8 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 	input_buf.data = RSTRING_PTR(text);
 	input_buf.size = RSTRING_LEN(text);
 
-	output_buf = bufnew(64);
+	output_buf = bufnew(128);
+	bufgrow(output_buf, RSTRING_LEN(text) * 1.2f);
 
 	switch (render_type) {
 	case REDCARPET_RENDER_XHTML:

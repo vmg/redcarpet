@@ -128,4 +128,7 @@ class RedcarpetTest < Test::Unit::TestCase
     assert_equal exp, rd.to_html.strip
   end
 
+  def test_unbound_recursion
+    Redcarpet.new(("[" * 10000) + "foo" + ("](bar)" * 10000)).to_html
+  end
 end
