@@ -211,7 +211,7 @@ int
 parr_insert(struct parray *parr, int nb, int n) {
 	char *src, *dst;
 	size_t len, i;
-	if (!parr || nb == 0 || n < 0
+	if (!parr || nb <= 0 || n < 0
 	|| !parr_grow(parr, parr->size + nb))
 		return 0;
 	if (n < parr->size) {

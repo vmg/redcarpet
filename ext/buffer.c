@@ -302,10 +302,11 @@ vbufprintf(struct buf *buf, const char *fmt, va_list ap) {
 	n = vsnprintf(buf->data + buf->size, buf->asize - buf->size, fmt, ap);
 
 	if (n < 0 || (size_t)n >= buf->asize - buf->size) {
-		if (!bufgrow (buf, buf->size + n + 1))
+		size_t new_size = (n > 0) ? n : buf->size;
+		if (!bufgrow (buf, buf->size + new_size + 1))
 			return;
 
-		n = vsnprintf (buf->data + buf->size, buf->asize - buf->size, fmt, ap_save);
+		n = vsnprintf(buf->data + buf->size, buf->asize - buf->size, fmt, ap_save);
 	}
 	va_end(ap_save);
 
