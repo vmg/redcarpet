@@ -47,7 +47,7 @@ struct link_ref {
 /*   offset is the number of valid chars before data */
 struct render;
 typedef size_t
-(*char_trigger)(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size, int depth);
+(*char_trigger)(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size);
 
 
 /* render • structure containing one particular render */
@@ -233,13 +233,13 @@ tag_length(char *data, size_t size, enum mkd_autolink *autolink)
 
 /* parse_inline • parses inline markdown elements */
 static void
-parse_inline(struct buf *ob, struct render *rndr, char *data, size_t size, int depth)
+parse_inline(struct buf *ob, struct render *rndr, char *data, size_t size)
 {
 	size_t i = 0, end = 0;
 	char_trigger action = 0;
 	struct buf work = { 0, 0, 0, 0, 0 };
 
-	if (depth >= rndr->make.parser_options.recursion_depth)
+	if (rndr->work.size > rndr->make.parser_options.recursion_depth)
 		return;
 
 	while (i < size) {
@@ -259,7 +259,7 @@ parse_inline(struct buf *ob, struct render *rndr, char *data, size_t size, int d
 		i = end;
 
 		/* calling the trigger */
-		end = action(ob, rndr, data + i, i, size - i, depth + 1);
+		end = action(ob, rndr, data + i, i, size - i);
 		if (!end) /* no action from the callback */
 			end = i + 1;
 		else { 
@@ -323,7 +323,7 @@ find_emph_char(char *data, size_t size, char c)
 /* parse_emph1 • parsing single emphase */
 /* closed by a symbol not preceded by whitespace and not followed by symbol */
 static size_t
-parse_emph1(struct buf *ob, struct render *rndr, char *data, size_t size, char c, int depth)
+parse_emph1(struct buf *ob, struct render *rndr, char *data, size_t size, char c)
 {
 	size_t i = 0, len;
 	struct buf *work = 0;
@@ -360,7 +360,7 @@ parse_emph1(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 				parr_push(&rndr->work, work);
 			}
 
-			parse_inline(work, rndr, data, i, depth + 1);
+			parse_inline(work, rndr, data, i);
 			r = rndr->make.emphasis(ob, work, c, &rndr->make.render_options);
 			rndr->work.size -= 1;
 			return r ? i + 1 : 0;
@@ -372,13 +372,14 @@ parse_emph1(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 
 /* parse_emph2 • parsing single emphase */
 static size_t
-parse_emph2(struct buf *ob, struct render *rndr, char *data, size_t size, char c, int depth)
+parse_emph2(struct buf *ob, struct render *rndr, char *data, size_t size, char c)
 {
 	size_t i = 0, len;
 	struct buf *work = 0;
 	int r;
 
-	if (!rndr->make.double_emphasis) return 0;
+	if (!rndr->make.double_emphasis)
+		return 0;
 	
 	while (i < size) {
 		len = find_emph_char(data + i, size - i, c);
@@ -394,7 +395,7 @@ parse_emph2(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 				parr_push(&rndr->work, work);
 			}
 
-			parse_inline(work, rndr, data, i, depth + 1);
+			parse_inline(work, rndr, data, i);
 			r = rndr->make.double_emphasis(ob, work, c, &rndr->make.render_options);
 			rndr->work.size -= 1;
 			return r ? i + 2 : 0;
@@ -407,7 +408,7 @@ parse_emph2(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 /* parse_emph3 • parsing single emphase */
 /* finds the first closing tag, and delegates to the other emph */
 static size_t
-parse_emph3(struct buf *ob, struct render *rndr, char *data, size_t size, char c, int depth)
+parse_emph3(struct buf *ob, struct render *rndr, char *data, size_t size, char c)
 {
 	size_t i = 0, len;
 	int r;
@@ -432,20 +433,20 @@ parse_emph3(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 				parr_push(&rndr->work, work);
 			}
 
-			parse_inline(work, rndr, data, i, depth + 1);
+			parse_inline(work, rndr, data, i);
 			r = rndr->make.triple_emphasis(ob, work, c, &rndr->make.render_options);
 			rndr->work.size -= 1;
 			return r ? i + 3 : 0;
 
 		} else if (i + 1 < size && data[i + 1] == c) {
 			/* double symbol found, handing over to emph1 */
-			len = parse_emph1(ob, rndr, data - 2, size + 2, c, depth + 1);
+			len = parse_emph1(ob, rndr, data - 2, size + 2, c);
 			if (!len) return 0;
 			else return len - 2;
 
 		} else {
 			/* single symbol found, handing over to emph2 */
-			len = parse_emph2(ob, rndr, data - 1, size + 1, c, depth + 1);
+			len = parse_emph2(ob, rndr, data - 1, size + 1, c);
 			if (!len) return 0;
 			else return len - 1;
 		}
@@ -455,28 +456,28 @@ parse_emph3(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 
 /* char_emphasis • single and double emphasis parsing */
 static size_t
-char_emphasis(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size, int depth)
+char_emphasis(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
 	char c = data[0];
 	size_t ret;
 
 	if (size > 2 && data[1] != c) {
 		/* whitespace cannot follow an opening emphasis */
-		if (isspace(data[1]) || (ret = parse_emph1(ob, rndr, data + 1, size - 1, c, depth + 1)) == 0)
+		if (isspace(data[1]) || (ret = parse_emph1(ob, rndr, data + 1, size - 1, c)) == 0)
 			return 0;
 
 		return ret + 1;
 	}
 
 	if (size > 3 && data[1] == c && data[2] != c) {
-		if (isspace(data[2]) || (ret = parse_emph2(ob, rndr, data + 2, size - 2, c, depth + 1)) == 0)
+		if (isspace(data[2]) || (ret = parse_emph2(ob, rndr, data + 2, size - 2, c)) == 0)
 			return 0;
 
 		return ret + 2;
 	}
 
 	if (size > 4 && data[1] == c && data[2] == c && data[3] != c) {
-		if (isspace(data[3]) || (ret = parse_emph3(ob, rndr, data + 3, size - 3, c, depth + 1)) == 0)
+		if (isspace(data[3]) || (ret = parse_emph3(ob, rndr, data + 3, size - 3, c)) == 0)
 			return 0;
 
 		return ret + 3;
@@ -488,7 +489,7 @@ char_emphasis(struct buf *ob, struct render *rndr, char *data, size_t offset, si
 
 /* char_linebreak • '\n' preceded by two spaces (assuming linebreak != 0) */
 static size_t
-char_linebreak(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size, int depth)
+char_linebreak(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
 	if (offset < 2 || data[-1] != ' ' || data[-2] != ' ')
 		return 0;
@@ -503,7 +504,7 @@ char_linebreak(struct buf *ob, struct render *rndr, char *data, size_t offset, s
 
 /* char_codespan • '`' parsing a code span (assuming codespan != 0) */
 static size_t
-char_codespan(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size, int depth)
+char_codespan(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
 	size_t end, nb = 0, i, f_begin, f_end;
 
@@ -546,7 +547,7 @@ char_codespan(struct buf *ob, struct render *rndr, char *data, size_t offset, si
 
 /* char_escape • '\\' backslash escape */
 static size_t
-char_escape(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size, int depth)
+char_escape(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
 	struct buf work = { 0, 0, 0, 0, 0 };
 
@@ -565,7 +566,7 @@ char_escape(struct buf *ob, struct render *rndr, char *data, size_t offset, size
 /* char_entity • '&' escaped when it doesn't belong to an entity */
 /* valid entities are assumed to be anything mathing &#?[A-Za-z0-9]+; */
 static size_t
-char_entity(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size, int depth)
+char_entity(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
 	size_t end = 1;
 	struct buf work;
@@ -593,7 +594,7 @@ char_entity(struct buf *ob, struct render *rndr, char *data, size_t offset, size
 
 /* char_langle_tag • '<' when tags or autolinks are allowed */
 static size_t
-char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size, int depth)
+char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
 	enum mkd_autolink altype = MKDA_NOT_AUTOLINK;
 	size_t end = tag_length(data, size, &altype);
@@ -617,7 +618,7 @@ char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, 
 
 /* char_link • '[': parsing a link or an image */
 static size_t
-char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size, int depth)
+char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
 	int is_img = (offset && data[-1] == '!'), level;
 	size_t i = 1, txt_e, link_b = 0, link_e = 0, title_b = 0, title_e = 0;
@@ -802,7 +803,7 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		}
 
 		if (is_img) bufput(content, data + 1, txt_e - 1);
-		else parse_inline(content, rndr, data + 1, txt_e - 1, depth + 1);
+		else parse_inline(content, rndr, data + 1, txt_e - 1);
 	}
 
 	/* calling the relevant rendering function */
@@ -944,12 +945,12 @@ prefix_uli(char *data, size_t size)
 
 /* parse_block • parsing of one block, returning next char to parse */
 static void parse_block(struct buf *ob, struct render *rndr,
-			char *data, size_t size, int depth);
+			char *data, size_t size);
 
 
 /* parse_blockquote • hanldes parsing of a blockquote fragment */
 static size_t
-parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size, int depth)
+parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size)
 {
 	size_t beg, end = 0, pre, work_size = 0;
 	char *work_data = 0;
@@ -964,8 +965,7 @@ parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size, i
 
 	beg = 0;
 	while (beg < size) {
-		for (end = beg + 1; end < size && data[end - 1] != '\n';
-							end += 1);
+		for (end = beg + 1; end < size && data[end - 1] != '\n'; end += 1);
 		pre = prefix_quote(data + beg, end - beg);
 		if (pre) beg += pre; /* skipping prefix */
 		else if (is_empty(data + beg, end - beg)
@@ -983,7 +983,7 @@ parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size, i
 			work_size += end - beg; }
 		beg = end; }
 
-	parse_block(out, rndr, work_data, work_size, depth + 1);
+	parse_block(out, rndr, work_data, work_size);
 	if (rndr->make.blockquote)
 		rndr->make.blockquote(ob, out, &rndr->make.render_options);
 	rndr->work.size -= 1;
@@ -995,7 +995,7 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, in
 
 /* parse_blockquote • hanldes parsing of a regular paragraph */
 static size_t
-parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size, int depth)
+parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 {
 	size_t i = 0, end = 0;
 	int level = 0;
@@ -1037,7 +1037,7 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size, in
 		else {
 			tmp = bufnew(WORK_UNIT);
 			parr_push(&rndr->work, tmp); }
-		parse_inline(tmp, rndr, work.data, work.size, depth + 1);
+		parse_inline(tmp, rndr, work.data, work.size);
 		if (rndr->make.paragraph)
 			rndr->make.paragraph(ob, tmp, &rndr->make.render_options);
 		rndr->work.size -= 1; }
@@ -1059,10 +1059,9 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size, in
 				else {
 					tmp = bufnew(WORK_UNIT);
 					parr_push(&rndr->work, tmp); }
-				parse_inline(tmp, rndr, work.data, work.size, depth + 1);
+				parse_inline(tmp, rndr, work.data, work.size);
 				if (rndr->make.paragraph)
-					rndr->make.paragraph(ob, tmp,
-							&rndr->make.render_options);
+					rndr->make.paragraph(ob, tmp, &rndr->make.render_options);
 				rndr->work.size -= 1;
 				work.data += beg;
 				work.size = i - beg; }
@@ -1115,7 +1114,7 @@ parse_blockcode(struct buf *ob, struct render *rndr, char *data, size_t size)
 /* parse_listitem • parsing of a single list item */
 /*	assuming initial prefix is already removed */
 static size_t
-parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int *flags, int depth)
+parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int *flags)
 {
 	struct buf *work = 0, *inter = 0;
 	size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
@@ -1215,19 +1214,19 @@ parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int
 	if (*flags & MKD_LI_BLOCK) {
 		/* intermediate render of block li */
 		if (sublist && sublist < work->size) {
-			parse_block(inter, rndr, work->data, sublist, depth + 1);
-			parse_block(inter, rndr, work->data + sublist, work->size - sublist, depth + 1); 
+			parse_block(inter, rndr, work->data, sublist);
+			parse_block(inter, rndr, work->data + sublist, work->size - sublist); 
 		}
 		else
-			parse_block(inter, rndr, work->data, work->size, depth + 1);
+			parse_block(inter, rndr, work->data, work->size);
 	} else {
 		/* intermediate render of inline li */
 		if (sublist && sublist < work->size) {
-			parse_inline(inter, rndr, work->data, sublist, depth + 1);
-			parse_block(inter, rndr, work->data + sublist, work->size - sublist, depth + 1);
+			parse_inline(inter, rndr, work->data, sublist);
+			parse_block(inter, rndr, work->data + sublist, work->size - sublist);
 		}
 		else
-			parse_inline(inter, rndr, work->data, work->size, depth + 1);
+			parse_inline(inter, rndr, work->data, work->size);
 	}
 
 	/* render of li itself */
@@ -1241,7 +1240,7 @@ parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int
 
 /* parse_list • parsing ordered or unordered list block */
 static size_t
-parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int flags, int depth)
+parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int flags)
 {
 	struct buf *work = 0;
 	size_t i = 0, j;
@@ -1254,7 +1253,7 @@ parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int fla
 		parr_push(&rndr->work, work); }
 
 	while (i < size) {
-		j = parse_listitem(work, rndr, data + i, size - i, &flags, depth + 1);
+		j = parse_listitem(work, rndr, data + i, size - i, &flags);
 		i += j;
 
 		if (!j || (flags & MKD_LI_END))
@@ -1439,40 +1438,52 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, in
 
 /* parse_block • parsing of one block, returning next char to parse */
 static void
-parse_block(struct buf *ob, struct render *rndr, char *data, size_t size, int depth)
+parse_block(struct buf *ob, struct render *rndr, char *data, size_t size)
 {
 	size_t beg, end, i;
 	char *txt_data;
 	beg = 0;
 
-	if (depth >= rndr->make.parser_options.recursion_depth)
+	if (rndr->work.size > rndr->make.parser_options.recursion_depth)
 		return;
 
 	while (beg < size) {
 		txt_data = data + beg;
 		end = size - beg;
+
 		if (data[beg] == '#')
 			beg += parse_atxheader(ob, rndr, txt_data, end);
-		else if (data[beg] == '<' && rndr->make.blockhtml
-			&& (i = parse_htmlblock(ob, rndr, txt_data, end, 1)) != 0)
+
+		else if (data[beg] == '<' && rndr->make.blockhtml && (i = parse_htmlblock(ob, rndr, txt_data, end, 1)) != 0)
 			beg += i;
+
 		else if ((i = is_empty(txt_data, end)) != 0)
 			beg += i;
+
 		else if (is_hrule(txt_data, end)) {
 			if (rndr->make.hrule)
 				rndr->make.hrule(ob, &rndr->make.render_options);
-			while (beg < size && data[beg] != '\n') beg += 1;
-			beg += 1; }
+
+			while (beg < size && data[beg] != '\n')
+				beg++;
+
+			beg++;
+		}
+
 		else if (prefix_quote(txt_data, end))
-			beg += parse_blockquote(ob, rndr, txt_data, end, depth + 1);
+			beg += parse_blockquote(ob, rndr, txt_data, end);
+
 		else if (prefix_code(txt_data, end))
 			beg += parse_blockcode(ob, rndr, txt_data, end);
+
 		else if (prefix_uli(txt_data, end))
-			beg += parse_list(ob, rndr, txt_data, end, 0, depth + 1);
+			beg += parse_list(ob, rndr, txt_data, end, 0);
+
 		else if (prefix_oli(txt_data, end))
-			beg += parse_list(ob, rndr, txt_data, end, MKD_LIST_ORDERED, depth + 1);
+			beg += parse_list(ob, rndr, txt_data, end, MKD_LIST_ORDERED);
+
 		else
-			beg += parse_paragraph(ob, rndr, txt_data, end, depth + 1);
+			beg += parse_paragraph(ob, rndr, txt_data, end);
 	}
 }
 
@@ -1690,7 +1701,7 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 		bufputc(text, '\n');
 
 	/* second pass: actual rendering */
-	parse_block(ob, &rndr, text->data, text->size, 0 /* initial depth */);
+	parse_block(ob, &rndr, text->data, text->size);
 	if (rndr.make.finalize)
 		rndr.make.finalize(ob, &rndr.make.render_options);
 
