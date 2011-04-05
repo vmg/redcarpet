@@ -131,4 +131,19 @@ class RedcarpetTest < Test::Unit::TestCase
   def test_unbound_recursion
     Redcarpet.new(("[" * 10000) + "foo" + ("](bar)" * 10000)).to_html
   end
+
+  def test_memory_leak_when_parsing_char_links
+    Redcarpet.new(<<-leaks).to_html
+2. Identify the wild-type cluster and determine all clusters
+   containing or contained by it:
+   
+       wildtype <- wildtype.cluster(h)
+       wildtype.mask <- logical(nclust)
+       wildtype.mask[c(contains(h, wildtype),
+                       wildtype,
+                       contained.by(h, wildtype))] <- TRUE
+  
+   This could be more elegant.
+    leaks
+  end
 end

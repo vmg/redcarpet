@@ -625,21 +625,33 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 	struct buf *link = 0;
 	struct buf *title = 0;
 	size_t org_work_size = rndr->work.size;
-	int text_has_nl = 0, ret;
+	int text_has_nl = 0, ret = 0;
 
 	/* checking whether the correct renderer exists */
 	if ((is_img && !rndr->make.image) || (!is_img && !rndr->make.link))
-		return 0;
+		goto cleanup;
 
 	/* looking for the matching closing bracket */
-	for (level = 1; i < size; i += 1)
-		if (data[i] == '\n') text_has_nl = 1;
-		else if (data[i - 1] == '\\') continue;
-		else if (data[i] == '[') level += 1;
+	for (level = 1; i < size; i += 1) {
+		if (data[i] == '\n')
+			text_has_nl = 1;
+
+		else if (data[i - 1] == '\\')
+			continue;
+
+		else if (data[i] == '[')
+			level++;
+
 		else if (data[i] == ']') {
-			level -= 1;
-			if (level <= 0) break; }
-	if (i >= size) return 0;
+			level--;
+			if (level <= 0)
+				break;
+		}
+	}
+
+	if (i >= size)
+		goto cleanup;
+
 	txt_e = i;
 	i += 1;
 
@@ -652,63 +664,72 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 	if (i < size && data[i] == '(') {
 		/* skipping initial whitespace */
 		i += 1;
-		while (i < size && (data[i] == ' ' || data[i] == '\t')) i += 1;
+
+		while (i < size && (data[i] == ' ' || data[i] == '\t'))
+			i++;
+
 		link_b = i;
 
 		/* looking for link end: ' " ) */
-		while (i < size
-		&& data[i] != '\'' && data[i] != '"' && data[i] != ')')
-			i += 1;
-		if (i >= size) return 0;
+		while (i < size && data[i] != '\'' && data[i] != '"' && data[i] != ')')
+			i++;
+
+		if (i >= size) goto cleanup;
 		link_e = i;
 
 		/* looking for title end if present */
 		if (data[i] == '\'' || data[i] == '"') {
-			i += 1;
+			i++;
 			title_b = i;
-			while (i < size && data[i] != ')')
-				i += 1;
-			if (i >= size) return 0;
+
+			while (i < size && data[i] != ')') i++;
+			if (i >= size) goto cleanup;
 
 			/* skipping whitespaces after title */
 			title_e = i - 1;
-			while (title_e > title_b && (data[title_e] == ' ' 
-			|| data[title_e] == '\t' || data[title_e] == '\n'))
-				title_e -= 1;
+			while (title_e > title_b && isspace(data[title_e]))
+				title_e--;
 
 			/* checking for closing quote presence */
 			if (data[title_e] != '\'' &&  data[title_e] != '"') {
 				title_b = title_e = 0;
-				link_e = i; } }
+				link_e = i;
+			}
+		}
 
 		/* remove whitespace at the end of the link */
-		while (link_e > link_b
-		&& (data[link_e - 1] == ' ' || data[link_e - 1] == '\t'))
-			link_e -= 1;
+		while (link_e > link_b && (data[link_e - 1] == ' ' || data[link_e - 1] == '\t'))
+			link_e--;
 
 		/* remove optional angle brackets around the link */
-		if (data[link_b] == '<') link_b += 1;
-		if (data[link_e - 1] == '>') link_e -= 1;
+		if (data[link_b] == '<') link_b++;
+		if (data[link_e - 1] == '>') link_e--;
 
 		/* building escaped link and title */
 		if (link_e > link_b) {
 			if (rndr->work.size < rndr->work.asize) {
 				link = rndr->work.item[rndr->work.size ++];
-				link->size = 0; }
-			else {
+				link->size = 0;
+			} else {
 				link = bufnew(WORK_UNIT);
-				parr_push(&rndr->work, link); }
-			bufput(link, data + link_b, link_e - link_b); }
+				parr_push(&rndr->work, link);
+			}
+			bufput(link, data + link_b, link_e - link_b);
+		}
+
 		if (title_e > title_b) {
 			if (rndr->work.size < rndr->work.asize) {
 				title = rndr->work.item[rndr->work.size ++];
-				title->size = 0; }
-			else {
+				title->size = 0;
+			} else {
 				title = bufnew(WORK_UNIT);
-				parr_push(&rndr->work, title); }
-			bufput(title, data + title_b, title_e - title_b);}
+				parr_push(&rndr->work, title);
+			}
+			bufput(title, data + title_b, title_e - title_b);
+		}
 
-		i += 1; }
+		i++;
+	}
 
 	/* reference style link */
 	else if (i < size && data[i] == '[') {
@@ -718,8 +739,8 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		/* looking for the id */
 		i += 1;
 		link_b = i;
-		while (i < size && data[i] != ']') i += 1;
-		if (i >= size) return 0;
+		while (i < size && data[i] != ']') i++;
+		if (i >= size) goto cleanup;
 		link_e = i;
 
 		/* finding the link_ref */
@@ -727,32 +748,41 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 			if (text_has_nl) {
 				struct buf *b = 0;
 				size_t j;
+
 				if (rndr->work.size < rndr->work.asize) {
 					b = rndr->work.item[rndr->work.size ++];
-					b->size = 0; }
-				else {
+					b->size = 0;
+				} else {
 					b = bufnew(WORK_UNIT);
-					parr_push(&rndr->work, b); }
-				for (j = 1; j < txt_e; j += 1)
+					parr_push(&rndr->work, b);
+				}
+
+				for (j = 1; j < txt_e; j++) {
 					if (data[j] != '\n')
 						bufputc(b, data[j]);
 					else if (data[j - 1] != ' ')
 						bufputc(b, ' ');
+				}
+
 				id.data = b->data;
-				id.size = b->size; }
-			else {
+				id.size = b->size;
+			} else {
 				id.data = data + 1;
-				id.size = txt_e - 1; } }
-		else {
+				id.size = txt_e - 1;
+			}
+		} else {
 			id.data = data + link_b;
-			id.size = link_e - link_b; }
+			id.size = link_e - link_b;
+		}
+
 		lr = arr_sorted_find(&rndr->refs, &id, cmp_link_ref);
-		if (!lr) return 0;
+		if (!lr) goto cleanup;
 
 		/* keeping link and title from link_ref */
 		link = lr->link;
 		title = lr->title;
-		i += 1; }
+		i += 1;
+	}
 
 	/* shortcut reference style link */
 	else {
@@ -763,33 +793,40 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		if (text_has_nl) {
 			struct buf *b = 0;
 			size_t j;
+
 			if (rndr->work.size < rndr->work.asize) {
 				b = rndr->work.item[rndr->work.size ++];
-				b->size = 0; }
-			else {
+				b->size = 0;
+			} else {
 				b = bufnew(WORK_UNIT);
-				parr_push(&rndr->work, b); }
-			for (j = 1; j < txt_e; j += 1)
+				parr_push(&rndr->work, b);
+			}
+
+			for (j = 1; j < txt_e; j++) {
 				if (data[j] != '\n')
 					bufputc(b, data[j]);
 				else if (data[j - 1] != ' ')
 					bufputc(b, ' ');
+			}
+
 			id.data = b->data;
-			id.size = b->size; }
-		else {
+			id.size = b->size;
+		} else {
 			id.data = data + 1;
-			id.size = txt_e - 1; }
+			id.size = txt_e - 1;
+		}
 
 		/* finding the link_ref */
 		lr = arr_sorted_find(&rndr->refs, &id, cmp_link_ref);
-		if (!lr) return 0;
+		if (!lr) goto cleanup;
 
 		/* keeping link and title from link_ref */
 		link = lr->link;
 		title = lr->title;
 
 		/* rewinding the whitespace */
-		i = txt_e + 1; }
+		i = txt_e + 1;
+	}
 
 	/* building content: img alt is escaped, link content is parsed */
 	if (txt_e > 1) {
@@ -806,7 +843,6 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 	}
 
 	/* calling the relevant rendering function */
-	ret = 0;
 	if (is_img) {
 		if (ob->size && ob->data[ob->size - 1] == '!')
 			ob->size -= 1;
@@ -816,6 +852,7 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		ret = rndr->make.link(ob, link, title, content, &rndr->make.render_options);
 
 	/* cleanup */
+cleanup:
 	rndr->work.size = (int)org_work_size;
 	return ret ? i : 0;
 }
@@ -1027,46 +1064,63 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 
 	work.size = i;
 	while (work.size && data[work.size - 1] == '\n')
-		work.size -= 1;
+		work.size--;
+
 	if (!level) {
 		struct buf *tmp = 0;
 		if (rndr->work.size < rndr->work.asize) {
 			tmp = rndr->work.item[rndr->work.size ++];
-			tmp->size = 0; }
-		else {
+			tmp->size = 0;
+		} else {
 			tmp = bufnew(WORK_UNIT);
-			parr_push(&rndr->work, tmp); }
+			parr_push(&rndr->work, tmp);
+		}
+
 		parse_inline(tmp, rndr, work.data, work.size);
 		if (rndr->make.paragraph)
 			rndr->make.paragraph(ob, tmp, &rndr->make.render_options);
-		rndr->work.size -= 1; }
-	else {
+		rndr->work.size--;
+
+	} else {
 		if (work.size) {
 			size_t beg;
 			i = work.size;
 			work.size -= 1;
+
 			while (work.size && data[work.size] != '\n')
 				work.size -= 1;
+
 			beg = work.size + 1;
 			while (work.size && data[work.size - 1] == '\n')
 				work.size -= 1;
+
 			if (work.size) {
 				struct buf *tmp = 0;
+
 				if (rndr->work.size < rndr->work.asize) {
 					tmp=rndr->work.item[rndr->work.size++];
-					tmp->size = 0; }
-				else {
+					tmp->size = 0;
+				} else {
 					tmp = bufnew(WORK_UNIT);
-					parr_push(&rndr->work, tmp); }
+					parr_push(&rndr->work, tmp);
+				}
+
 				parse_inline(tmp, rndr, work.data, work.size);
+
 				if (rndr->make.paragraph)
 					rndr->make.paragraph(ob, tmp, &rndr->make.render_options);
+
 				rndr->work.size -= 1;
 				work.data += beg;
-				work.size = i - beg; }
-			else work.size = i; }
+				work.size = i - beg;
+			}
+			else work.size = i;
+		}
+
 		if (rndr->make.header)
-			rndr->make.header(ob, &work, level, &rndr->make.render_options);}
+			rndr->make.header(ob, &work, level, &rndr->make.render_options);
+	}
+
 	return end;
 }
 
@@ -1209,7 +1263,9 @@ parse_listitem(struct buf *ob, struct render *rndr, char *data, size_t size, int
 	}
 
 	/* render of li contents */
-	if (has_inside_empty) *flags |= MKD_LI_BLOCK;
+	if (has_inside_empty)
+		*flags |= MKD_LI_BLOCK;
+
 	if (*flags & MKD_LI_BLOCK) {
 		/* intermediate render of block li */
 		if (sublist && sublist < work->size) {
@@ -1688,13 +1744,13 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 
 	/* sorting the reference array */
 	if (rndr.refs.size)
-		qsort(rndr.refs.base, rndr.refs.size, rndr.refs.unit,
-					cmp_link_ref_sort);
+		qsort(rndr.refs.base, rndr.refs.size, rndr.refs.unit, cmp_link_ref_sort);
 
 	/* adding a final newline if not already present */
-	if (!text->size) return;
-	if (text->data[text->size - 1] != '\n'
-	&&  text->data[text->size - 1] != '\r')
+	if (!text->size)
+		return;
+
+	if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r')
 		bufputc(text, '\n');
 
 	/* second pass: actual rendering */
