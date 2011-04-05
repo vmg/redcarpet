@@ -2,6 +2,7 @@
 #include "ruby.h"
 
 #include "markdown.h"
+#include "xhtml.h"
 
 #define REDCARPET_RECURSION_LIMIT 16
 
@@ -49,9 +50,13 @@ static void rb_redcarpet__setup_xhtml(struct mkd_renderer *rnd, VALUE ruby_obj)
 	if (rb_funcall(ruby_obj, rb_intern("generate_toc"), 0) == Qtrue)
 		render_flags |= RENDER_TOC;
 
-	/* parser - strict */
+	/* parser - strict
+	 * This is fucking stupid; what the 'strict' flag actually
+	 * enforces is laxer emphasis parsing. So we use a properly
+	 * named flag internally, even if outside we have retarded
+	 * naming because of compat. issues .*/
 	if (rb_funcall(ruby_obj, rb_intern("strict"), 0) == Qtrue)
-		parser_flags |= PARSER_STRICT;
+		parser_flags |= MKD_LAX_EMPHASIS;
 
 	init_xhtml_renderer(rnd, render_flags, parser_flags, REDCARPET_RECURSION_LIMIT);
 }

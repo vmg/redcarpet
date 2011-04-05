@@ -346,7 +346,7 @@ parse_emph1(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 
 		if (data[i] == c && !isspace(data[i - 1])) {
 
-			if ((rndr->make.parser_options.flags & PARSER_STRICT) == 0) {
+			if ((rndr->make.parser_options.flags & MKD_LAX_EMPHASIS) == 0) {
 				if (!(i + 1 == size || isspace(data[i + 1]) || ispunct(data[i + 1])))
 					continue;
 			}

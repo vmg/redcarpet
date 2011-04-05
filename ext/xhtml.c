@@ -16,8 +16,8 @@
  */
 
 #include "markdown.h"
+#include "xhtml.h"
 
-#include <assert.h>
 #include <strings.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -186,7 +186,6 @@ rndr_header(struct buf *ob, struct buf *text, int level, struct mkd_renderopt *o
 
 	if (options->flags & RENDER_TOC) {
 		struct toc_data *data = options->opaque;
-		assert(data);
 		bufprintf(ob, "<a name=\"toc_%d\"></a>", data->header_count++);
 	}
 

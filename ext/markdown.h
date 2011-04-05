@@ -16,8 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef LITHIUM_MARKDOWN_H
-#define LITHIUM_MARKDOWN_H
+#ifndef UPSKIRT_MARKDOWN_H
+#define UPSKIRT_MARKDOWN_H
 
 #include "buffer.h"
 
@@ -35,6 +35,10 @@ enum mkd_autolink {
 	MKDA_EXPLICIT_EMAIL,	/* e-mail link with explit mailto: */
 	MKDA_IMPLICIT_EMAIL	/* e-mail link without mailto: */
 };
+
+typedef enum {
+	MKD_LAX_EMPHASIS = (1 << 0),
+} mkd_parser_mode;
 
 struct mkd_renderopt {
 	void *opaque;
@@ -84,8 +88,6 @@ struct mkd_renderer {
 	struct mkd_parseropt parser_options;
 };
 
-
-
 /*********
  * FLAGS *
  *********/
@@ -93,22 +95,6 @@ struct mkd_renderer {
 /* list/listitem flags */
 #define MKD_LIST_ORDERED	1
 #define MKD_LI_BLOCK		2  /* <li> containing block data */
-
-typedef enum {
-	RENDER_SKIP_HTML = (1 << 0),
-	RENDER_SKIP_STYLE = (1 << 1),
-	RENDER_SKIP_IMAGES = (1 << 2),
-	RENDER_SKIP_LINKS = (1 << 3),
-	RENDER_SMARTYPANTS = (1 << 4),
-	RENDER_EXPAND_TABS = (1 << 5),
-	RENDER_AUTOLINK = (1 << 6),
-	RENDER_SAFELINK = (1 << 7),
-	RENDER_TOC = (1 << 8),
-} render_mode;
-
-typedef enum {
-	PARSER_STRICT = (1 << 0),
-} parser_mode;
 
 /**********************
  * EXPORTED FUNCTIONS *
@@ -118,14 +104,6 @@ typedef enum {
 void
 markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr);
 
-void
-init_xhtml_renderer(struct mkd_renderer *renderer,
-		unsigned int render_flags,
-		unsigned int parser_flags, int recursion_depth);
-
-void
-init_toc_renderer(struct mkd_renderer *renderer, int recursion_depth);
-
-#endif /* ndef LITHIUM_MARKDOWN_H */
+#endif
 
 /* vim: set filetype=c: */
