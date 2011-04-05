@@ -56,7 +56,6 @@ struct render {
 	struct array refs;
 	char_trigger active_char[256];
 	struct parray work;
-	int header_count;
 };
 
 /* html_tag • structure for quick HTML tag search (inspired from discount) */
@@ -1067,7 +1066,7 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 				work.size = i - beg; }
 			else work.size = i; }
 		if (rndr->make.header)
-			rndr->make.header(ob, &work, level, rndr->header_count++, &rndr->make.render_options);}
+			rndr->make.header(ob, &work, level, &rndr->make.render_options);}
 	return end;
 }
 
@@ -1286,7 +1285,7 @@ parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size)
 	while (end && (data[end - 1] == ' ' || data[end - 1] == '\t')) end -= 1;
 	work.size = end - i;
 	if (rndr->make.header)
-		rndr->make.header(ob, &work, (int)level, rndr->header_count++, &rndr->make.render_options);
+		rndr->make.header(ob, &work, (int)level, &rndr->make.render_options);
 	return skip;
 }
 
@@ -1663,8 +1662,6 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 	rndr.active_char['\\'] = char_escape;
 	rndr.active_char['&'] = char_entity;
 
-	rndr.header_count = 1;
-
 	/* first pass: looking for references, copying everything else */
 	beg = 0;
 	while (beg < ib->size) /* iterating over lines */
@@ -1701,9 +1698,13 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 		bufputc(text, '\n');
 
 	/* second pass: actual rendering */
+	if (rndr.make.doc_header)
+		rndr.make.doc_header(ob, &rndr.make.render_options);
+
 	parse_block(ob, &rndr, text->data, text->size);
-	if (rndr.make.finalize)
-		rndr.make.finalize(ob, &rndr.make.render_options);
+
+	if (rndr.make.doc_footer)
+		rndr.make.doc_footer(ob, &rndr.make.render_options);
 
 	/* clean-up */
 	bufrelease(text);

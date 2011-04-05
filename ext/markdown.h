@@ -37,11 +37,7 @@ enum mkd_autolink {
 };
 
 struct mkd_renderopt {
-	union {
-		int data;
-		void *ptr;
-	} opaque;
-
+	void *opaque;
 	unsigned int flags;
 };
 
@@ -56,7 +52,7 @@ struct mkd_renderer {
 	void (*blockcode)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
 	void (*blockquote)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
 	void (*blockhtml)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
-	void (*header)(struct buf *ob, struct buf *text, int level, int header_count, struct mkd_renderopt *opaque);
+	void (*header)(struct buf *ob, struct buf *text, int level, struct mkd_renderopt *opaque);
 	void (*hrule)(struct buf *ob, struct mkd_renderopt *opaque);
 	void (*list)(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *opaque);
 	void (*listitem)(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *opaque);
@@ -77,8 +73,9 @@ struct mkd_renderer {
 	void (*entity)(struct buf *ob, struct buf *entity, struct mkd_renderopt *opaque);
 	void (*normal_text)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
 
-	/* finalizer */
-	void (*finalize)(struct buf *ob, struct mkd_renderopt *opaque);
+	/* header and footer */
+	void (*doc_header)(struct buf *ob, struct mkd_renderopt *opaque);
+	void (*doc_footer)(struct buf *ob, struct mkd_renderopt *opaque);
 
 	/* renderer data */
 	const char *emph_chars; /* chars that trigger emphasis rendering */

@@ -90,6 +90,7 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 
 	result = rb_str_new(output_buf->data, output_buf->size);
 	bufrelease(output_buf);
+	free_renderer(&renderer);
 
 	/* force the input encoding */
 	if (rb_respond_to(text, rb_intern("encoding"))) {
