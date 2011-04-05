@@ -1716,10 +1716,7 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer) {
 
 	arr_free(&rndr.refs);
 
-	/* Do not assert this; a malformed Markdown
-	 * file will result in parts of the work queue not being
-	 * printed. We cannot crash the library in that case. Duh. */
-	//assert(rndr.work.size == 0);
+	assert(rndr.work.size == 0);
 
 	for (i = 0; i < (size_t)rndr.work.asize; i += 1)
 		bufrelease(rndr.work.item[i]);

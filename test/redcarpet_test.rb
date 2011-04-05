@@ -129,6 +129,6 @@ class RedcarpetTest < Test::Unit::TestCase
   end
 
   def test_unbound_recursion
-    Redcarpet.new(("[" * 10000) + "foo" + ("](bar)" * 10000)).to_html
+    puts Redcarpet.new(("[" * 10000) + "foo" + ("](bar)" * 10000)).to_html
   end
 end
