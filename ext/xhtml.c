@@ -452,7 +452,7 @@ rndr_normal_text(struct buf *ob, struct buf *text, struct mkd_renderopt *options
 			 * We only check for links immediately after a space  */
 			if ((i == 0 || isspace(text->data[i - 1])) &&
 				is_safe_link(text->data + i, text->size - i)) {
-				size_t j = i + i;
+				size_t j = i;
 
 				while (j < text->size && is_uri_char(text->data[j]))
 					j++;
