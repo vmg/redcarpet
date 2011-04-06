@@ -34,8 +34,6 @@ struct buf {
 	size_t	unit;	/* reallocation unit size (0 = read-only buffer) */
 	int	ref; };	/* reference count */
 
-
-
 /**********
  * MACROS *
  **********/

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '1.3.2'
+  s.version = '1.3.3'
   s.summary = "Ruby bindings for libupskirt"
   s.date = '2011-04-06'
   s.email = 'vicent@github.com'

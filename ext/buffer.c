@@ -21,9 +21,9 @@
  *
  * BUFFER_STATS • if defined, stats are kept about memory usage
  */
-#define BUFFER_STATS
 
 #define BUFFER_STDARG
+#define BUFFER_MAX_ALLOC_SIZE (1024 * 1024 * 16) //16mb
 
 #include "buffer.h"
 
@@ -153,7 +153,7 @@ int
 bufgrow(struct buf *buf, size_t neosz) {
 	size_t neoasz;
 	void *neodata;
-	if (!buf || !buf->unit) return 0;
+	if (!buf || !buf->unit || neosz > BUFFER_MAX_ALLOC_SIZE) return 0;
 	if (buf->asize >= neosz) return 1;
 	neoasz = buf->asize + buf->unit;
 	while (neoasz < neosz) neoasz += buf->unit;

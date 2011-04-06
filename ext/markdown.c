@@ -600,7 +600,7 @@ char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, 
 	struct buf work = { data, end, 0, 0, 0 };
 	int ret = 0;
 
-	if (end) {
+	if (end > 2) {
 		if (rndr->make.autolink && altype != MKDA_NOT_AUTOLINK) {
 			work.data = data + 1;
 			work.size = end - 2;
@@ -1001,23 +1001,29 @@ parse_blockquote(struct buf *ob, struct render *rndr, char *data, size_t size)
 
 	beg = 0;
 	while (beg < size) {
-		for (end = beg + 1; end < size && data[end - 1] != '\n'; end += 1);
+		for (end = beg + 1; end < size && data[end - 1] != '\n'; end++);
+
 		pre = prefix_quote(data + beg, end - beg);
-		if (pre) beg += pre; /* skipping prefix */
-		else if (is_empty(data + beg, end - beg)
-		&& (end >= size || (prefix_quote(data + end, size - end) == 0
-					&& !is_empty(data + end, size - end))))
-			/* empty line followed by non-quote line */
+
+		if (pre)
+			beg += pre; /* skipping prefix */
+
+		/* empty line followed by non-quote line */
+		else if (is_empty(data + beg, end - beg) &&
+				(end >= size || (prefix_quote(data + end, size - end) == 0 &&
+				!is_empty(data + end, size - end))))
 			break;
+
 		if (beg < end) { /* copy into the in-place working buffer */
 			/* bufput(work, data + beg, end - beg); */
 			if (!work_data)
 				work_data = data + beg;
 			else if (data + beg != work_data + work_size)
-				memmove(work_data + work_size, data + beg,
-						end - beg);
-			work_size += end - beg; }
-		beg = end; }
+				memmove(work_data + work_size, data + beg, end - beg);
+			work_size += end - beg;
+		}
+		beg = end;
+	}
 
 	parse_block(out, rndr, work_data, work_size);
 	if (rndr->make.blockquote)
@@ -1094,7 +1100,7 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 			while (work.size && data[work.size - 1] == '\n')
 				work.size -= 1;
 
-			if (work.size) {
+			if (work.size > 0) {
 				struct buf *tmp = 0;
 
 				if (rndr->work.size < rndr->work.asize) {
@@ -1330,18 +1336,32 @@ parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size)
 	size_t i, end, skip;
 	struct buf work = { data, 0, 0, 0, 0 };
 
-	if (!size || data[0] != '#') return 0;
-	while (level < size && level < 6 && data[level] == '#') level += 1;
-	for (i = level; i < size && (data[i] == ' ' || data[i] == '\t');
-							i += 1);
+	if (!size || data[0] != '#')
+		return 0;
+
+	while (level < size && level < 6 && data[level] == '#')
+		level++;
+
+	for (i = level; i < size && (data[i] == ' ' || data[i] == '\t'); i++);
+
 	work.data = data + i;
-	for (end = i; end < size && data[end] != '\n'; end += 1);
+	for (end = i; end < size && data[end] != '\n'; end++);
 	skip = end;
-	while (end && data[end - 1] == '#') end -= 1;
-	while (end && (data[end - 1] == ' ' || data[end - 1] == '\t')) end -= 1;
-	work.size = end - i;
-	if (rndr->make.header)
-		rndr->make.header(ob, &work, (int)level, &rndr->make.render_options);
+
+	while (end && data[end - 1] == '#')
+		end--;
+
+	while (end && (data[end - 1] == ' ' || data[end - 1] == '\t'))
+		end--;
+
+	if (end > i) {
+		work.size = end - i;
+
+		if (rndr->make.header)
+			rndr->make.header(ob, &work, (int)level, &rndr->make.render_options);
+
+	}
+
 	return skip;
 }
 

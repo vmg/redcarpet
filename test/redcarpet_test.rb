@@ -146,4 +146,12 @@ class RedcarpetTest < Test::Unit::TestCase
    This could be more elegant.
     leaks
   end
+
+  def test_infinite_loop_in_header
+    assert_equal Redcarpet.new(<<-header).to_html.strip, "<h1>Body</h1>"
+######
+#Body#
+######
+    header
+  end
 end
