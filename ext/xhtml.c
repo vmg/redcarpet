@@ -48,12 +48,6 @@ is_safe_link(const char *link, size_t link_len)
 }
 
 static inline int
-is_uri_char(char c)
-{
-	return isalnum(c) || strchr("/:$-_.+!*'(),", c) != NULL;
-}
-
-static inline int
 put_scaped_char(struct buf *ob, char c)
 {
 	switch (c) {
@@ -454,7 +448,7 @@ rndr_normal_text(struct buf *ob, struct buf *text, struct mkd_renderopt *options
 				is_safe_link(text->data + i, text->size - i)) {
 				size_t j = i;
 
-				while (j < text->size && is_uri_char(text->data[j]))
+				while (j < text->size && !isspace(text->data[j]))
 					j++;
 
 				rndr_autolink2(ob, &text->data[i], j - i, MKDA_NORMAL);
