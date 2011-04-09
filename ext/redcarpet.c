@@ -50,6 +50,9 @@ static void rb_redcarpet__setup_xhtml(struct mkd_renderer *rnd, VALUE ruby_obj)
 	if (rb_funcall(ruby_obj, rb_intern("generate_toc"), 0) == Qtrue)
 		render_flags |= RENDER_TOC;
 
+	if (rb_funcall(ruby_obj, rb_intern("no_tables"), 0) == Qtrue)
+		render_flags |= RENDER_SKIP_TABLES;
+
 	/* parser - strict
 	 * This is fucking stupid; what the 'strict' flag actually
 	 * enforces is laxer emphasis parsing. So we use a properly

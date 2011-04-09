@@ -26,6 +26,7 @@ typedef enum {
 	RENDER_AUTOLINK = (1 << 6),
 	RENDER_SAFELINK = (1 << 7),
 	RENDER_TOC = (1 << 8),
+	RENDER_SKIP_TABLES = (1 << 10),
 } render_mode;
 
 void

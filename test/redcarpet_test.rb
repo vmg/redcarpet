@@ -154,4 +154,13 @@ class RedcarpetTest < Test::Unit::TestCase
 ######
     header
   end
+
+  def test_that_no_tables_flag_works
+    rd = Redcarpet.new(<<EOS, :no_tables)
+ aaa | bbbb
+-----|------
+hello|sailor
+EOS
+    assert rd.to_html !~ /<table/
+  end  
 end

@@ -1510,6 +1510,187 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, in
 	return i;
 }
 
+static void
+parse_table_row(struct buf *ob, struct render *rndr, char *data, size_t size, size_t columns, int *col_data)
+{
+	size_t i = 0, col;
+	struct buf *row_work = 0;
+
+	if (rndr->work.size < rndr->work.asize) {
+		row_work = rndr->work.item[rndr->work.size ++];
+		row_work->size = 0;
+	} else {
+		row_work = bufnew(WORK_UNIT);
+		parr_push(&rndr->work, row_work);
+	}
+
+	if (i < size && data[i] == '|')
+		i++;
+
+	for (col = 0; col < columns && i < size; ++col) {
+		size_t cell_start, cell_end;
+		struct buf *cell_work;
+
+		if (rndr->work.size < rndr->work.asize) {
+			cell_work = rndr->work.item[rndr->work.size ++];
+			cell_work->size = 0;
+		} else {
+			cell_work = bufnew(WORK_UNIT);
+			parr_push(&rndr->work, cell_work);
+		}
+
+		while (i < size && isspace(data[i]))
+			i++;
+
+		cell_start = i;
+
+		while (i < size && data[i] != '|')
+			i++;
+
+		cell_end = i - 1;
+
+		while (cell_end > cell_start && isspace(data[cell_end]))
+			cell_end--;
+
+		parse_inline(cell_work, rndr, data + cell_start, 1 + cell_end - cell_start);
+		if (rndr->make.table_cell)
+			rndr->make.table_cell(row_work, cell_work, col_data ? col_data[col] : 0, &rndr->make.render_options);
+
+		rndr->work.size -= 1;
+		i++;
+	}
+
+	for (; col < columns; ++col) {
+		struct buf empty_cell = {0, 0, 0, 0, 0};
+		if (rndr->make.table_cell)
+			rndr->make.table_cell(row_work, &empty_cell, col_data ? col_data[col] : 0, &rndr->make.render_options);
+	}
+
+	if (rndr->make.table_row)
+		rndr->make.table_row(ob, row_work, &rndr->make.render_options);
+
+	rndr->work.size -= 1;
+}
+
+static size_t
+parse_table_header(struct buf *ob, struct render *rndr, char *data, size_t size, size_t *columns, int **column_data)
+{
+	int pipes;
+	size_t i = 0, col, header_end, under_end;
+
+	pipes = 0;
+	while (i < size && data[i] != '\n')
+		if (data[i++] == '|')
+			pipes++;
+
+	if (i == size || pipes == 0)
+		return 0;
+
+	header_end = i;
+
+	if (data[0] == '|')
+		pipes--;
+
+	if (i > 2 && data[i - 1] == '|')
+		pipes--;
+
+	*columns = pipes + 1;
+	*column_data = calloc(*columns, sizeof(int));
+
+	/* Parse the header underline */
+	i++;
+	if (i < size && data[i] == '|')
+		i++;
+
+	under_end = i;
+	while (under_end < size && data[under_end] != '\n')
+		under_end++;
+
+	for (col = 0; col < *columns && i < under_end; ++col) {
+		size_t cell_start, cell_end;
+
+		if (data[i] == ':') {
+			i++; (*column_data)[col] |= MKD_TABLE_ALIGN_L;
+		}
+
+		while (i < under_end && data[i] == '-')
+			i++;
+
+		if (i < under_end && data[i] == ':') {
+			i++; (*column_data)[col] |= MKD_TABLE_ALIGN_R;
+		}
+
+		if (i < under_end && data[i] != '|')
+			break;
+
+		i++;
+	}
+
+	if (col < *columns)
+		return 0;
+
+	parse_table_row(ob, rndr, data, header_end, *columns, *column_data);
+	return under_end + 1;
+}
+
+static size_t
+parse_table(struct buf *ob, struct render *rndr, char *data, size_t size)
+{
+	size_t i;
+
+	struct buf *header_work = 0;
+	struct buf *body_work = 0;
+
+	size_t columns;
+	int *col_data = NULL;
+
+	if (rndr->work.size < rndr->work.asize) {
+		header_work = rndr->work.item[rndr->work.size ++];
+		header_work->size = 0;
+	} else {
+		header_work = bufnew(WORK_UNIT);
+		parr_push(&rndr->work, header_work);
+	}
+
+	if (rndr->work.size < rndr->work.asize) {
+		body_work = rndr->work.item[rndr->work.size ++];
+		body_work->size = 0;
+	} else {
+		body_work = bufnew(WORK_UNIT);
+		parr_push(&rndr->work, body_work);
+	}
+
+	i = parse_table_header(header_work, rndr, data, size, &columns, &col_data);
+	if (i > 0) {
+
+		while (i < size) {
+			size_t row_len;
+			size_t row_start;
+			int pipes = 0;
+
+			row_start = i;
+
+			while (i < size && data[i] != '\n')
+				if (data[i++] == '|')
+					pipes++;
+
+			if (pipes == 0 || i == size) {
+				i = row_start;
+				break;
+			}
+
+			parse_table_row(body_work, rndr, data + row_start, i - row_start, columns, col_data);
+			i++;
+		}
+
+		if (rndr->make.table)
+			rndr->make.table(ob, header_work, body_work, &rndr->make.render_options);
+	}
+
+	free(col_data);
+	rndr->work.size -= 2;
+	return i;
+}
 
 /* parse_block • parsing of one block, returning next char to parse */
 static void
@@ -1544,6 +1725,9 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size)
 
 			beg++;
 		}
+
+		else if ((i = parse_table(ob, rndr, txt_data, end)) != 0)
+			beg += i;
 
 		else if (prefix_quote(txt_data, end))
 			beg += parse_blockquote(ob, rndr, txt_data, end);

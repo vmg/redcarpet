@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.3.3'
+  VERSION = '1.4.0'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -59,6 +59,9 @@ class Redcarpet
 
   # Add TOC anchors to every header
   attr_accessor :generate_toc
+
+  # Do not process tables
+  attr_accessor :no_tables
 
   def initialize(text, *extensions)
     @text  = text

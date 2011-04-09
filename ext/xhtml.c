@@ -330,6 +330,55 @@ rndr_raw_html(struct buf *ob, struct buf *text, struct mkd_renderopt *options)
 	return 1;
 }
 
+static void
+rndr_table(struct buf *ob, struct buf *header, struct buf *body, struct mkd_renderopt *opaque)
+{
+	if (ob->size) bufputc(ob, '\n');
+	BUFPUTSL(ob, "<table><thead>\n");
+	if (header)
+		bufput(ob, header->data, header->size);
+	BUFPUTSL(ob, "\n</thead><tbody>\n");
+	if (body)
+		bufput(ob, body->data, body->size);
+	BUFPUTSL(ob, "\n</tbody></table>");
+}
+
+static void
+rndr_tablerow(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque)
+{
+	if (ob->size) bufputc(ob, '\n');
+	BUFPUTSL(ob, "<tr>\n");
+	if (text)
+		bufput(ob, text->data, text->size);
+	BUFPUTSL(ob, "\n</tr>");
+}
+
+static void
+rndr_tablecell(struct buf *ob, struct buf *text, int align, struct mkd_renderopt *opaque)
+{
+	if (ob->size) bufputc(ob, '\n');
+	switch (align) {
+	case MKD_TABLE_ALIGN_L:
+		BUFPUTSL(ob, "<td align=\"left\">");
+		break;
+
+	case MKD_TABLE_ALIGN_R:
+		BUFPUTSL(ob, "<td align=\"right\">");
+		break;
+
+	case MKD_TABLE_ALIGN_CENTER:
+		BUFPUTSL(ob, "<td align=\"center\">");
+		break;
+
+	default:
+		BUFPUTSL(ob, "<td>");
+		break;
+	}
+
+	if (text)
+		bufput(ob, text->data, text->size);
+	BUFPUTSL(ob, "</td>");
+}
 
 static struct {
     char c0;
@@ -613,6 +662,9 @@ init_toc_renderer(struct mkd_renderer *renderer, int recursion_depth)
 		NULL,
 		NULL,
 		NULL,
+		NULL,
+		NULL,
+		NULL,
 
 		rndr_autolink,
 		rndr_codespan,
@@ -657,6 +709,9 @@ init_xhtml_renderer(struct mkd_renderer *renderer,
 		rndr_list,
 		rndr_listitem,
 		rndr_paragraph,
+		rndr_table,
+		rndr_tablerow,
+		rndr_tablecell,
 
 		rndr_autolink,
 		rndr_codespan,
@@ -688,6 +743,12 @@ init_xhtml_renderer(struct mkd_renderer *renderer,
 	if (render_flags & RENDER_SKIP_LINKS) {
 		renderer->link = NULL;
 		renderer->autolink = NULL;
+	}
+
+	if (render_flags & RENDER_SKIP_TABLES) {
+		renderer->table = NULL;
+		renderer->table_row = NULL;
+		renderer->table_cell = NULL;
 	}
 
 	renderer->parser_options.recursion_depth = recursion_depth;
