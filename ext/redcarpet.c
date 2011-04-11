@@ -53,6 +53,9 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	if (rb_funcall(ruby_obj, rb_intern("no_tables"), 0) == Qtrue)
 		render_flags |= XHTML_SKIP_TABLES;
 
+	if (rb_funcall(ruby_obj, rb_intern("no_strikethrough"), 0) == Qtrue)
+		render_flags |= XHTML_SKIP_STRIKETHROUGH;
+
 	/* parser - strict
 	 * This is fucking stupid; what the 'strict' flag actually
 	 * enforces is laxer emphasis parsing. So we use a properly

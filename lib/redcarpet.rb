@@ -63,6 +63,9 @@ class Redcarpet
   # Do not process tables
   attr_accessor :no_tables
 
+  # Do not process ~~strikethrough~~
+  attr_accessor :no_strikethrough
+
   def initialize(text, *extensions)
     @text  = text
     extensions.each { |e| send("#{e}=", true) }

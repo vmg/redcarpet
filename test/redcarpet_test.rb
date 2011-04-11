@@ -162,5 +162,10 @@ class RedcarpetTest < Test::Unit::TestCase
 hello|sailor
 EOS
     assert rd.to_html !~ /<table/
-  end  
+  end
+
+  def test_strikethrough
+    rd = Redcarpet.new("this is ~some~ striked ~~text~~", :no_strikethrough)
+    assert rd.to_html !~ /text-decoration:line-through;/
+  end
 end

@@ -28,6 +28,7 @@ typedef enum {
 	XHTML_SAFELINK = (1 << 7),
 	XHTML_TOC = (1 << 8),
 	XHTML_SKIP_TABLES = (1 << 9),
+	XHTML_SKIP_STRIKETHROUGH = (1 << 10),
 } render_mode;
 
 void

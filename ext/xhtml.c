@@ -161,17 +161,31 @@ rndr_codespan(struct buf *ob, struct buf *text, void *opaque)
 static int
 rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
 {
-	if (!text || !text->size) return 0;
-	BUFPUTSL(ob, "<strong>");
-	bufput(ob, text->data, text->size);
-	BUFPUTSL(ob, "</strong>");
+	struct xhtml_renderopt *options = opaque;
+
+	if (!text || !text->size)
+		return 0;
+
+	if (c == '~') {
+		if (options->flags & XHTML_SKIP_STRIKETHROUGH)
+			return 0;
+		
+		BUFPUTSL(ob, "<span style=\"text-decoration:line-through;\">");
+		bufput(ob, text->data, text->size);
+		BUFPUTSL(ob, "</span>");
+	} else {
+		BUFPUTSL(ob, "<strong>");
+		bufput(ob, text->data, text->size);
+		BUFPUTSL(ob, "</strong>");
+	}
+
 	return 1;
 }
 
 static int
 rndr_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
 {
-	if (!text || !text->size) return 0;
+	if (!text || !text->size || c == '~') return 0;
 	BUFPUTSL(ob, "<em>");
 	if (text) bufput(ob, text->data, text->size);
 	BUFPUTSL(ob, "</em>");
@@ -693,7 +707,7 @@ init_toc_renderer(struct mkd_renderer *renderer)
 		NULL,
 		toc_finalize,
 
-		"*-",
+		"*-~",
 		NULL
 	};
 
@@ -737,7 +751,7 @@ init_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 		NULL,
 		NULL,
 
-		"*_",
+		"*_~",
 		NULL
 	};
 
