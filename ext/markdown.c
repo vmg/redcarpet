@@ -904,6 +904,34 @@ is_hrule(char *data, size_t size)
 	return n >= 3;
 }
 
+/* check if a line is a code fence; return its size if it is */
+static size_t
+is_codefence(char *data, size_t size)
+{
+	size_t i = 0, n = 0;
+	char c;
+
+	/* skipping initial spaces */
+	if (size < 3) return 0;
+	if (data[0] == ' ') { i += 1;
+	if (data[1] == ' ') { i += 1;
+	if (data[2] == ' ') { i += 1; } } }
+
+	/* looking at the hrule char */
+	if (i + 2 >= size || data[i] != '~')
+		return 0;
+
+	/* the whole line must be the char or whitespace */
+	while (i < size && data[i] != '\n') {
+		if (data[i] == '~') n++;
+		else if (data[i] != ' ' && data[i] != '\t')
+			return 0;
+		i++;
+	}
+
+	return n >= 3 ? i + 1 : 0;
+}
+
 /* is_headerline • returns whether the line is a setext-style hdr underline */
 static int
 is_headerline(char *data, size_t size)
@@ -1133,6 +1161,54 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 }
 
 /* parse_blockquote • hanldes parsing of a block-level code fragment */
+static size_t
+parse_fencedcode(struct buf *ob, struct render *rndr, char *data, size_t size)
+{
+	size_t beg, end;
+	struct buf *work = 0;
+
+	beg = is_codefence(data, size);
+	if (beg == 0) return 0;
+
+	if (rndr->work.size < rndr->work.asize) {
+		work = rndr->work.item[rndr->work.size ++];
+		work->size = 0;
+	} else {
+		work = bufnew(WORK_UNIT);
+		parr_push(&rndr->work, work);
+	}
+
+	while (beg < size) {
+		size_t fence_end;
+
+		fence_end = is_codefence(data + beg, size - beg);
+		if (fence_end != 0) {
+			beg += fence_end;
+			break;
+		}
+
+		for (end = beg + 1; end < size && data[end - 1] != '\n'; end += 1);
+
+		if (beg < end) {
+			/* verbatim copy to the working buffer,
+				escaping entities */
+			if (is_empty(data + beg, end - beg))
+				bufputc(work, '\n');
+			else bufput(work, data + beg, end - beg);
+		}
+		beg = end;
+	}
+
+	if (work->size && work->data[work->size - 1] != '\n')
+		bufputc(work, '\n');
+
+	if (rndr->make.blockcode)
+		rndr->make.blockcode(ob, work, rndr->make.opaque);
+
+	rndr->work.size -= 1;
+	return beg;
+}
+
 static size_t
 parse_blockcode(struct buf *ob, struct render *rndr, char *data, size_t size)
 {
@@ -1712,7 +1788,8 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size)
 		if (data[beg] == '#')
 			beg += parse_atxheader(ob, rndr, txt_data, end);
 
-		else if (data[beg] == '<' && rndr->make.blockhtml && (i = parse_htmlblock(ob, rndr, txt_data, end, 1)) != 0)
+		else if (data[beg] == '<' && rndr->make.blockhtml &&
+				(i = parse_htmlblock(ob, rndr, txt_data, end, 1)) != 0)
 			beg += i;
 
 		else if ((i = is_empty(txt_data, end)) != 0)
@@ -1728,7 +1805,12 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size)
 			beg++;
 		}
 
-		else if ((i = parse_table(ob, rndr, txt_data, end)) != 0)
+		else if ((rndr->ext_flags & MKDEXT_FENCED_CODE) != 0 &&
+			(i = parse_fencedcode(ob, rndr, txt_data, end)) != 0)
+			beg += i;
+
+		else if ((rndr->ext_flags & MKDEXT_TABLES) != 0 &&
+			(i = parse_table(ob, rndr, txt_data, end)) != 0)
 			beg += i;
 
 		else if (prefix_quote(txt_data, end))

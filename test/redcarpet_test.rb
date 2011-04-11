@@ -168,4 +168,17 @@ EOS
     rd = Redcarpet.new("this is ~some~ striked ~~text~~", :no_strikethrough)
     assert rd.to_html !~ /text-decoration:line-through;/
   end
+
+  def test_that_no_fenced_flag_works
+    rd = Redcarpet.new(<<fenced, :no_fencedcode)
+This is a simple test
+
+~~~~~
+This is some awesome code
+    with tabs and shit
+~~~
+fenced
+    assert rd.to_html !~ /<code/
+  end
+  
 end

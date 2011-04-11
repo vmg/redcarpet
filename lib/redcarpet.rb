@@ -66,6 +66,9 @@ class Redcarpet
   # Do not process ~~strikethrough~~
   attr_accessor :no_strikethrough
 
+  # Do not process fenced code blocks
+  attr_accessor :no_fencedcode
+
   def initialize(text, *extensions)
     @text  = text
     extensions.each { |e| send("#{e}=", true) }

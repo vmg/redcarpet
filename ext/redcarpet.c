@@ -17,7 +17,7 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 		unsigned int *render_flags_p)
 {
 	unsigned int render_flags = XHTML_EXPAND_TABS;
-	unsigned int extensions = MKDEXT_TABLES;
+	unsigned int extensions = 0;
 
 	/* smart */
 	if (rb_funcall(ruby_obj, rb_intern("smart"), 0) == Qtrue)
@@ -50,9 +50,6 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	if (rb_funcall(ruby_obj, rb_intern("generate_toc"), 0) == Qtrue)
 		render_flags |= XHTML_TOC;
 
-	if (rb_funcall(ruby_obj, rb_intern("no_tables"), 0) == Qtrue)
-		render_flags |= XHTML_SKIP_TABLES;
-
 	if (rb_funcall(ruby_obj, rb_intern("no_strikethrough"), 0) == Qtrue)
 		render_flags |= XHTML_SKIP_STRIKETHROUGH;
 
@@ -63,6 +60,12 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	 * naming because of compat. issues .*/
 	if (rb_funcall(ruby_obj, rb_intern("strict"), 0) == Qtrue)
 		extensions |= MKDEXT_LAX_EMPHASIS;
+
+	if (rb_funcall(ruby_obj, rb_intern("no_tables"), 0) != Qtrue)
+		extensions |= MKDEXT_TABLES;
+
+	if (rb_funcall(ruby_obj, rb_intern("no_fencedcode"), 0) != Qtrue)
+		extensions |= MKDEXT_FENCED_CODE;
 
 	*enabled_extensions_p = extensions;
 	*render_flags_p = render_flags;

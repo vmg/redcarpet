@@ -39,6 +39,7 @@ enum mkd_autolink {
 enum mkd_extensions {
 	MKDEXT_LAX_EMPHASIS = (1 << 0),
 	MKDEXT_TABLES = (1 << 1),
+	MKDEXT_FENCED_CODE = (1 << 2),
 };
 
 /* mkd_renderer • functions for rendering parsed data */

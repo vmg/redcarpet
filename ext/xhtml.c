@@ -769,12 +769,6 @@ init_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 		renderer->link = NULL;
 		renderer->autolink = NULL;
 	}
-
-	if (render_flags & XHTML_SKIP_TABLES) {
-		renderer->table = NULL;
-		renderer->table_row = NULL;
-		renderer->table_cell = NULL;
-	}
 }
 
 void
