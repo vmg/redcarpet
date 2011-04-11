@@ -185,5 +185,17 @@ fenced
     assert Redcarpet.new(text).to_html !~ /<code/
     assert Redcarpet.new(text, :fenced_code).to_html ~ /<code/
   end
+
+  def test_that_compat_is_working
+    rd = RedcarpetCompat.new(<<EOS)
+ aaa | bbbb
+-----|------
+hello|sailor
+
+This is ~~striked through~~ test
+EOS
+    assert rd.to_html ~ /<table/
+    assert rd.to_html ~ /text-decoration:line-through;/
+  end
   
 end

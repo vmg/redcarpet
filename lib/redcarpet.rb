@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.5.1'
+  VERSION = '1.5.2'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -77,5 +77,16 @@ class Redcarpet
 end
 
 Markdown = Redcarpet unless defined? Markdown
+
+# Compatibility class;
+# Creates a instance of Redcarpet with all markdown
+# extensions enabled, same behavior as in RDiscount
+class RedcarpetCompat < Redcarpet
+  def initialize(text, *extensions)
+    super(text, *extensions)
+    tables = true
+    strikethrough = true
+  end
+end
 
 require 'redcarpet.so'
