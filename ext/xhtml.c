@@ -167,7 +167,7 @@ rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
 		return 0;
 
 	if (c == '~') {
-		if (options->flags & XHTML_SKIP_STRIKETHROUGH)
+		if ((options->flags & XHTML_STRIKETHROUGH) == 0)
 			return 0;
 		
 		BUFPUTSL(ob, "<span style=\"text-decoration:line-through;\">");

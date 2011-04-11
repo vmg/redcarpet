@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.5.0'
+  VERSION = '1.5.1'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -36,8 +36,6 @@ class Redcarpet
 
   # Do not output <tt><style></tt> tags included in the source text.
   attr_accessor :filter_styles
-
-  attr_accessor :fold_lines # Ignore, just for compatibility
 
   # Do not output any raw HTML included in the source text.
   attr_accessor :filter_html
@@ -60,14 +58,17 @@ class Redcarpet
   # Add TOC anchors to every header
   attr_accessor :generate_toc
 
-  # Do not process tables
-  attr_accessor :no_tables
+  # Enable PHP-Markdown tables extension
+  attr_accessor :tables
 
-  # Do not process ~~strikethrough~~
-  attr_accessor :no_strikethrough
+  # Enable PHP-Markdown ~~strikethrough~~ extension
+  attr_accessor :strikethrough
 
-  # Do not process fenced code blocks
-  attr_accessor :no_fencedcode
+  # Enable PHP-Markdown fenced code extension
+  attr_accessor :fenced_code
+
+  # Backwards compatibility
+  attr_accessor :fold_lines
 
   def initialize(text, *extensions)
     @text  = text

@@ -155,22 +155,25 @@ class RedcarpetTest < Test::Unit::TestCase
     header
   end
 
-  def test_that_no_tables_flag_works
-    rd = Redcarpet.new(<<EOS, :no_tables)
+  def test_that_tables_flag_works
+    text = <<EOS
  aaa | bbbb
 -----|------
 hello|sailor
 EOS
-    assert rd.to_html !~ /<table/
+
+    assert Redcarpet.new(text).to_html !~ /<table/
+    assert Redcarpet.new(text, :tables).to_html ~ /<table/
   end
 
-  def test_strikethrough
-    rd = Redcarpet.new("this is ~some~ striked ~~text~~", :no_strikethrough)
-    assert rd.to_html !~ /text-decoration:line-through;/
+  def test_strikethrough_flag_works
+    text = "this is ~some~ striked ~~text~~"
+    assert Redcarpet.new(text).to_html !~ /text-decoration:line-through;/
+    assert Redcarpet.new(text, :strikethrough).to_html ~ /text-decoration:line-through;/
   end
 
-  def test_that_no_fenced_flag_works
-    rd = Redcarpet.new(<<fenced, :no_fencedcode)
+  def test_that_fenced_flag_works
+    text = <<fenced
 This is a simple test
 
 ~~~~~
@@ -178,7 +181,9 @@ This is some awesome code
     with tabs and shit
 ~~~
 fenced
-    assert rd.to_html !~ /<code/
+
+    assert Redcarpet.new(text).to_html !~ /<code/
+    assert Redcarpet.new(text, :fenced_code).to_html ~ /<code/
   end
   
 end

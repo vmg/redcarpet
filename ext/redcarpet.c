@@ -50,22 +50,20 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	if (rb_funcall(ruby_obj, rb_intern("generate_toc"), 0) == Qtrue)
 		render_flags |= XHTML_TOC;
 
-	if (rb_funcall(ruby_obj, rb_intern("no_strikethrough"), 0) == Qtrue)
-		render_flags |= XHTML_SKIP_STRIKETHROUGH;
-
-	/* parser - strict
-	 * This is fucking stupid; what the 'strict' flag actually
-	 * enforces is laxer emphasis parsing. So we use a properly
-	 * named flag internally, even if outside we have retarded
-	 * naming because of compat. issues .*/
+	/**
+	 * Markdown extensions -- all disabled by default 
+	 */
 	if (rb_funcall(ruby_obj, rb_intern("strict"), 0) == Qtrue)
 		extensions |= MKDEXT_LAX_EMPHASIS;
 
-	if (rb_funcall(ruby_obj, rb_intern("no_tables"), 0) != Qtrue)
+	if (rb_funcall(ruby_obj, rb_intern("tables"), 0) == Qtrue)
 		extensions |= MKDEXT_TABLES;
 
-	if (rb_funcall(ruby_obj, rb_intern("no_fencedcode"), 0) != Qtrue)
+	if (rb_funcall(ruby_obj, rb_intern("fenced_code"), 0) == Qtrue)
 		extensions |= MKDEXT_FENCED_CODE;
+
+	if (rb_funcall(ruby_obj, rb_intern("strikethrough"), 0) == Qtrue)
+		render_flags |= XHTML_STRIKETHROUGH;
 
 	*enabled_extensions_p = extensions;
 	*render_flags_p = render_flags;
