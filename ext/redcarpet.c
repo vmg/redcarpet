@@ -4,8 +4,6 @@
 #include "markdown.h"
 #include "xhtml.h"
 
-#define REDCARPET_RECURSION_LIMIT 16
-
 typedef enum
 {
 	REDCARPET_RENDER_XHTML,
@@ -14,44 +12,46 @@ typedef enum
 
 static VALUE rb_cRedcarpet;
 
-static void rb_redcarpet__setup_xhtml(struct mkd_renderer *rnd, VALUE ruby_obj)
+static void rb_redcarpet__get_flags(VALUE ruby_obj,
+		unsigned int *enabled_extensions_p,
+		unsigned int *render_flags_p)
 {
-	unsigned int render_flags = RENDER_EXPAND_TABS;
-	unsigned int parser_flags = 0;
+	unsigned int render_flags = XHTML_EXPAND_TABS;
+	unsigned int extensions = MKDEXT_TABLES;
 
 	/* smart */
 	if (rb_funcall(ruby_obj, rb_intern("smart"), 0) == Qtrue)
-		render_flags |= RENDER_SMARTYPANTS;
+		render_flags |= XHTML_SMARTYPANTS;
 
 	/* filter_html */
 	if (rb_funcall(ruby_obj, rb_intern("filter_html"), 0) == Qtrue)
-		render_flags |= RENDER_SKIP_HTML;
+		render_flags |= XHTML_SKIP_HTML;
 
 	/* no_image */
 	if (rb_funcall(ruby_obj, rb_intern("no_image"), 0) == Qtrue)
-		render_flags |= RENDER_SKIP_IMAGES;
+		render_flags |= XHTML_SKIP_IMAGES;
 
 	/* no_links */
 	if (rb_funcall(ruby_obj, rb_intern("no_links"), 0) == Qtrue)
-		render_flags |= RENDER_SKIP_LINKS;
+		render_flags |= XHTML_SKIP_LINKS;
 
 	/* filter_style */
 	if (rb_funcall(ruby_obj, rb_intern("filter_styles"), 0) == Qtrue)
-		render_flags |= RENDER_SKIP_STYLE;
+		render_flags |= XHTML_SKIP_STYLE;
 
 	/* autolink */
 	if (rb_funcall(ruby_obj, rb_intern("autolink"), 0) == Qtrue)
-		render_flags |= RENDER_AUTOLINK;
+		render_flags |= XHTML_AUTOLINK;
 
 	/* safelink */
 	if (rb_funcall(ruby_obj, rb_intern("safelink"), 0) == Qtrue)
-		render_flags |= RENDER_SAFELINK;
+		render_flags |= XHTML_SAFELINK;
 
 	if (rb_funcall(ruby_obj, rb_intern("generate_toc"), 0) == Qtrue)
-		render_flags |= RENDER_TOC;
+		render_flags |= XHTML_TOC;
 
 	if (rb_funcall(ruby_obj, rb_intern("no_tables"), 0) == Qtrue)
-		render_flags |= RENDER_SKIP_TABLES;
+		render_flags |= XHTML_SKIP_TABLES;
 
 	/* parser - strict
 	 * This is fucking stupid; what the 'strict' flag actually
@@ -59,9 +59,10 @@ static void rb_redcarpet__setup_xhtml(struct mkd_renderer *rnd, VALUE ruby_obj)
 	 * named flag internally, even if outside we have retarded
 	 * naming because of compat. issues .*/
 	if (rb_funcall(ruby_obj, rb_intern("strict"), 0) == Qtrue)
-		parser_flags |= MKD_LAX_EMPHASIS;
+		extensions |= MKDEXT_LAX_EMPHASIS;
 
-	init_xhtml_renderer(rnd, render_flags, parser_flags, REDCARPET_RECURSION_LIMIT);
+	*enabled_extensions_p = extensions;
+	*render_flags_p = render_flags;
 }
 
 static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
@@ -71,6 +72,7 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 
 	struct buf input_buf, *output_buf;
 	struct mkd_renderer renderer;
+	unsigned int enabled_extensions, render_flags;
 
 	Check_Type(text, T_STRING);
 
@@ -81,20 +83,22 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 	output_buf = bufnew(128);
 	bufgrow(output_buf, RSTRING_LEN(text) * 1.2f);
 
+	rb_redcarpet__get_flags(self, &enabled_extensions, &render_flags);
+
 	switch (render_type) {
 	case REDCARPET_RENDER_XHTML:
-		rb_redcarpet__setup_xhtml(&renderer, self);
+		init_xhtml_renderer(&renderer, render_flags);
 		break;
 
 	case REDCARPET_RENDER_TOC:
-		init_toc_renderer(&renderer, REDCARPET_RECURSION_LIMIT);
+		init_toc_renderer(&renderer);
 		break;
 
 	default:
 		return Qnil;
 	}
 
-	markdown(output_buf, &input_buf, &renderer);
+	markdown(output_buf, &input_buf, &renderer, enabled_extensions);
 
 	result = rb_str_new(output_buf->data, output_buf->size);
 	bufrelease(output_buf);

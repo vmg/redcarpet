@@ -36,60 +36,49 @@ enum mkd_autolink {
 	MKDA_IMPLICIT_EMAIL	/* e-mail link without mailto: */
 };
 
-typedef enum {
-	MKD_LAX_EMPHASIS = (1 << 0),
-} mkd_parser_mode;
-
-struct mkd_renderopt {
-	void *opaque;
-	unsigned int flags;
-};
-
-struct mkd_parseropt {
-	unsigned int flags;
-	int recursion_depth;
+enum mkd_extensions {
+	MKDEXT_LAX_EMPHASIS = (1 << 0),
+	MKDEXT_TABLES = (1 << 1),
 };
 
 /* mkd_renderer • functions for rendering parsed data */
 struct mkd_renderer {
 	/* block level callbacks - NULL skips the block */
-	void (*blockcode)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
-	void (*blockquote)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
-	void (*blockhtml)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
-	void (*header)(struct buf *ob, struct buf *text, int level, struct mkd_renderopt *opaque);
-	void (*hrule)(struct buf *ob, struct mkd_renderopt *opaque);
-	void (*list)(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *opaque);
-	void (*listitem)(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *opaque);
-	void (*paragraph)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
-	void (*table)(struct buf *ob, struct buf *header, struct buf *body, struct mkd_renderopt *opaque);
-	void (*table_row)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
-	void (*table_cell)(struct buf *ob, struct buf *text, int flags, struct mkd_renderopt *opaque);
+	void (*blockcode)(struct buf *ob, struct buf *text, void *opaque);
+	void (*blockquote)(struct buf *ob, struct buf *text, void *opaque);
+	void (*blockhtml)(struct buf *ob, struct buf *text, void *opaque);
+	void (*header)(struct buf *ob, struct buf *text, int level, void *opaque);
+	void (*hrule)(struct buf *ob, void *opaque);
+	void (*list)(struct buf *ob, struct buf *text, int flags, void *opaque);
+	void (*listitem)(struct buf *ob, struct buf *text, int flags, void *opaque);
+	void (*paragraph)(struct buf *ob, struct buf *text, void *opaque);
+	void (*table)(struct buf *ob, struct buf *header, struct buf *body, void *opaque);
+	void (*table_row)(struct buf *ob, struct buf *text, void *opaque);
+	void (*table_cell)(struct buf *ob, struct buf *text, int flags, void *opaque);
 
 
 	/* span level callbacks - NULL or return 0 prints the span verbatim */
-	int (*autolink)(struct buf *ob, struct buf *link, enum mkd_autolink type, struct mkd_renderopt *opaque);
-	int (*codespan)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
-	int (*double_emphasis)(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *opaque);
-	int (*emphasis)(struct buf *ob, struct buf *text, char c,struct mkd_renderopt *opaque);
-	int (*image)(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, struct mkd_renderopt *opaque);
-	int (*linebreak)(struct buf *ob, struct mkd_renderopt *opaque);
-	int (*link)(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, struct mkd_renderopt *opaque);
-	int (*raw_html_tag)(struct buf *ob, struct buf *tag, struct mkd_renderopt *opaque);
-	int (*triple_emphasis)(struct buf *ob, struct buf *text, char c, struct mkd_renderopt *opaque);
+	int (*autolink)(struct buf *ob, struct buf *link, enum mkd_autolink type, void *opaque);
+	int (*codespan)(struct buf *ob, struct buf *text, void *opaque);
+	int (*double_emphasis)(struct buf *ob, struct buf *text, char c, void *opaque);
+	int (*emphasis)(struct buf *ob, struct buf *text, char c,void *opaque);
+	int (*image)(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, void *opaque);
+	int (*linebreak)(struct buf *ob, void *opaque);
+	int (*link)(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, void *opaque);
+	int (*raw_html_tag)(struct buf *ob, struct buf *tag, void *opaque);
+	int (*triple_emphasis)(struct buf *ob, struct buf *text, char c, void *opaque);
 
 	/* low level callbacks - NULL copies input directly into the output */
-	void (*entity)(struct buf *ob, struct buf *entity, struct mkd_renderopt *opaque);
-	void (*normal_text)(struct buf *ob, struct buf *text, struct mkd_renderopt *opaque);
+	void (*entity)(struct buf *ob, struct buf *entity, void *opaque);
+	void (*normal_text)(struct buf *ob, struct buf *text, void *opaque);
 
 	/* header and footer */
-	void (*doc_header)(struct buf *ob, struct mkd_renderopt *opaque);
-	void (*doc_footer)(struct buf *ob, struct mkd_renderopt *opaque);
+	void (*doc_header)(struct buf *ob, void *opaque);
+	void (*doc_footer)(struct buf *ob, void *opaque);
 
 	/* renderer data */
 	const char *emph_chars; /* chars that trigger emphasis rendering */
-
-	struct mkd_renderopt render_options;
-	struct mkd_parseropt parser_options;
+	void *opaque;
 };
 
 /*********
@@ -110,7 +99,7 @@ struct mkd_renderer {
 
 /* markdown • parses the input buffer and renders it into the output buffer */
 void
-markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr);
+markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr, unsigned int extensions);
 
 #endif
 
