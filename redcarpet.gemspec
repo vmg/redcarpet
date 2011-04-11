@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '1.3.3'
+  s.version = '1.5.0'
   s.summary = "Ruby bindings for libupskirt"
-  s.date = '2011-04-06'
+  s.date = '2011-04-11'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/tanoku/redcarpet'
   s.has_rdoc = true
