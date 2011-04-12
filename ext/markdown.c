@@ -1118,6 +1118,8 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 		rndr->work.size--;
 
 	} else {
+		struct buf *header_work;
+
 		if (work.size) {
 			size_t beg;
 			i = work.size;
@@ -1153,8 +1155,20 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 			else work.size = i;
 		}
 
+		if (rndr->work.size < rndr->work.asize) {
+			header_work = rndr->work.item[rndr->work.size ++];
+			header_work->size = 0;
+		} else {
+			header_work = bufnew(WORK_UNIT);
+			parr_push(&rndr->work, header_work);
+		}
+
+		parse_inline(header_work, rndr, work.data, work.size);
+
 		if (rndr->make.header)
-			rndr->make.header(ob, &work, level, rndr->make.opaque);
+			rndr->make.header(ob, header_work, (int)level, rndr->make.opaque);
+
+		rndr->work.size--;
 	}
 
 	return end;
@@ -1412,7 +1426,6 @@ parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size)
 {
 	size_t level = 0;
 	size_t i, end, skip;
-	struct buf work = { data, 0, 0, 0, 0 };
 
 	if (!size || data[0] != '#')
 		return 0;
@@ -1422,7 +1435,6 @@ parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size)
 
 	for (i = level; i < size && (data[i] == ' ' || data[i] == '\t'); i++);
 
-	work.data = data + i;
 	for (end = i; end < size && data[end] != '\n'; end++);
 	skip = end;
 
@@ -1433,11 +1445,22 @@ parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size)
 		end--;
 
 	if (end > i) {
-		work.size = end - i;
+		struct buf *work;
+
+		if (rndr->work.size < rndr->work.asize) {
+			work = rndr->work.item[rndr->work.size ++];
+			work->size = 0;
+		} else {
+			work = bufnew(WORK_UNIT);
+			parr_push(&rndr->work, work);
+		}
+
+		parse_inline(work, rndr, data + i, end - i);
 
 		if (rndr->make.header)
-			rndr->make.header(ob, &work, (int)level, rndr->make.opaque);
+			rndr->make.header(ob, work, (int)level, rndr->make.opaque);
 
+		rndr->work.size--;
 	}
 
 	return skip;

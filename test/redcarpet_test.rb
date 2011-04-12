@@ -197,5 +197,10 @@ EOS
     assert rd.to_html ~ /<table/
     assert rd.to_html ~ /text-decoration:line-through;/
   end
+
+  def test_that_headers_are_linkable
+    markdown = Markdown.new('### Hello [GitHub](http://github.com)')
+    assert_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>", markdown.to_html.strip
+  end
   
 end
