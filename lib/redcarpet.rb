@@ -67,9 +67,6 @@ class Redcarpet
   # Enable PHP-Markdown fenced code extension
   attr_accessor :fenced_code
 
-  # Backwards compatibility
-  attr_accessor :fold_lines
-
   def initialize(text, *extensions)
     @text  = text
     extensions.each { |e| send("#{e}=", true) }
@@ -82,9 +79,17 @@ Markdown = Redcarpet unless defined? Markdown
 # Creates a instance of Redcarpet with all markdown
 # extensions enabled, same behavior as in RDiscount
 class RedcarpetCompat < Redcarpet
+  # Backwards compatibility
+  attr_accessor :fold_lines
+  attr_accessor :no_tables
+  attr_accessor :fold_lines
+
   def initialize(text, *extensions)
     super(text, *extensions)
     tables = true
+    if no_tables then
+      tables = false
+    end
     strikethrough = true
   end
 end

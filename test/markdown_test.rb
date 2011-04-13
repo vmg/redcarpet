@@ -60,12 +60,12 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_that_redcloth_attributes_are_supported
-    markdown = Markdown.new('Hello World.')
+    markdown = RedcarpetCompat.new('Hello World.')
     assert_respond_to markdown, :fold_lines
     assert_respond_to markdown, :fold_lines=
     assert_not_equal true, markdown.fold_lines
 
-    markdown = Markdown.new('Hello World.', :fold_lines)
+    markdown = RedcarpetCompat.new('Hello World.', :fold_lines)
     assert_equal true, markdown.fold_lines
   end
 
