@@ -31,26 +31,6 @@ struct xhtml_renderopt {
 	unsigned int flags;
 };
 
-static int
-is_safe_link(const char *link, size_t link_len)
-{
-	static const size_t valid_uris_count = 4;
-	static const char *valid_uris[] = {
-		"http:", "https:", "ftp:", "mailto:"
-	};
-
-	size_t i;
-
-	for (i = 0; i < valid_uris_count; ++i) {
-		size_t len = strlen(valid_uris[i]);
-
-		if (link_len > len && memcmp(link, valid_uris[i], len) == 0)
-			return 1;
-	}
-
-	return 0;
-}
-
 static inline int
 put_scaped_char(struct buf *ob, char c)
 {
@@ -103,20 +83,6 @@ is_html_tag(struct buf *tag, const char *tagname)
 /********************
  * GENERIC RENDERER *
  ********************/
-
-static void
-rndr_autolink2(struct buf *ob, const char *link, size_t link_size, enum mkd_autolink type)
-{
-	BUFPUTSL(ob, "<a href=\"");
-	if (type == MKDA_IMPLICIT_EMAIL) BUFPUTSL(ob, "mailto:");
-	lus_attr_escape(ob, link, link_size);
-	BUFPUTSL(ob, "\">");
-	if (type == MKDA_EXPLICIT_EMAIL && link_size > 7)
-		lus_attr_escape(ob, link + 7, link_size - 7);
-	else	lus_attr_escape(ob, link, link_size);
-	BUFPUTSL(ob, "</a>");
-}
-
 static int
 rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *opaque)
 {
@@ -128,7 +94,19 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 	if ((options->flags & XHTML_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
 		return 0;
 
-	rndr_autolink2(ob, link->data, link->size, type);
+	BUFPUTSL(ob, "<a href=\"");
+	if (type == MKDA_IMPLICIT_EMAIL)
+		BUFPUTSL(ob, "mailto:");
+	bufput(ob, link->data, link->size);
+	BUFPUTSL(ob, "\">");
+
+	if (type == MKDA_EXPLICIT_EMAIL && link->size > 7)
+		lus_attr_escape(ob, link->data + 7, link->size - 7);
+	else
+		lus_attr_escape(ob, link->data, link->size);
+
+	BUFPUTSL(ob, "</a>");
+
 	return 1;
 }
 
@@ -493,139 +471,113 @@ smartypants_quotes(struct buf *ob, struct buf *text, size_t i, int is_open)
 static void
 rndr_normal_text(struct buf *ob, struct buf *text, void *opaque)
 {
+	if (text)
+		lus_attr_escape(ob, text->data, text->size);
+}
+
+static void
+rndr_smartypants(struct buf *ob, struct buf *text, void *opaque)
+{
 	size_t i;
 	int open_single = 0, open_double = 0, open_tag = 0;
-	struct xhtml_renderopt *options = opaque;	
-
-	int autolink = (options->flags & XHTML_AUTOLINK);
-	int smartypants = (options->flags & XHTML_SMARTYPANTS);
 
 	if (!text)
 		return;
-
-	if (!autolink && !smartypants) {
-		lus_attr_escape(ob, text->data, text->size);
-		return;
-	}
 
 	for (i = 0; i < text->size; ++i) {
 		size_t sub;
 		char c = text->data[i];
 
-		/*
-		 * Autolinking
-		 */
-		if (autolink) {
-			/* Autolinking is not standarized in the Markdown spec.
-			 * We only check for links immediately after a space  */
-			if ((i == 0 || isspace(text->data[i - 1])) &&
-				is_safe_link(text->data + i, text->size - i)) {
-				size_t j = i;
+		for (sub = 0; sub < SUBS_COUNT; ++sub) {
+			if (c == smartypants_subs[sub].c0 &&
+				smartypants_cmpsub(text, i, smartypants_subs[sub].pattern)) {
 
-				while (j < text->size && !isspace(text->data[j]))
-					j++;
+				if (smartypants_subs[sub].entity)
+					bufputs(ob, smartypants_subs[sub].entity);
 
-				rndr_autolink2(ob, &text->data[i], j - i, MKDA_NORMAL);
-				i = j - 1;
-				continue;
+				i += smartypants_subs[sub].skip;
+				break;
 			}
 		}
 
-		/*
-		 * Smartypants subsitutions
-		 */
-		if (smartypants) {
-			for (sub = 0; sub < SUBS_COUNT; ++sub) {
-				if (c == smartypants_subs[sub].c0 &&
-					smartypants_cmpsub(text, i, smartypants_subs[sub].pattern)) {
+		if (sub < SUBS_COUNT)
+			continue;
 
-					if (smartypants_subs[sub].entity)
-						bufputs(ob, smartypants_subs[sub].entity);
+		switch (c) {
+		case '<':
+			open_tag = 1;
+			break;
 
-					i += smartypants_subs[sub].skip;
-					break;
-				}
-			}
-
-			if (sub < SUBS_COUNT)
-				continue;
-
-			switch (c) {
-			case '<':
-				open_tag = 1;
-				break;
-
-			case '>':
-				open_tag = 0;
-				break;
+		case '>':
+			open_tag = 0;
+			break;
 
 #if 0
-			/*
-			 * FIXME: this is bongos.
-			 *
-			 * The markdown spec defines that code blocks can be delimited
-			 * by more than one backtick, e.g.
-			 *
-			 *		``There is a literal backtick (`) here.``
-			 *		<p><code>There is a literal backtick (`) here.</code></p>
-			 *
-			 * Obviously, there's no way to differentiate between the start
-			 * of a code block and the start of a quoted string for smartypants
-			 *
-			 * Look at this piece of Python code:
-			 *
-			 *		``result = ''.join(['this', 'is', 'bongos'])``
-			 *
-			 * This MD expression is clearly ambiguous since it can be parsed as:
-			 *
-			 *		<p>&ldquo;result = &rdquo;.join ...</p>
-			 *
-			 * Or also as:
-			 *
-			 *		<p><code>result = ''.join(['this', 'is', 'bongos'])</code></p>
-			 *
-			 * Fuck everything about this. This is temporarily disabled, because at GitHub
-			 * it's probably smarter to prioritize code blocks than pretty cutesy punctuation.
-			 *
-			 * The equivalent closing tag for the (``), ('') has also been disabled, because
-			 * it makes no sense to have closing tags without opening tags.
-			 */
-			case '`':
-				if (open_tag == 0) {
-					if (i + 1 < text->size && text->data[i + 1] == '`') {
-						BUFPUTSL(ob, "&ldquo;"); i++;
-						continue;
-					}
+		/*
+		 * FIXME: this is bongos.
+		 *
+		 * The markdown spec defines that code blocks can be delimited
+		 * by more than one backtick, e.g.
+		 *
+		 *		``There is a literal backtick (`) here.``
+		 *		<p><code>There is a literal backtick (`) here.</code></p>
+		 *
+		 * Obviously, there's no way to differentiate between the start
+		 * of a code block and the start of a quoted string for smartypants
+		 *
+		 * Look at this piece of Python code:
+		 *
+		 *		``result = ''.join(['this', 'is', 'bongos'])``
+		 *
+		 * This MD expression is clearly ambiguous since it can be parsed as:
+		 *
+		 *		<p>&ldquo;result = &rdquo;.join ...</p>
+		 *
+		 * Or also as:
+		 *
+		 *		<p><code>result = ''.join(['this', 'is', 'bongos'])</code></p>
+		 *
+		 * Fuck everything about this. This is temporarily disabled, because at GitHub
+		 * it's probably smarter to prioritize code blocks than pretty cutesy punctuation.
+		 *
+		 * The equivalent closing tag for the (``), ('') has also been disabled, because
+		 * it makes no sense to have closing tags without opening tags.
+		 */
+		case '`':
+			if (open_tag == 0) {
+				if (i + 1 < text->size && text->data[i + 1] == '`') {
+					BUFPUTSL(ob, "&ldquo;"); i++;
+					continue;
 				}
-				break;
+			}
+			break;
 #endif
 
-			case '\"':
-				if (open_tag == 0) {
-					if (smartypants_quotes(ob, text, i, open_double)) {
-						open_double = !open_double;
-						continue;
-					}
+		case '\"':
+			if (open_tag == 0) {
+				if (smartypants_quotes(ob, text, i, open_double)) {
+					open_double = !open_double;
+					continue;
 				}
-				break;
+			}
+			break;
 
-			case '\'':
-				if (open_tag == 0) {
+		case '\'':
+			if (open_tag == 0) {
 
 #if 0 /* temporarily disabled, see previous comment */
-					if (i + 1 < text->size && text->data[i + 1] == '\'') {
-						BUFPUTSL(ob, "&rdquo;"); i++;
-						continue;
-					} 
+				if (i + 1 < text->size && text->data[i + 1] == '\'') {
+					BUFPUTSL(ob, "&rdquo;"); i++;
+					continue;
+				} 
 #endif
 
-					if (smartypants_quotes(ob, text, i, open_single)) {
-						open_single = !open_single;
-						continue;
-					}
+				if (smartypants_quotes(ob, text, i, open_single)) {
+					open_single = !open_single;
+					continue;
 				}
-				break;
 			}
+			break;
 		}
 
 		/*
@@ -769,6 +721,9 @@ init_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 		renderer->link = NULL;
 		renderer->autolink = NULL;
 	}
+
+	if (render_flags & XHTML_SMARTYPANTS)
+		renderer->normal_text = rndr_smartypants;
 }
 
 void

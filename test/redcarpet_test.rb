@@ -199,8 +199,15 @@ EOS
   end
 
   def test_that_headers_are_linkable
-    markdown = Markdown.new('### Hello [GitHub](http://github.com)')
+    markdown = Redcarpet.new('### Hello [GitHub](http://github.com)')
     assert_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>", markdown.to_html.strip
+  end
+
+  def test_autolinking_with_ent_chars
+    markdown = Redcarpet.new(<<text, :autolink)
+This a stupid link: https://github.com/rtomayko/tilt/issues?milestone=1&state=open
+text
+    assert_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown.to_html
   end
   
 end

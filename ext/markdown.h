@@ -40,6 +40,7 @@ enum mkd_extensions {
 	MKDEXT_LAX_EMPHASIS = (1 << 0),
 	MKDEXT_TABLES = (1 << 1),
 	MKDEXT_FENCED_CODE = (1 << 2),
+	MKDEXT_AUTOLINK = (1 << 3),
 };
 
 /* mkd_renderer • functions for rendering parsed data */
@@ -93,6 +94,12 @@ struct mkd_renderer {
 #define MKD_TABLE_ALIGN_L (1 << 0)
 #define MKD_TABLE_ALIGN_R (1 << 1)
 #define MKD_TABLE_ALIGN_CENTER (MKD_TABLE_ALIGN_L | MKD_TABLE_ALIGN_R)
+
+/*******************
+ * Auxiliar methods
+ *******************/
+int
+is_safe_link(const char *link, size_t link_len);
 
 /**********************
  * EXPORTED FUNCTIONS *

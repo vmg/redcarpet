@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.5.3'
+  VERSION = '1.6.0'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -49,14 +49,14 @@ class Redcarpet
   # Disable superscript and relaxed emphasis processing.
   attr_accessor :strict
 
-  # Convert URL in links, even if they aren't encased in <tt><></tt>
-  attr_accessor :autolink
-
   # Don't make hyperlinks from <tt>[][]</tt> links that have unknown URL types.
   attr_accessor :safelink
 
   # Add TOC anchors to every header
   attr_accessor :generate_toc
+
+  # Enable the Autolinking extension
+  attr_accessor :autolink
 
   # Enable PHP-Markdown tables extension
   attr_accessor :tables

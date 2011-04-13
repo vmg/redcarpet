@@ -100,8 +100,27 @@ static struct html_tag block_tags[] = {
 #define DEL_TAG (block_tags + 10)
 
 /***************************
- * STATIC HELPER FUNCTIONS *
+ * HELPER FUNCTIONS *
  ***************************/
+int
+is_safe_link(const char *link, size_t link_len)
+{
+	static const size_t valid_uris_count = 4;
+	static const char *valid_uris[] = {
+		"http://", "https://", "ftp://", "mailto://"
+	};
+
+	size_t i;
+
+	for (i = 0; i < valid_uris_count; ++i) {
+		size_t len = strlen(valid_uris[i]);
+
+		if (link_len > len && memcmp(link, valid_uris[i], len) == 0)
+			return 1;
+	}
+
+	return 0;
+}
 
 /* cmp_link_ref • comparison function for link_ref sorted arrays */
 static int
@@ -245,8 +264,9 @@ parse_inline(struct buf *ob, struct render *rndr, char *data, size_t size)
 
 	while (i < size) {
 		/* copying inactive chars into the output */
-		while (end < size && (action = rndr->active_char[(unsigned char)data[end]]) == 0)
+		while (end < size && (action = rndr->active_char[(unsigned char)data[end]]) == 0) {
 			end++;
+		}
 
 		if (rndr->make.normal_text) {
 			work.data = data + i;
@@ -616,6 +636,25 @@ char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, 
 	else return end;
 }
 
+static size_t
+char_autolink(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
+{
+	struct buf work = { data, 0, 0, 0, 0 };
+
+	if (offset > 0 && !isspace(data[-1]))
+		return 0;
+
+	if (!is_safe_link(data, size))
+		return 0;
+
+	while (work.size < size && !isspace(data[work.size]))
+		work.size++;
+
+	if (rndr->make.autolink)
+		rndr->make.autolink(ob, &work, MKDA_NORMAL, rndr->make.opaque);
+
+	return work.size;
+}
 
 /* char_link • '[': parsing a link or an image */
 static size_t
@@ -2028,6 +2067,12 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, unsi
 	rndr.active_char['<'] = char_langle_tag;
 	rndr.active_char['\\'] = char_escape;
 	rndr.active_char['&'] = char_entity;
+
+	if (extensions & MKDEXT_AUTOLINK) {
+		rndr.active_char['h'] = char_autolink; // http, https
+		rndr.active_char['f'] = char_autolink; // ftp
+		rndr.active_char['m'] = char_autolink; // mailto
+	}
 
 	/* Extension data */
 	rndr.ext_flags = extensions;

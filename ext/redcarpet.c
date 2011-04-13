@@ -39,10 +39,6 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	if (rb_funcall(ruby_obj, rb_intern("filter_styles"), 0) == Qtrue)
 		render_flags |= XHTML_SKIP_STYLE;
 
-	/* autolink */
-	if (rb_funcall(ruby_obj, rb_intern("autolink"), 0) == Qtrue)
-		render_flags |= XHTML_AUTOLINK;
-
 	/* safelink */
 	if (rb_funcall(ruby_obj, rb_intern("safelink"), 0) == Qtrue)
 		render_flags |= XHTML_SAFELINK;
@@ -61,6 +57,9 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 
 	if (rb_funcall(ruby_obj, rb_intern("fenced_code"), 0) == Qtrue)
 		extensions |= MKDEXT_FENCED_CODE;
+
+	if (rb_funcall(ruby_obj, rb_intern("autolink"), 0) == Qtrue)
+		extensions |= MKDEXT_AUTOLINK;
 
 	if (rb_funcall(ruby_obj, rb_intern("strikethrough"), 0) == Qtrue)
 		render_flags |= XHTML_STRIKETHROUGH;

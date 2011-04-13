@@ -24,7 +24,6 @@ typedef enum {
 	XHTML_SKIP_LINKS = (1 << 3),
 	XHTML_SMARTYPANTS = (1 << 4),
 	XHTML_EXPAND_TABS = (1 << 5),
-	XHTML_AUTOLINK = (1 << 6),
 	XHTML_SAFELINK = (1 << 7),
 	XHTML_TOC = (1 << 8),
 	XHTML_STRIKETHROUGH = (1 << 10),
