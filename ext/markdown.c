@@ -2049,10 +2049,11 @@ markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, unsi
 	for (i = 0; i < 256; i += 1)
 		rndr.active_char[i] = 0;
 
-	if ((rndr.make.emphasis || rndr.make.double_emphasis || rndr.make.triple_emphasis) &&
-		rndr.make.emph_chars) {
-		for (i = 0; rndr.make.emph_chars[i]; i += 1)
-			rndr.active_char[(unsigned char)rndr.make.emph_chars[i]] = char_emphasis;
+	if (rndr.make.emphasis || rndr.make.double_emphasis || rndr.make.triple_emphasis) {
+		rndr.active_char['*'] = char_emphasis;
+		rndr.active_char['_'] = char_emphasis;
+		if (extensions & MKDEXT_STRIKETHROUGH)
+			rndr.active_char['~'] = char_emphasis;
 	}
 
 	if (rndr.make.codespan)

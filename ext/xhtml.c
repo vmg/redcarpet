@@ -145,9 +145,6 @@ rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
 		return 0;
 
 	if (c == '~') {
-		if ((options->flags & XHTML_STRIKETHROUGH) == 0)
-			return 0;
-		
 		BUFPUTSL(ob, "<span style=\"text-decoration:line-through;\">");
 		bufput(ob, text->data, text->size);
 		BUFPUTSL(ob, "</span>");
@@ -659,7 +656,6 @@ init_toc_renderer(struct mkd_renderer *renderer)
 		NULL,
 		toc_finalize,
 
-		"*-~",
 		NULL
 	};
 
@@ -703,7 +699,6 @@ init_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 		NULL,
 		NULL,
 
-		"*_~",
 		NULL
 	};
 

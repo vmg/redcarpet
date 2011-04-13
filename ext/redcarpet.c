@@ -62,7 +62,7 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 		extensions |= MKDEXT_AUTOLINK;
 
 	if (rb_funcall(ruby_obj, rb_intern("strikethrough"), 0) == Qtrue)
-		render_flags |= XHTML_STRIKETHROUGH;
+		extensions |= MKDEXT_STRIKETHROUGH;
 
 	*enabled_extensions_p = extensions;
 	*render_flags_p = render_flags;

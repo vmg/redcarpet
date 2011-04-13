@@ -41,6 +41,7 @@ enum mkd_extensions {
 	MKDEXT_TABLES = (1 << 1),
 	MKDEXT_FENCED_CODE = (1 << 2),
 	MKDEXT_AUTOLINK = (1 << 3),
+	MKDEXT_STRIKETHROUGH = (1 << 4),
 };
 
 /* mkd_renderer • functions for rendering parsed data */
@@ -78,8 +79,7 @@ struct mkd_renderer {
 	void (*doc_header)(struct buf *ob, void *opaque);
 	void (*doc_footer)(struct buf *ob, void *opaque);
 
-	/* renderer data */
-	const char *emph_chars; /* chars that trigger emphasis rendering */
+	/* user data */
 	void *opaque;
 };
 

@@ -26,7 +26,6 @@ typedef enum {
 	XHTML_EXPAND_TABS = (1 << 5),
 	XHTML_SAFELINK = (1 << 7),
 	XHTML_TOC = (1 << 8),
-	XHTML_STRIKETHROUGH = (1 << 10),
 } render_mode;
 
 void
