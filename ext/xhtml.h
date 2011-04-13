@@ -28,14 +28,14 @@ typedef enum {
 	XHTML_TOC = (1 << 8),
 } render_mode;
 
-void
-init_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags);
+extern void
+ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags);
 
-void
-init_toc_renderer(struct mkd_renderer *renderer);
+extern void
+ups_toc_renderer(struct mkd_renderer *renderer);
 
-void
-free_renderer(struct mkd_renderer *renderer);
+extern void
+ups_free_renderer(struct mkd_renderer *renderer);
 
 #endif
 

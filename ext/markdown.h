@@ -106,8 +106,8 @@ is_safe_link(const char *link, size_t link_len);
  **********************/
 
 /* markdown • parses the input buffer and renders it into the output buffer */
-void
-markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr, unsigned int extensions);
+extern void
+ups_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr, unsigned int extensions);
 
 #endif
 

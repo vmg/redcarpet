@@ -90,22 +90,22 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 
 	switch (render_type) {
 	case REDCARPET_RENDER_XHTML:
-		init_xhtml_renderer(&renderer, render_flags);
+		ups_xhtml_renderer(&renderer, render_flags);
 		break;
 
 	case REDCARPET_RENDER_TOC:
-		init_toc_renderer(&renderer);
+		ups_toc_renderer(&renderer);
 		break;
 
 	default:
 		return Qnil;
 	}
 
-	markdown(output_buf, &input_buf, &renderer, enabled_extensions);
+	ups_markdown(output_buf, &input_buf, &renderer, enabled_extensions);
 
 	result = rb_str_new(output_buf->data, output_buf->size);
 	bufrelease(output_buf);
-	free_renderer(&renderer);
+	ups_free_renderer(&renderer);
 
 	/* force the input encoding */
 	if (rb_respond_to(text, rb_intern("encoding"))) {

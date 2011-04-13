@@ -2032,7 +2032,7 @@ static void expand_tabs(struct buf *ob, const char *line, size_t size)
 
 /* markdown • parses the input buffer and renders it into the output buffer */
 void
-markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, unsigned int extensions) {
+ups_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, unsigned int extensions) {
 	struct link_ref *lr;
 	struct buf *text = bufnew(TEXT_UNIT);
 	size_t i, beg, end;

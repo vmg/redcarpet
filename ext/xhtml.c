@@ -625,7 +625,7 @@ toc_finalize(struct buf *ob, void *opaque)
 }
 
 void
-init_toc_renderer(struct mkd_renderer *renderer)
+ups_toc_renderer(struct mkd_renderer *renderer)
 {
 	static const struct mkd_renderer toc_render = {
 		NULL,
@@ -668,7 +668,7 @@ init_toc_renderer(struct mkd_renderer *renderer)
 }
 
 void
-init_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
+ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 {
 	static const struct mkd_renderer renderer_default = {
 		rndr_blockcode,
@@ -722,7 +722,7 @@ init_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 }
 
 void
-free_renderer(struct mkd_renderer *renderer)
+ups_free_renderer(struct mkd_renderer *renderer)
 {
 	free(renderer->opaque);
 }
