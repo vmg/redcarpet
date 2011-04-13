@@ -194,8 +194,9 @@ hello|sailor
 
 This is ~~striked through~~ test
 EOS
-    assert rd.to_html ~ /<table/
-    assert rd.to_html ~ /text-decoration:line-through;/
+    assert rd.tables
+    assert rd.to_html =~ /<table/
+    assert rd.to_html =~ /text-decoration:line-through;/
   end
 
   def test_that_headers_are_linkable

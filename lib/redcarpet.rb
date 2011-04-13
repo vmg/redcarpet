@@ -84,8 +84,8 @@ Markdown = Redcarpet unless defined? Markdown
 class RedcarpetCompat < Redcarpet
   def initialize(text, *extensions)
     super(text, *extensions)
-    tables = true
-    strikethrough = true
+    self.tables = true
+    self.strikethrough = true
   end
 end
 
