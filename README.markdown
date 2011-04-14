@@ -1,26 +1,54 @@
-Markdown + Ruby + libupskirt
-============================
+Ruby + Upskirt = Markdown that doesn't suck
+===========================================
 
-> Inspired by Rick Astley wearing a kilt
-
-Upskirt is an implementation of John Gruber's Markdown markup
-language. Upskirt is safe, fast and production ready. Check out
-the original version at <http://git.instinctive.eu/cgit/libupskirt/>
-
-Redcarpet is Upskirt with a touch of Ruby. It is mostly based on Ryan
+Redcarpet is a Ruby wrapper for Upskirt. It is mostly based on Ryan
 Tomayko's RDiscount wrapper, and inspired by Rick Astley wearing a kilt.
 
-Redcarpet is powered by a modified version of Upskirt, which has been
-updated to pass the official Markdown test suite and now has support
-for many additional features: autolinks, smartypants, safe filters,
-and a long etcetera.
+Redcarpet is powered by the Upskirt library, which can be found at
 
-Redcarpet is a drop-in replacement for BlueCloth, RedCloth and RDiscount.
+	https://www.github.com/tanoku/upskirt
 
-* Upskirt is (C)2009 Natacha Porté
-* Upskirt has been brought back to life and made standards-compilant in 2011 by Vicent Marti
-* Redcarpet is (C)2011 Vicent Marti
- 
+You might want to find out more about Upskirt to see what makes these Ruby
+bindings so awesome.
+
+Credits
+-------
+
+* Natacha Porté, lady of Markdown
+* Vicent Martí, wannabe
+* With special thanks to Ryan Tomayko
+
+Install
+-------
+
+Redcarpet is readily available as a Ruby gem:
+
+    $ [sudo] gem install redcarpet
+
+The Redcarpet source (including Upskirt as a submodule) is available at GitHub:
+
+    $ git clone git://github.com/tanoku/redcarpet.git
+
+Usage
+-----
+
+Redcarpet implements the basic protocol popularized by RedCloth:
+
+    require 'redcarpet'
+    markdown = Redcarpet.new("Hello World!")
+    puts markdown.to_html
+
+Additional processing options can be turned on when creating the
+Redcarpet object:
+
+    markdown = Redcarpet.new("Hello World!", :smart, :filter_html)
+
+Note that by default, Redcarpet parses standard Markdown (with no extensions)
+and offers a sane subset of parse options which allow you to modify the rendering
+output and to enable MD extensions on a per-case basis.
+
+Redcarpet also offers a wrapper class, `RedcarpetCompat` with the same flags
+and behavior as the RDiscount library, which acts as a drop-in replacement.
 
 License
 -------
@@ -36,3 +64,4 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+

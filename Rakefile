@@ -133,3 +133,21 @@ file 'redcarpet.gemspec' => FileList['Rakefile','lib/redcarpet.rb'] do |f|
   File.open(f.name, 'w') { |io| io.write(spec) }
   puts "updated #{f.name}"
 end
+
+desc 'Gather required Upskirt sources into extension directory'
+task :gather => 'upskirt/src/markdown.h' do |t|
+  files =
+    FileList[
+      'upskirt/src/{markdown,buffer,array,xhtml}.h',
+      'upskirt/src/{markdown,buffer,array,xhtml}.c',
+    ]
+  cp files, 'ext/',
+    :preserve => true,
+    :verbose => true
+end
+
+file 'upskirt/src/markdown.h' do |t|
+  abort "The Upskirt submodule is required."
+end
+
+
