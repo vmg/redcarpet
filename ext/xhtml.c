@@ -21,6 +21,7 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 
 struct xhtml_renderopt {
 	struct {
@@ -139,8 +140,6 @@ rndr_codespan(struct buf *ob, struct buf *text, void *opaque)
 static int
 rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
 {
-	struct xhtml_renderopt *options = opaque;
-
 	if (!text || !text->size)
 		return 0;
 
@@ -409,7 +408,7 @@ static struct {
 
 #define SUBS_COUNT (sizeof(smartypants_subs) / sizeof(smartypants_subs[0]))
 
-static inline
+static inline int
 word_boundary(char c)
 {
 	return isspace(c) || ispunct(c);

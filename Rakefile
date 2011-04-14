@@ -138,8 +138,10 @@ desc 'Gather required Upskirt sources into extension directory'
 task :gather => 'upskirt/src/markdown.h' do |t|
   files =
     FileList[
-      'upskirt/src/{markdown,buffer,array,xhtml}.h',
-      'upskirt/src/{markdown,buffer,array,xhtml}.c',
+      'upskirt/src/{markdown,buffer,array}.h',
+      'upskirt/src/{markdown,buffer,array}.c',
+      'upskirt/render/xhtml.c',
+      'upskirt/render/xhtml.h',
     ]
   cp files, 'ext/',
     :preserve => true,

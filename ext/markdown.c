@@ -18,12 +18,12 @@
  */
 
 #include "markdown.h"
-
 #include "array.h"
 
 #include <assert.h>
 #include <string.h>
 #include <strings.h> /* for strncasecmp */
+#include <ctype.h>
 
 #define TEXT_UNIT 64	/* unit for the copy of the input buffer */
 #define WORK_UNIT 64	/* block-level working buffer */
@@ -948,7 +948,6 @@ static size_t
 is_codefence(char *data, size_t size)
 {
 	size_t i = 0, n = 0;
-	char c;
 
 	/* skipping initial spaces */
 	if (size < 3) return 0;
@@ -1113,8 +1112,6 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 	struct buf work = { data, 0, 0, 0, 0 }; /* volatile working buffer */
 
 	while (i < size) {
-		size_t html_size;
-
 		for (end = i + 1; end < size && data[end - 1] != '\n'; end++) /* empty */;
 
 		if (is_empty(data + i, size - i) || (level = is_headerline(data + i, size - i)) != 0)
@@ -1747,8 +1744,6 @@ parse_table_header(struct buf *ob, struct render *rndr, char *data, size_t size,
 		under_end++;
 
 	for (col = 0; col < *columns && i < under_end; ++col) {
-		size_t cell_start, cell_end;
-
 		if (data[i] == ':') {
 			i++; (*column_data)[col] |= MKD_TABLE_ALIGN_L;
 		}
@@ -1804,7 +1799,6 @@ parse_table(struct buf *ob, struct render *rndr, char *data, size_t size)
 	if (i > 0) {
 
 		while (i < size) {
-			size_t row_len;
 			size_t row_start;
 			int pipes = 0;
 
