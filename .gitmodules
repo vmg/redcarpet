@@ -1,0 +1,3 @@
+[submodule "upskirt"]
+	path = upskirt
+	url = git://github.com/tanoku/upskirt.git
