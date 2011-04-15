@@ -163,13 +163,13 @@ hello|sailor
 EOS
 
     assert Redcarpet.new(text).to_html !~ /<table/
-    assert Redcarpet.new(text, :tables).to_html ~ /<table/
+    assert Redcarpet.new(text, :tables).to_html =~ /<table/
   end
 
   def test_strikethrough_flag_works
     text = "this is ~some~ striked ~~text~~"
     assert Redcarpet.new(text).to_html !~ /text-decoration:line-through;/
-    assert Redcarpet.new(text, :strikethrough).to_html ~ /text-decoration:line-through;/
+    assert Redcarpet.new(text, :strikethrough).to_html =~ /text-decoration:line-through;/
   end
 
   def test_that_fenced_flag_works
@@ -183,7 +183,7 @@ This is some awesome code
 fenced
 
     assert Redcarpet.new(text).to_html !~ /<code/
-    assert Redcarpet.new(text, :fenced_code).to_html ~ /<code/
+    assert Redcarpet.new(text, :fenced_code).to_html =~ /<code/
   end
 
   def test_that_compat_is_working
@@ -194,8 +194,9 @@ hello|sailor
 
 This is ~~striked through~~ test
 EOS
-    assert rd.to_html ~ /<table/
-    assert rd.to_html ~ /text-decoration:line-through;/
+    assert rd.tables
+    assert rd.to_html =~ /<table/
+    assert rd.to_html =~ /text-decoration:line-through;/
   end
 
   def test_that_headers_are_linkable

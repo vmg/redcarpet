@@ -86,11 +86,8 @@ class RedcarpetCompat < Redcarpet
 
   def initialize(text, *extensions)
     super(text, *extensions)
-    tables = true
-    if no_tables then
-      tables = false
-    end
-    strikethrough = true
+    self.tables = !self.no_tables
+    self.strikethrough = true
   end
 end
 
