@@ -1,8 +1,9 @@
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '1.6.0'
+  s.version = '1.7.0'
   s.summary = "Ruby bindings for libupskirt"
-  s.date = '2011-04-12'
+  s.description = 'A fast and safe Markdown to (X)HTML parser'
+  s.date = '2011-04-15'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/tanoku/redcarpet'
   s.has_rdoc = true
@@ -30,6 +31,7 @@ Gem::Specification.new do |s|
     test/benchmark.txt
     test/markdown_test.rb
     test/redcarpet_test.rb
+    upskirt
   ]
   # = MANIFEST =
   s.test_files = ["test/markdown_test.rb", "test/redcarpet_test.rb"]
