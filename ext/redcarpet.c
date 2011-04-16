@@ -46,6 +46,9 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	if (rb_funcall(ruby_obj, rb_intern("generate_toc"), 0) == Qtrue)
 		render_flags |= XHTML_TOC;
 
+	if (rb_funcall(ruby_obj, rb_intern("hard_wrap"), 0) == Qtrue)
+		render_flags |= XHTML_HARD_WRAP;
+
 	/**
 	 * Markdown extensions -- all disabled by default 
 	 */

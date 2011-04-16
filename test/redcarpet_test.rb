@@ -210,5 +210,15 @@ This a stupid link: https://github.com/rtomayko/tilt/issues?milestone=1&state=op
 text
     assert_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown.to_html
   end
+
+  def test_hard_wrap
+    rd = Redcarpet.new(<<text, :hard_wrap)
+This is just a test
+this should have a line break
+
+This is just a test.
+text
   
+    assert rd.to_html =~ /<br\/>/
+  end
 end

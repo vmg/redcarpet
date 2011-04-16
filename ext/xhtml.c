@@ -112,13 +112,13 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 }
 
 static void
-rndr_blockcode(struct buf *ob, struct buf *text, struct buf *syntax, void *opaque)
+rndr_blockcode(struct buf *ob, struct buf *text, struct buf *lang, void *opaque)
 {
 	if (ob->size) bufputc(ob, '\n');
 
-	if (syntax && syntax->size) {
+	if (lang && lang->size) {
 		BUFPUTSL(ob, "<pre lang=\"");
-		bufput(ob, syntax->data, syntax->size);
+		bufput(ob, lang->data, lang->size);
 		BUFPUTSL(ob, "\"><code>");
 	} else
 		BUFPUTSL(ob, "<pre><code>");
@@ -234,6 +234,7 @@ rndr_listitem(struct buf *ob, struct buf *text, int flags, void *opaque)
 static void
 rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
 {
+	struct xhtml_renderopt *options = opaque;
 	size_t i = 0;
 
 	if (ob->size) bufputc(ob, '\n');
@@ -243,11 +244,30 @@ rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
 
 	while (i < text->size && isspace(text->data[i])) i++;
 
-	if (i < text->size) {
-		BUFPUTSL(ob, "<p>");
+	if (i == text->size)
+		return;
+
+	BUFPUTSL(ob, "<p>");
+	if (options->flags & XHTML_HARD_WRAP) {
+		size_t org;
+		while (i < text->size) {
+			org = i;
+			while (i < text->size && text->data[i] != '\n')
+				i++;
+
+			if (i > org)
+				bufput(ob, text->data + org, i - org);
+
+			if (i >= text->size)
+				break;
+
+			BUFPUTSL(ob, "<br/>");
+			i++;
+		}
+	} else {
 		bufput(ob, &text->data[i], text->size - i);
-		BUFPUTSL(ob, "</p>\n");
 	}
+	BUFPUTSL(ob, "</p>\n");
 }
 
 static void
@@ -648,14 +668,14 @@ ups_toc_renderer(struct mkd_renderer *renderer)
 		NULL,
 		NULL,
 
-		rndr_autolink,
+		NULL,
 		rndr_codespan,
 		rndr_double_emphasis,
 		rndr_emphasis,
-		rndr_image,
-		rndr_linebreak,
-		rndr_link,
-		rndr_raw_html,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
 		rndr_triple_emphasis,
 
 		NULL,

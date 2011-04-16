@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.7.1'
+  VERSION = '1.8.0'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -45,6 +45,9 @@ class Redcarpet
 
   # Do not process <tt>[]</tt> and remove <tt><a></tt> tags from the output.
   attr_accessor :no_links
+
+  # Treat newlines in paragraphs as real line breaks, GitHub style
+  attr_accessor :hard_wrap
 
   # Disable superscript and relaxed emphasis processing.
   attr_accessor :strict
