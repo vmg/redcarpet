@@ -47,7 +47,7 @@ enum mkd_extensions {
 /* mkd_renderer • functions for rendering parsed data */
 struct mkd_renderer {
 	/* block level callbacks - NULL skips the block */
-	void (*blockcode)(struct buf *ob, struct buf *text, void *opaque);
+	void (*blockcode)(struct buf *ob, struct buf *text, struct buf *syntax, void *opaque);
 	void (*blockquote)(struct buf *ob, struct buf *text, void *opaque);
 	void (*blockhtml)(struct buf *ob, struct buf *text, void *opaque);
 	void (*header)(struct buf *ob, struct buf *text, int level, void *opaque);

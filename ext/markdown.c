@@ -945,9 +945,10 @@ is_hrule(char *data, size_t size)
 
 /* check if a line is a code fence; return its size if it is */
 static size_t
-is_codefence(char *data, size_t size)
+is_codefence(char *data, size_t size, struct buf *syntax)
 {
-	size_t i = 0, n = 0;
+	size_t i = 0, n = 0, syn;
+	char c;
 
 	/* skipping initial spaces */
 	if (size < 3) return 0;
@@ -956,18 +957,45 @@ is_codefence(char *data, size_t size)
 	if (data[2] == ' ') { i += 1; } } }
 
 	/* looking at the hrule char */
-	if (i + 2 >= size || data[i] != '~')
+	if (i + 2 >= size || !(data[i] == '~' || data[i] == '`'))
 		return 0;
 
+	c = data[i];
+
 	/* the whole line must be the char or whitespace */
-	while (i < size && data[i] != '\n') {
-		if (data[i] == '~') n++;
-		else if (data[i] != ' ' && data[i] != '\t')
-			return 0;
-		i++;
+	while (i < size && data[i] == c) {
+		n++; i++;
 	}
 
-	return n >= 3 ? i + 1 : 0;
+	if (n < 3)
+		return 0;
+
+	if (syntax == NULL) {
+		while (i < size && data[i] != '\n') {
+			if (!isspace(data[i]))
+				return 0;
+
+			i++;
+		}
+	} else {
+		syntax->data = data + i;
+		syn = 0;
+
+		while (i < size && data[i] != '\n') {
+			syn++; i++;
+		}
+
+		while (syn > 0 && isspace(syntax->data[syn - 1]))
+			syn--;
+
+		while (syn > 0 && isspace(syntax->data[0])) {
+			syntax->data++; syn--;
+		}
+
+		syntax->size = syn;
+	}
+
+	return i + 1;
 }
 
 /* is_headerline • returns whether the line is a setext-style hdr underline */
@@ -1210,14 +1238,15 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 	return end;
 }
 
-/* parse_blockquote • hanldes parsing of a block-level code fragment */
+/* parse_fencedcode • hanldes parsing of a block-level code fragment */
 static size_t
 parse_fencedcode(struct buf *ob, struct render *rndr, char *data, size_t size)
 {
 	size_t beg, end;
 	struct buf *work = 0;
+	struct buf syntax = { 0, 0, 0, 0, 0 };
 
-	beg = is_codefence(data, size);
+	beg = is_codefence(data, size, &syntax);
 	if (beg == 0) return 0;
 
 	if (rndr->work.size < rndr->work.asize) {
@@ -1231,7 +1260,7 @@ parse_fencedcode(struct buf *ob, struct render *rndr, char *data, size_t size)
 	while (beg < size) {
 		size_t fence_end;
 
-		fence_end = is_codefence(data + beg, size - beg);
+		fence_end = is_codefence(data + beg, size - beg, NULL);
 		if (fence_end != 0) {
 			beg += fence_end;
 			break;
@@ -1253,7 +1282,7 @@ parse_fencedcode(struct buf *ob, struct render *rndr, char *data, size_t size)
 		bufputc(work, '\n');
 
 	if (rndr->make.blockcode)
-		rndr->make.blockcode(ob, work, rndr->make.opaque);
+		rndr->make.blockcode(ob, work, syntax.size ? &syntax : NULL, rndr->make.opaque);
 
 	rndr->work.size -= 1;
 	return beg;
@@ -1293,7 +1322,7 @@ parse_blockcode(struct buf *ob, struct render *rndr, char *data, size_t size)
 		work->size -= 1;
 	bufputc(work, '\n');
 	if (rndr->make.blockcode)
-		rndr->make.blockcode(ob, work, rndr->make.opaque);
+		rndr->make.blockcode(ob, work, NULL, rndr->make.opaque);
 	rndr->work.size -= 1;
 	return beg;
 }
