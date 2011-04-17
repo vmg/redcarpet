@@ -68,17 +68,34 @@ lus_attr_escape(struct buf *ob, const char *src, size_t size)
 static int
 is_html_tag(struct buf *tag, const char *tagname)
 {
-	size_t i;
+	size_t i = 0;
 
-	for (i = 0; i < tag->size; ++i) {
-		if (tagname[i] == '>')
+	if (i < tag->size && tag->data[0] != '<')
+		return 0;
+
+	i++;
+
+	while (i < tag->size && isspace(tag->data[i]))
+		i++;
+
+	if (i < tag->size && tag->data[i] == '/')
+		i++;
+
+	while (i < tag->size && isspace(tag->data[i]))
+		i++;
+
+	for (; i < tag->size; ++i, ++tagname) {
+		if (*tagname == 0)
 			break;
 
-		if (tag->data[i] != tagname[i])
+		if (tag->data[i] != *tagname)
 			return 0;
 	}
 
-	return (i == tag->size || isspace(tag->data[i]) || tag->data[i] == '>');
+	if (i == tag->size)
+		return 0;
+
+	return (isspace(tag->data[i]) || tag->data[i] == '>');
 }
 
 /********************
@@ -261,7 +278,7 @@ rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
 			if (i >= text->size)
 				break;
 
-			BUFPUTSL(ob, "<br/>");
+			BUFPUTSL(ob, "<br/>\n");
 			i++;
 		}
 	} else {
@@ -339,13 +356,13 @@ rndr_raw_html(struct buf *ob, struct buf *text, void *opaque)
 	if (options->flags & XHTML_SKIP_HTML)
 		escape_html = 1;
 
-	else if ((options->flags & XHTML_SKIP_STYLE) != 0 && is_html_tag(text, "<style>"))
+	else if ((options->flags & XHTML_SKIP_STYLE) != 0 && is_html_tag(text, "style"))
 		escape_html = 1;
 
-	else if ((options->flags & XHTML_SKIP_LINKS) != 0 && is_html_tag(text, "<a>"))
+	else if ((options->flags & XHTML_SKIP_LINKS) != 0 && is_html_tag(text, "a"))
 		escape_html = 1;
 
-	else if ((options->flags & XHTML_SKIP_IMAGES) != 0 && is_html_tag(text, "<img>"))
+	else if ((options->flags & XHTML_SKIP_IMAGES) != 0 && is_html_tag(text, "img"))
 		escape_html = 1;
 
 
