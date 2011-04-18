@@ -131,8 +131,8 @@ class MarkdownTest < Test::Unit::TestCase
   def test_para_before_block_html_should_not_wrap_in_p_tag
     markdown = Redcarpet.new(
       "Things to watch out for\n" +
-      "<ul>\n<li>Blah</li>\n</ul>\n"
-    )
+      "<ul>\n<li>Blah</li>\n</ul>\n", :lax_htmlblock)
+
     assert_equal "<p>Things to watch out for</p>\n\n" +
       "<ul>\n<li>Blah</li>\n</ul>\n",
       markdown.to_html

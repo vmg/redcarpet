@@ -21,9 +21,6 @@
 
 #include "buffer.h"
 
-/* Require a blank newline after HTML tags */
-#define UPSKIRT_NEWLINE_AFTER_TAGS
-
 /********************
  * TYPE DEFINITIONS *
  ********************/
@@ -42,6 +39,7 @@ enum mkd_extensions {
 	MKDEXT_FENCED_CODE = (1 << 2),
 	MKDEXT_AUTOLINK = (1 << 3),
 	MKDEXT_STRIKETHROUGH = (1 << 4),
+	MKDEXT_LAX_HTML_BLOCKS = (1 << 5),
 };
 
 /* mkd_renderer • functions for rendering parsed data */

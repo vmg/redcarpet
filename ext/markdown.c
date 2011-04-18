@@ -1102,13 +1102,11 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 		if (is_empty(data + i, size - i) || (level = is_headerline(data + i, size - i)) != 0)
 			break;
 
-		/* HTML blocks should not nest inside the paragraph, even if they
-		 * are not separated by a blank line; we run `parse_htmlblock` without
-		 * actually generating any output, to make sure that this is indeed
-		 * a HTML block */
-		if (data[i] == '<' && rndr->make.blockhtml && parse_htmlblock(ob, rndr, data + i, size - i, 0)) {
-			end = i;
-			break;
+		if (rndr->ext_flags & MKDEXT_LAX_HTML_BLOCKS) {
+			if (data[i] == '<' && rndr->make.blockhtml && parse_htmlblock(ob, rndr, data + i, size - i, 0)) {
+				end = i;
+				break;
+			}
 		}
 
 		if (data[i] == '#' || is_hrule(data + i, size - i)) {
@@ -1438,7 +1436,7 @@ parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size)
 /* htmlblock_end • checking end of HTML block : </tag>[ \t]*\n[ \t*]\n */
 /*	returns the length on match, 0 otherwise */
 static size_t
-htmlblock_end(struct html_tag *tag, char *data, size_t size)
+htmlblock_end(struct html_tag *tag, struct render *rndr, char *data, size_t size)
 {
 	size_t i, w;
 
@@ -1458,14 +1456,13 @@ htmlblock_end(struct html_tag *tag, char *data, size_t size)
 	i += w;
 	w = 0;
 
-		 
-#ifdef UPSKIRT_NEWLINE_AFTER_TAGS
-	if (i < size && (w = is_empty(data + i, size - i)) == 0)
-		return 0; /* non-blank line after tag line */
-#else
-	if (i < size)
-		w = is_empty(data + i, size - i);
-#endif
+	if (rndr->ext_flags & MKDEXT_LAX_HTML_BLOCKS) {
+		if (i < size)
+			w = is_empty(data + i, size - i);
+	} else  {
+		if (i < size && (w = is_empty(data + i, size - i)) == 0)
+			return 0; /* non-blank line after tag line */
+	}
 
 	return i + w;
 }
@@ -1533,19 +1530,18 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, in
 	/*	followed by a blank line */
 	i = 1;
 	found = 0;
-#if 0
+
 	while (i < size) {
 		i += 1;
 		while (i < size && !(data[i - 2] == '\n'
 		&& data[i - 1] == '<' && data[i] == '/'))
 			i += 1;
 		if (i + 2 + curtag->size >= size) break;
-		j = htmlblock_end(curtag, data + i - 1, size - i + 1);
+		j = htmlblock_end(curtag, rndr, data + i - 1, size - i + 1);
 		if (j) {
 			i += j - 1;
 			found = 1;
 			break; } }
-#endif
 
 	/* if not found, trying a second pass looking for indented match */
 	/* but not if tag is "ins" or "del" (following original Markdown.pl) */
@@ -1559,7 +1555,7 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, in
 			if (i + 2 + curtag->size >= size)
 				break;
 
-			j = htmlblock_end(curtag, data + i - 1, size - i + 1);
+			j = htmlblock_end(curtag, rndr, data + i - 1, size - i + 1);
 
 			if (j) {
 				i += j - 1;

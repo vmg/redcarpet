@@ -70,6 +70,9 @@ class Redcarpet
   # Enable PHP-Markdown fenced code extension
   attr_accessor :fenced_code
 
+  # Allow HTML blocks inside of paragraphs without being surrounded by newlines
+  attr_accessor :lax_htmlblock
+
   def initialize(text, *extensions)
     @text  = text
     extensions.each { |e| send("#{e}=", true) }

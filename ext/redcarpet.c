@@ -67,6 +67,9 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	if (rb_funcall(ruby_obj, rb_intern("strikethrough"), 0) == Qtrue)
 		extensions |= MKDEXT_STRIKETHROUGH;
 
+	if (rb_funcall(ruby_obj, rb_intern("lax_htmlblock"), 0) == Qtrue)
+		extensions |= MKDEXT_LAX_HTML_BLOCKS;
+
 	*enabled_extensions_p = extensions;
 	*render_flags_p = render_flags;
 }
