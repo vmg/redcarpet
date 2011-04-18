@@ -170,9 +170,9 @@ rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
 		return 0;
 
 	if (c == '~') {
-		BUFPUTSL(ob, "<span style=\"text-decoration:line-through;\">");
+		BUFPUTSL(ob, "<del>");
 		bufput(ob, text->data, text->size);
-		BUFPUTSL(ob, "</span>");
+		BUFPUTSL(ob, "</del>");
 	} else {
 		BUFPUTSL(ob, "<strong>");
 		bufput(ob, text->data, text->size);
