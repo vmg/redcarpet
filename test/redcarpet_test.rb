@@ -168,8 +168,8 @@ EOS
 
   def test_strikethrough_flag_works
     text = "this is ~some~ striked ~~text~~"
-    assert Redcarpet.new(text).to_html !~ /text-decoration:line-through;/
-    assert Redcarpet.new(text, :strikethrough).to_html =~ /text-decoration:line-through;/
+    assert Redcarpet.new(text).to_html !~ /<del/
+    assert Redcarpet.new(text, :strikethrough).to_html =~ /<del/
   end
 
   def test_that_fenced_flag_works
@@ -196,7 +196,7 @@ This is ~~striked through~~ test
 EOS
     assert rd.tables
     assert rd.to_html =~ /<table/
-    assert rd.to_html =~ /text-decoration:line-through;/
+    assert rd.to_html =~ /<del/
   end
 
   def test_that_headers_are_linkable
