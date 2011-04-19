@@ -6,7 +6,7 @@ Tomayko's RDiscount wrapper, and inspired by Rick Astley wearing a kilt.
 
 Redcarpet is powered by the Upskirt library, which can be found at
 
-	https://www.github.com/tanoku/upskirt
+    https://www.github.com/tanoku/upskirt
 
 You might want to find out more about Upskirt to see what makes these Ruby
 bindings so awesome.
@@ -23,25 +23,33 @@ Install
 
 Redcarpet is readily available as a Ruby gem:
 
-    $ [sudo] gem install redcarpet
+```bash
+$ [sudo] gem install redcarpet
+```
 
 The Redcarpet source (including Upskirt as a submodule) is available at GitHub:
 
-    $ git clone git://github.com/tanoku/redcarpet.git
+```bash
+$ git clone git://github.com/tanoku/redcarpet.git
+```
 
 Usage
 -----
 
 Redcarpet implements the basic protocol popularized by RedCloth:
 
-    require 'redcarpet'
-    markdown = Redcarpet.new("Hello World!")
-    puts markdown.to_html
+```ruby
+require 'redcarpet'
+markdown = Redcarpet.new("Hello World!")
+puts markdown.to_html
+```
 
 Additional processing options can be turned on when creating the
 Redcarpet object:
 
-    markdown = Redcarpet.new("Hello World!", :smart, :filter_html)
+```ruby
+markdown = Redcarpet.new("Hello World!", :smart, :filter_html)
+```
 
 Note that by default, Redcarpet parses standard Markdown (with no extensions)
 and offers a sane subset of parse options which allow you to modify the rendering
