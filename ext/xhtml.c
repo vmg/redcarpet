@@ -131,12 +131,38 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 static void
 rndr_blockcode(struct buf *ob, struct buf *text, struct buf *lang, void *opaque)
 {
+	static char *sh_lang = "bash";
+	struct buf lang_shebang = {0, 0, 0, 0, 0};
+
 	if (ob->size) bufputc(ob, '\n');
 
+	/*
+	 * Try to guess the language based on the shebang
+	 */
+	if (lang == NULL && text != NULL && text->size > 2) {
+		if (bufprefix(text, "#!/usr/bin/env ") == 0) {
+			size_t i = STRLEN("#!/usr/bin/env ");
+
+			lang_shebang.data = text->data + i;
+			while (i < text->size && !isspace(text->data[i])) {
+				i++; lang_shebang.size++;
+			}
+
+			lang = &lang_shebang;
+		} else if (bufprefix(text, "#!/bin/sh") == 0 && isspace(text->data[STRLEN("#!/bin/sh")])) {
+			lang_shebang.data = sh_lang;
+			lang_shebang.size = strlen(sh_lang);
+			lang = &lang_shebang;
+		}
+	}
+
 	if (lang && lang->size) {
-		BUFPUTSL(ob, "<pre lang=\"");
-		bufput(ob, lang->data, lang->size);
-		BUFPUTSL(ob, "\"><code>");
+		BUFPUTSL(ob, "<pre><code class=\"");
+		if (lang->data[0] == '.')
+			bufput(ob, lang->data + 1, lang->size - 1);
+		else
+			bufput(ob, lang->data, lang->size);
+		BUFPUTSL(ob, "\">");
 	} else
 		BUFPUTSL(ob, "<pre><code>");
 

@@ -707,7 +707,7 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		/* skipping initial whitespace */
 		i += 1;
 
-		while (i < size && (data[i] == ' ' || data[i] == '\t'))
+		while (i < size && isspace(data[i]))
 			i++;
 
 		link_b = i;
@@ -740,7 +740,7 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		}
 
 		/* remove whitespace at the end of the link */
-		while (link_e > link_b && (data[link_e - 1] == ' ' || data[link_e - 1] == '\t'))
+		while (link_e > link_b && isspace(data[link_e - 1]))
 			link_e--;
 
 		/* remove optional angle brackets around the link */
@@ -944,8 +944,21 @@ is_codefence(char *data, size_t size, struct buf *syntax)
 
 		syntax->data = data + i;
 
-		while (i < size && !isspace(data[i])) {
-			syn++; i++;
+		if (i < size && data[i] == '{') {
+			i++; syntax->data++;
+
+			while (i < size && data[i] != '}' && data[i] != '\n') {
+				syn++; i++;
+			}
+
+			if (i == size || data[i] != '}')
+				return 0;
+
+			i++;
+		} else {
+			while (i < size && !isspace(data[i])) {
+				syn++; i++;
+			}
 		}
 
 		syntax->size = syn;
@@ -1531,21 +1544,9 @@ parse_htmlblock(struct buf *ob, struct render *rndr, char *data, size_t size, in
 	i = 1;
 	found = 0;
 
-	while (i < size) {
-		i += 1;
-		while (i < size && !(data[i - 2] == '\n'
-		&& data[i - 1] == '<' && data[i] == '/'))
-			i += 1;
-		if (i + 2 + curtag->size >= size) break;
-		j = htmlblock_end(curtag, rndr, data + i - 1, size - i + 1);
-		if (j) {
-			i += j - 1;
-			found = 1;
-			break; } }
-
 	/* if not found, trying a second pass looking for indented match */
 	/* but not if tag is "ins" or "del" (following original Markdown.pl) */
-	if (!found && curtag != INS_TAG && curtag != DEL_TAG) {
+	if (curtag != INS_TAG && curtag != DEL_TAG) {
 		i = 1;
 		while (i < size) {
 			i++;

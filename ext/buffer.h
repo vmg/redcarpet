@@ -38,6 +38,8 @@ struct buf {
  * MACROS *
  **********/
 
+#define STRLEN(x) (sizeof(x) - 1)
+
 /* CONST_BUF • global buffer from a string litteral */
 #define CONST_BUF(name, string) \
 	static struct buf name = { string, sizeof string -1, sizeof string }
