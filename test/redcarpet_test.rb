@@ -186,6 +186,18 @@ fenced
     assert Redcarpet.new(text, :fenced_code).to_html =~ /<code/
   end
 
+  def test_that_gh_blockcode_works
+    text = <<fenced
+~~~~~ {.python .numbered}
+This is some unsafe code block
+    with custom CSS classes
+~~~~~
+fenced
+
+    assert Redcarpet.new(text, :fenced_code).to_html =~ /<code class/
+    assert Redcarpet.new(text, :fenced_code, :gh_blockcode).to_html !~ /<code class/
+  end
+
   def test_that_compat_is_working
     rd = RedcarpetCompat.new(<<EOS)
  aaa | bbbb

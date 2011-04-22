@@ -49,6 +49,9 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	if (rb_funcall(ruby_obj, rb_intern("hard_wrap"), 0) == Qtrue)
 		render_flags |= XHTML_HARD_WRAP;
 
+	if (rb_funcall(ruby_obj, rb_intern("gh_blockcode"), 0) == Qtrue)
+		render_flags |= XHTML_GITHUB_BLOCKCODE;
+
 	/**
 	 * Markdown extensions -- all disabled by default 
 	 */

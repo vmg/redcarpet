@@ -27,6 +27,7 @@ typedef enum {
 	XHTML_SAFELINK = (1 << 7),
 	XHTML_TOC = (1 << 8),
 	XHTML_HARD_WRAP = (1 << 9),
+	XHTML_GITHUB_BLOCKCODE = (1 << 10),
 } render_mode;
 
 extern void

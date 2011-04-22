@@ -136,38 +136,66 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 static void
 rndr_blockcode(struct buf *ob, struct buf *text, struct buf *lang, void *opaque)
 {
-	static char *sh_lang = "bash";
-	struct buf lang_shebang = {0, 0, 0, 0, 0};
-
 	if (ob->size) bufputc(ob, '\n');
 
-	/*
-	 * Try to guess the language based on the shebang
-	 */
-	if (lang == NULL && text != NULL && text->size > 2) {
-		if (bufprefix(text, "#!/usr/bin/env ") == 0) {
-			size_t i = STRLEN("#!/usr/bin/env ");
+	if (lang && lang->size) {
+		size_t i = 0;
+		BUFPUTSL(ob, "<pre><code class=\"");
 
-			lang_shebang.data = text->data + i;
-			while (i < text->size && !isspace(text->data[i])) {
-				i++; lang_shebang.size++;
-			}
+		for (i = 0; i < lang->size; ++i) {
+			if (lang->data[i] == '.' && (i == 0 || isspace(lang->data[i - 1])))
+				continue;
 
-			lang = &lang_shebang;
-		} else if (bufprefix(text, "#!/bin/sh") == 0 && isspace(text->data[STRLEN("#!/bin/sh")])) {
-			lang_shebang.data = sh_lang;
-			lang_shebang.size = strlen(sh_lang);
-			lang = &lang_shebang;
+			bufputc(ob, lang->data[i]);
 		}
-	}
+
+		BUFPUTSL(ob, "\">");
+	} else
+		BUFPUTSL(ob, "<pre><code>");
+
+	if (text)
+		lus_attr_escape(ob, text->data, text->size);
+
+	BUFPUTSL(ob, "</code></pre>\n");
+}
+
+/*
+ * GitHub style code block:
+ *
+ *		<pre lang="LANG"><code>
+ *		...
+ *		</pre></code>
+ *
+ * Unlike other parsers, we store the language identifier in the <pre>,
+ * and don't let the user generate custom classes.
+ *
+ * The language identifier in the <pre> block gets postprocessed and all
+ * the code inside gets syntax highlighted with Pygments. This is much safer
+ * than letting the user specify a CSS class for highlighting.
+ *
+ * Note that we only generate HTML for the first specifier.
+ * E.g.
+ *		~~~~ {.python .numbered}	=>	<pre lang="python"><code>
+ */
+static void
+rndr_blockcode_github(struct buf *ob, struct buf *text, struct buf *lang, void *opaque)
+{
+	if (ob->size) bufputc(ob, '\n');
 
 	if (lang && lang->size) {
-		BUFPUTSL(ob, "<pre><code class=\"");
+		size_t i = 0;
+		BUFPUTSL(ob, "<pre lang=\"");
+
+		for (; i < lang->size; ++i)
+			if (isspace(lang->data[i]))
+				break;
+
 		if (lang->data[0] == '.')
-			bufput(ob, lang->data + 1, lang->size - 1);
+			bufput(ob, lang->data + 1, i - 1);
 		else
-			bufput(ob, lang->data, lang->size);
-		BUFPUTSL(ob, "\">");
+			bufput(ob, lang->data, i);
+
+		BUFPUTSL(ob, "\"><code>");
 	} else
 		BUFPUTSL(ob, "<pre><code>");
 
@@ -745,6 +773,9 @@ ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 
 	if (render_flags & XHTML_SMARTYPANTS)
 		renderer->normal_text = rndr_smartypants;
+
+	if (render_flags & XHTML_GITHUB_BLOCKCODE)
+		renderer->blockcode = rndr_blockcode_github;
 }
 
 void

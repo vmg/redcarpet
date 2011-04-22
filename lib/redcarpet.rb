@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.10.1'
+  VERSION = '1.11.0'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -51,6 +51,9 @@ class Redcarpet
 
   # Disable superscript and relaxed emphasis processing.
   attr_accessor :strict
+
+  # Generate safer HTML for code blocks (no custom CSS classes)
+  attr_accessor :gh_blockcode
 
   # Don't make hyperlinks from <tt>[][]</tt> links that have unknown URL types.
   attr_accessor :safelink

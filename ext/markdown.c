@@ -24,6 +24,7 @@
 #include <string.h>
 #include <strings.h> /* for strncasecmp */
 #include <ctype.h>
+#include <stdio.h>
 
 #define TEXT_UNIT 64	/* unit for the copy of the input buffer */
 #define WORK_UNIT 64	/* block-level working buffer */
@@ -717,7 +718,8 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		link_b = i;
 
 		/* looking for link end: ' " ) */
-		while (i < size && data[i] != '\'' && data[i] != '"' && data[i] != ')')
+		while (i < size && data[i] != '\'' && data[i] != '"' &&
+				(data[i] != ')' || data[i - 1] == '\\'))
 			i++;
 
 		if (i >= size) goto cleanup;
@@ -728,7 +730,7 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 			i++;
 			title_b = i;
 
-			while (i < size && data[i] != ')') i++;
+			while (i < size && (data[i] != ')' || data[i - 1] == '\\')) i++;
 			if (i >= size) goto cleanup;
 
 			/* skipping whitespaces after title */
@@ -957,6 +959,15 @@ is_codefence(char *data, size_t size, struct buf *syntax)
 
 			if (i == size || data[i] != '}')
 				return 0;
+
+			/* strip all whitespace at the beggining and the end
+			 * of the {} block */
+			while (syn > 0 && isspace(syntax->data[0])) {
+				syntax->data++; syn--;
+			}
+
+			while (syn > 0 && isspace(syntax->data[syn - 1]))
+				syn--;
 
 			i++;
 		} else {
