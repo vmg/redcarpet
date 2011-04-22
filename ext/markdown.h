@@ -61,13 +61,14 @@ struct mkd_renderer {
 	/* span level callbacks - NULL or return 0 prints the span verbatim */
 	int (*autolink)(struct buf *ob, struct buf *link, enum mkd_autolink type, void *opaque);
 	int (*codespan)(struct buf *ob, struct buf *text, void *opaque);
-	int (*double_emphasis)(struct buf *ob, struct buf *text, char c, void *opaque);
-	int (*emphasis)(struct buf *ob, struct buf *text, char c,void *opaque);
+	int (*double_emphasis)(struct buf *ob, struct buf *text, void *opaque);
+	int (*emphasis)(struct buf *ob, struct buf *text, void *opaque);
 	int (*image)(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, void *opaque);
 	int (*linebreak)(struct buf *ob, void *opaque);
 	int (*link)(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, void *opaque);
 	int (*raw_html_tag)(struct buf *ob, struct buf *tag, void *opaque);
-	int (*triple_emphasis)(struct buf *ob, struct buf *text, char c, void *opaque);
+	int (*triple_emphasis)(struct buf *ob, struct buf *text, void *opaque);
+	int (*strikethrough)(struct buf *ob, struct buf *text, void *opaque);
 
 	/* low level callbacks - NULL copies input directly into the output */
 	void (*entity)(struct buf *ob, struct buf *entity, void *opaque);

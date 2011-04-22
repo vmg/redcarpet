@@ -137,7 +137,7 @@ is_safe_link(const char *link, size_t link_len)
 	for (i = 0; i < valid_uris_count; ++i) {
 		size_t len = strlen(valid_uris[i]);
 
-		if (link_len > len && memcmp(link, valid_uris[i], len) == 0)
+		if (link_len > len && strncasecmp(link, valid_uris[i], len) == 0)
 			return 1;
 	}
 
@@ -397,7 +397,7 @@ parse_emph1(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 
 			work = rndr_newbuf(rndr);
 			parse_inline(work, rndr, data, i);
-			r = rndr->make.emphasis(ob, work, c, rndr->make.opaque);
+			r = rndr->make.emphasis(ob, work, rndr->make.opaque);
 			rndr_popbuf(rndr);
 			return r ? i + 1 : 0;
 		}
@@ -410,11 +410,14 @@ parse_emph1(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 static size_t
 parse_emph2(struct buf *ob, struct render *rndr, char *data, size_t size, char c)
 {
+	int (*render_method)(struct buf *ob, struct buf *text, void *opaque);
 	size_t i = 0, len;
 	struct buf *work = 0;
 	int r;
 
-	if (!rndr->make.double_emphasis)
+	render_method = (c == '~') ? rndr->make.strikethrough : rndr->make.double_emphasis;
+
+	if (!render_method)
 		return 0;
 	
 	while (i < size) {
@@ -425,7 +428,7 @@ parse_emph2(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 		if (i + 1 < size && data[i] == c && data[i + 1] == c && i && !isspace(data[i - 1])) {
 			work = rndr_newbuf(rndr);
 			parse_inline(work, rndr, data, i);
-			r = rndr->make.double_emphasis(ob, work, c, rndr->make.opaque);
+			r = render_method(ob, work, rndr->make.opaque);
 			rndr_popbuf(rndr);
 			return r ? i + 2 : 0;
 		}
@@ -456,7 +459,7 @@ parse_emph3(struct buf *ob, struct render *rndr, char *data, size_t size, char c
 			struct buf *work = rndr_newbuf(rndr);
 
 			parse_inline(work, rndr, data, i);
-			r = rndr->make.triple_emphasis(ob, work, c, rndr->make.opaque);
+			r = rndr->make.triple_emphasis(ob, work, rndr->make.opaque);
 			rndr_popbuf(rndr);
 			return r ? i + 3 : 0;
 
@@ -484,8 +487,9 @@ char_emphasis(struct buf *ob, struct render *rndr, char *data, size_t offset, si
 	size_t ret;
 
 	if (size > 2 && data[1] != c) {
-		/* whitespace cannot follow an opening emphasis */
-		if (isspace(data[1]) || (ret = parse_emph1(ob, rndr, data + 1, size - 1, c)) == 0)
+		/* whitespace cannot follow an opening emphasis;
+		 * strikethrough only takes two characters '~~' */
+		if (c == '~' || isspace(data[1]) || (ret = parse_emph1(ob, rndr, data + 1, size - 1, c)) == 0)
 			return 0;
 
 		return ret + 1;
@@ -499,7 +503,7 @@ char_emphasis(struct buf *ob, struct render *rndr, char *data, size_t offset, si
 	}
 
 	if (size > 4 && data[1] == c && data[2] == c && data[3] != c) {
-		if (isspace(data[3]) || (ret = parse_emph3(ob, rndr, data + 3, size - 3, c)) == 0)
+		if (c == '~' || isspace(data[3]) || (ret = parse_emph3(ob, rndr, data + 3, size - 3, c)) == 0)
 			return 0;
 
 		return ret + 3;
@@ -1970,8 +1974,13 @@ ups_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, 
 
 	if (extensions & MKDEXT_AUTOLINK) {
 		rndr.active_char['h'] = char_autolink; // http, https
+		rndr.active_char['H'] = char_autolink;
+
 		rndr.active_char['f'] = char_autolink; // ftp
+		rndr.active_char['F'] = char_autolink;
+
 		rndr.active_char['m'] = char_autolink; // mailto
+		rndr.active_char['M'] = char_autolink;
 	}
 
 	/* Extension data */

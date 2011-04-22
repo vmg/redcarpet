@@ -29,18 +29,23 @@ struct xhtml_renderopt {
 		int current_level;
 	} toc_data;
 
+	struct {
+		int in_squote;
+		int in_dquote;
+	} quotes;
+
 	unsigned int flags;
 };
 
-static inline int
+static inline void
 put_scaped_char(struct buf *ob, char c)
 {
 	switch (c) {
-		case '<': BUFPUTSL(ob, "&lt;"); return 1;
-		case '>': BUFPUTSL(ob, "&gt;"); return 1;
-		case '&': BUFPUTSL(ob, "&amp;"); return 1;
-		case '"': BUFPUTSL(ob, "&quot;"); return 1;
-		default: return 0;
+		case '<': BUFPUTSL(ob, "&lt;"); break;
+		case '>': BUFPUTSL(ob, "&gt;"); break;
+		case '&': BUFPUTSL(ob, "&amp;"); break;
+		case '"': BUFPUTSL(ob, "&quot;"); break;
+		default: bufputc(ob, c); break;
 	}
 }
 
@@ -190,28 +195,34 @@ rndr_codespan(struct buf *ob, struct buf *text, void *opaque)
 }
 
 static int
-rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
+rndr_strikethrough(struct buf *ob, struct buf *text, void *opaque)
 {
 	if (!text || !text->size)
 		return 0;
 
-	if (c == '~') {
-		BUFPUTSL(ob, "<del>");
-		bufput(ob, text->data, text->size);
-		BUFPUTSL(ob, "</del>");
-	} else {
-		BUFPUTSL(ob, "<strong>");
-		bufput(ob, text->data, text->size);
-		BUFPUTSL(ob, "</strong>");
-	}
+	BUFPUTSL(ob, "<del>");
+	bufput(ob, text->data, text->size);
+	BUFPUTSL(ob, "</del>");
+	return 1;
+}
+
+static int
+rndr_double_emphasis(struct buf *ob, struct buf *text, void *opaque)
+{
+	if (!text || !text->size)
+		return 0;
+
+	BUFPUTSL(ob, "<strong>");
+	bufput(ob, text->data, text->size);
+	BUFPUTSL(ob, "</strong>");
 
 	return 1;
 }
 
 static int
-rndr_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
+rndr_emphasis(struct buf *ob, struct buf *text, void *opaque)
 {
-	if (!text || !text->size || c == '~') return 0;
+	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<em>");
 	if (text) bufput(ob, text->data, text->size);
 	BUFPUTSL(ob, "</em>");
@@ -311,6 +322,10 @@ rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
 		bufput(ob, &text->data[i], text->size - i);
 	}
 	BUFPUTSL(ob, "</p>\n");
+
+	/* Close any open quotes at the end of the paragraph */
+	options->quotes.in_squote = 0;
+	options->quotes.in_dquote = 0;
 }
 
 static void
@@ -329,7 +344,7 @@ rndr_raw_block(struct buf *ob, struct buf *text, void *opaque)
 }
 
 static int
-rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, void *opaque)
+rndr_triple_emphasis(struct buf *ob, struct buf *text, void *opaque)
 {
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<strong><em>");
@@ -546,8 +561,8 @@ rndr_normal_text(struct buf *ob, struct buf *text, void *opaque)
 static void
 rndr_smartypants(struct buf *ob, struct buf *text, void *opaque)
 {
+	struct xhtml_renderopt *options = opaque;
 	size_t i;
-	int open_single = 0, open_double = 0, open_tag = 0;
 
 	if (!text)
 		return;
@@ -572,78 +587,17 @@ rndr_smartypants(struct buf *ob, struct buf *text, void *opaque)
 			continue;
 
 		switch (c) {
-		case '<':
-			open_tag = 1;
-			break;
-
-		case '>':
-			open_tag = 0;
-			break;
-
-#if 0
-		/*
-		 * FIXME: this is bongos.
-		 *
-		 * The markdown spec defines that code blocks can be delimited
-		 * by more than one backtick, e.g.
-		 *
-		 *		``There is a literal backtick (`) here.``
-		 *		<p><code>There is a literal backtick (`) here.</code></p>
-		 *
-		 * Obviously, there's no way to differentiate between the start
-		 * of a code block and the start of a quoted string for smartypants
-		 *
-		 * Look at this piece of Python code:
-		 *
-		 *		``result = ''.join(['this', 'is', 'bongos'])``
-		 *
-		 * This MD expression is clearly ambiguous since it can be parsed as:
-		 *
-		 *		<p>&ldquo;result = &rdquo;.join ...</p>
-		 *
-		 * Or also as:
-		 *
-		 *		<p><code>result = ''.join(['this', 'is', 'bongos'])</code></p>
-		 *
-		 * Fuck everything about this. This is temporarily disabled, because at GitHub
-		 * it's probably smarter to prioritize code blocks than pretty cutesy punctuation.
-		 *
-		 * The equivalent closing tag for the (``), ('') has also been disabled, because
-		 * it makes no sense to have closing tags without opening tags.
-		 */
-		case '`':
-			if (open_tag == 0) {
-				if (i + 1 < text->size && text->data[i + 1] == '`') {
-					BUFPUTSL(ob, "&ldquo;"); i++;
-					continue;
-				}
-			}
-			break;
-#endif
-
 		case '\"':
-			if (open_tag == 0) {
-				if (smartypants_quotes(ob, text, i, open_double)) {
-					open_double = !open_double;
-					continue;
-				}
+			if (smartypants_quotes(ob, text, i, options->quotes.in_dquote)) {
+				options->quotes.in_dquote = !options->quotes.in_dquote;
+				continue;
 			}
 			break;
 
 		case '\'':
-			if (open_tag == 0) {
-
-#if 0 /* temporarily disabled, see previous comment */
-				if (i + 1 < text->size && text->data[i + 1] == '\'') {
-					BUFPUTSL(ob, "&rdquo;"); i++;
-					continue;
-				} 
-#endif
-
-				if (smartypants_quotes(ob, text, i, open_single)) {
-					open_single = !open_single;
-					continue;
-				}
+			if (smartypants_quotes(ob, text, i, options->quotes.in_squote)) {
+				options->quotes.in_squote = !options->quotes.in_squote;
+				continue;
 			}
 			break;
 		}
@@ -651,8 +605,7 @@ rndr_smartypants(struct buf *ob, struct buf *text, void *opaque)
 		/*
 		 * Copy raw character
 		 */
-		if (!put_scaped_char(ob, c))
-			bufputc(ob, c);
+		put_scaped_char(ob, c);
 	}
 }
 
@@ -720,6 +673,7 @@ ups_toc_renderer(struct mkd_renderer *renderer)
 		NULL,
 		NULL,
 		rndr_triple_emphasis,
+		rndr_strikethrough,
 
 		NULL,
 		NULL,
@@ -763,6 +717,7 @@ ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 		rndr_link,
 		rndr_raw_html,
 		rndr_triple_emphasis,
+		rndr_strikethrough,
 
 		NULL,
 		rndr_normal_text,
