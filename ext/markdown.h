@@ -28,9 +28,8 @@
 /* mkd_autolink • type of autolink */
 enum mkd_autolink {
 	MKDA_NOT_AUTOLINK,	/* used internally when it is not an autolink*/
-	MKDA_NORMAL,		/* normal http/http/ftp/etc link */
-	MKDA_EXPLICIT_EMAIL,	/* e-mail link with explit mailto: */
-	MKDA_IMPLICIT_EMAIL	/* e-mail link without mailto: */
+	MKDA_NORMAL,		/* normal http/http/ftp/mailto/etc link */
+	MKDA_EMAIL,			/* e-mail link without explit mailto: */
 };
 
 enum mkd_extensions {

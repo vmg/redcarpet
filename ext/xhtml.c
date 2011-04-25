@@ -114,19 +114,27 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 	if (!link || !link->size)
 		return 0;
 
-	if ((options->flags & XHTML_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
+	if ((options->flags & XHTML_SAFELINK) != 0 &&
+		!is_safe_link(link->data, link->size) &&
+		type != MKDA_EMAIL)
 		return 0;
 
 	BUFPUTSL(ob, "<a href=\"");
-	if (type == MKDA_IMPLICIT_EMAIL)
+	if (type == MKDA_EMAIL)
 		BUFPUTSL(ob, "mailto:");
 	bufput(ob, link->data, link->size);
 	BUFPUTSL(ob, "\">");
 
-	if (type == MKDA_EXPLICIT_EMAIL && link->size > 7)
+	/*
+	 * Pretty printing: if we get an email address as
+	 * an actual URI, e.g. `mailto:foo@bar.com`, we don't
+	 * want to print the `mailto:` prefix
+	 */
+	if (bufprefix(link, "mailto:") == 0) {
 		lus_attr_escape(ob, link->data + 7, link->size - 7);
-	else
+	} else {
 		lus_attr_escape(ob, link->data, link->size);
+	}
 
 	BUFPUTSL(ob, "</a>");
 

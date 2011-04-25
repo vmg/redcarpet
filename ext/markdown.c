@@ -205,6 +205,7 @@ static size_t
 is_mail_autolink(char *data, size_t size)
 {
 	size_t i = 0, nb = 0;
+
 	/* address is assumed to be: [-@._a-zA-Z0-9]+ with exactly one '@' */
 	while (i < size && (data[i] == '-' || data[i] == '.'
 	|| data[i] == '_' || data[i] == '@'
@@ -239,16 +240,17 @@ tag_length(char *data, size_t size, enum mkd_autolink *autolink)
 	while (i < size && (isalpha(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-'))
 		i++;
 
+	if (i > 1 && data[i] == '@') {
+		if ((j = is_mail_autolink(data + i, size - i)) != 0) {
+			*autolink = MKDA_EMAIL;
+			return i + j;
+		}
+	}
+
 	if (i > 2 && data[i] == ':') {
 		*autolink = MKDA_NORMAL;
 		i++;
 	}
-
-	/* 
-	 * FIXME: check for double slashes after the URI id?
-	 * There are some protocols that don't have them, e.g.
-	 *	news:resource
-	 */
 
 	/* completing autolink test: no whitespace or ' or " */
 	if (i >= size || i == '>')
@@ -262,11 +264,8 @@ tag_length(char *data, size_t size, enum mkd_autolink *autolink)
 		if (i >= size) return 0;
 		if (i > j && data[i] == '>') return i + 1;
 		/* one of the forbidden chars has been found */
-		*autolink = MKDA_NOT_AUTOLINK; }
-	else if ((j = is_mail_autolink(data + i, size - i)) != 0) {
-		*autolink = (i == 8)
-				? MKDA_EXPLICIT_EMAIL : MKDA_IMPLICIT_EMAIL;
-		return i + j; }
+		*autolink = MKDA_NOT_AUTOLINK;
+	}
 
 	/* looking for sometinhg looking like a tag end */
 	while (i < size && data[i] != '>') i += 1;
