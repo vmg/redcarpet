@@ -1947,12 +1947,16 @@ static void expand_tabs(struct buf *ob, const char *line, size_t size)
 void
 ups_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, unsigned int extensions) {
 	struct link_ref *lr;
-	struct buf *text = bufnew(TEXT_UNIT);
+	struct buf *text;
 	size_t i, beg, end;
 	struct render rndr;
 
 	/* filling the render structure */
 	if (!rndrer)
+		return;
+
+	text = bufnew(TEXT_UNIT);
+	if (!text)
 		return;
 
 	rndr.make = *rndrer;
@@ -2027,7 +2031,7 @@ ups_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, 
 
 	/* adding a final newline if not already present */
 	if (!text->size)
-		return;
+		goto cleanup;
 
 	if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r')
 		bufputc(text, '\n');
@@ -2042,6 +2046,7 @@ ups_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, 
 		rndr.make.doc_footer(ob, rndr.make.opaque);
 
 	/* clean-up */
+cleanup:
 	bufrelease(text);
 	lr = rndr.refs.base;
 	for (i = 0; i < (size_t)rndr.refs.size; i += 1) {

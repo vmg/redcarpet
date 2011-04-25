@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 
+#define BUFFER_MAX_ALLOC_SIZE (1024 * 1024 * 16) /* 16mb */
 
 /********************
  * TYPE DEFINITIONS *
@@ -81,10 +82,6 @@ struct buf *
 bufdup(const struct buf *, size_t)
 	__attribute__ ((malloc));
 
-/* bufgrow • increasing the allocated size to the given value */
-int
-bufgrow(struct buf *, size_t);
-
 /* bufnew • allocation of a new buffer */
 struct buf *
 bufnew(size_t)
@@ -106,10 +103,6 @@ bufput(struct buf *, const void*, size_t);
 /* bufputs • appends a NUL-terminated string to a buffer */
 void
 bufputs(struct buf *, const char*);
-
-/* bufputc • appends a single char to a buffer */
-void
-bufputc(struct buf *, char);
 
 /* bufrelease • decrease the reference count and free the buffer if needed */
 void
@@ -141,6 +134,33 @@ void
 vbufprintf(struct buf *, const char*, va_list);
 
 #endif /* def BUFFER_STDARG */
+
+#include <stdlib.h>
+
+/* bufgrow • increasing the allocated size to the given value */
+static inline int
+bufgrow(struct buf *buf, size_t neosz) {
+	size_t neoasz;
+	void *neodata;
+	if (!buf || !buf->unit || neosz > BUFFER_MAX_ALLOC_SIZE) return 0;
+	if (buf->asize >= neosz) return 1;
+	neoasz = buf->asize + buf->unit;
+	while (neoasz < neosz) neoasz += buf->unit;
+	neodata = realloc(buf->data, neoasz);
+	if (!neodata) return 0;
+#ifdef BUFFER_STATS
+	buffer_stat_alloc_bytes += (neoasz - buf->asize);
+#endif
+	buf->data = neodata;
+	buf->asize = neoasz;
+	return 1; }
+
+/* bufputc • appends a single char to a buffer */
+static inline void
+bufputc(struct buf *buf, char c) {
+	if (!buf || !bufgrow(buf, buf->size + 1)) return;
+	buf->data[buf->size] = c;
+	buf->size += 1; }
 
 #endif /* ndef LITHIUM_BUFFER_H */
 
