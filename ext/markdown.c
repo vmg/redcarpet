@@ -145,6 +145,26 @@ is_safe_link(const char *link, size_t link_len)
 	return 0;
 }
 
+static void
+unscape_text(struct buf *ob, struct buf *src)
+{
+	size_t i = 0, org;
+	while (i < src->size) {
+		org = i;
+		while (i < src->size && src->data[i] != '\\')
+			i++;
+
+		if (i > org)
+			bufput(ob, src->data + org, i - org);
+
+		if (i + 1 >= src->size)
+			break;
+
+		bufputc(ob, src->data[i + 1]);
+		i += 2;
+	}
+}
+
 /* cmp_link_ref • comparison function for link_ref sorted arrays */
 static int
 cmp_link_ref(void *key, void *array_entry)
@@ -253,14 +273,19 @@ tag_length(char *data, size_t size, enum mkd_autolink *autolink)
 	}
 
 	/* completing autolink test: no whitespace or ' or " */
-	if (i >= size || i == '>')
+	if (i >= size)
 		*autolink = MKDA_NOT_AUTOLINK;
+
 	else if (*autolink) {
 		j = i;
-		while (i < size && data[i] != '>' && data[i] != '\''
-		&& data[i] != '"' && data[i] != ' ' && data[i] != '\t'
-		&& data[i] != '\t')
-			i += 1;
+
+		while (i < size) {
+			if (data[i] == '\\') i += 2;
+			else if (data[i] == '>' || data[i] == '\'' ||
+					data[i] == '"' || isspace(data[i])) break;
+			else i += 1;
+		}
+
 		if (i >= size) return 0;
 		if (i > j && data[i] == '>') return i + 1;
 		/* one of the forbidden chars has been found */
@@ -629,9 +654,12 @@ char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, 
 
 	if (end > 2) {
 		if (rndr->make.autolink && altype != MKDA_NOT_AUTOLINK) {
+			struct buf *u_link = rndr_newbuf(rndr);
 			work.data = data + 1;
 			work.size = end - 2;
-			ret = rndr->make.autolink(ob, &work, altype, rndr->make.opaque);
+			unscape_text(u_link, &work);
+			ret = rndr->make.autolink(ob, u_link, altype, rndr->make.opaque);
+			rndr_popbuf(rndr);
 		}
 		else if (rndr->make.raw_html_tag)
 			ret = rndr->make.raw_html_tag(ob, &work, rndr->make.opaque);
@@ -655,8 +683,13 @@ char_autolink(struct buf *ob, struct render *rndr, char *data, size_t offset, si
 	while (work.size < size && !isspace(data[work.size]))
 		work.size++;
 
-	if (rndr->make.autolink)
-		rndr->make.autolink(ob, &work, MKDA_NORMAL, rndr->make.opaque);
+	if (rndr->make.autolink) {
+		struct buf *u_link = rndr_newbuf(rndr);
+		unscape_text(u_link, &work);
+
+		rndr->make.autolink(ob, u_link, MKDA_NORMAL, rndr->make.opaque);
+		rndr_popbuf(rndr);
+	}
 
 	return work.size;
 }
@@ -670,6 +703,7 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 	struct buf *content = 0;
 	struct buf *link = 0;
 	struct buf *title = 0;
+	struct buf *u_link = 0;
 	size_t org_work_size = rndr->work.size;
 	int text_has_nl = 0, ret = 0;
 
@@ -717,9 +751,11 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		link_b = i;
 
 		/* looking for link end: ' " ) */
-		while (i < size && data[i] != '\'' && data[i] != '"' &&
-				(data[i] != ')' || data[i - 1] == '\\'))
-			i++;
+		while (i < size) {
+			if (data[i] == '\\') i += 2;
+			else if (data[i] == ')' || data[i] == '\'' || data[i] == '"') break;
+			else i += 1;
+		}
 
 		if (i >= size) goto cleanup;
 		link_e = i;
@@ -729,7 +765,12 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 			i++;
 			title_b = i;
 
-			while (i < size && (data[i] != ')' || data[i - 1] == '\\')) i++;
+			while (i < size) {
+				if (data[i] == '\\') i += 2;
+				else if (data[i] == ')') break;
+				else i += 1;
+			}
+
 			if (i >= size) goto cleanup;
 
 			/* skipping whitespaces after title */
@@ -854,14 +895,20 @@ char_link(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t
 		else parse_inline(content, rndr, data + 1, txt_e - 1);
 	}
 
+	if (link) {
+		u_link = rndr_newbuf(rndr);
+		unscape_text(u_link, link);
+	}
+
 	/* calling the relevant rendering function */
 	if (is_img) {
 		if (ob->size && ob->data[ob->size - 1] == '!')
 			ob->size -= 1;
 
-		ret = rndr->make.image(ob, link, title, content, rndr->make.opaque);
-	} else
-		ret = rndr->make.link(ob, link, title, content, rndr->make.opaque);
+		ret = rndr->make.image(ob, u_link, title, content, rndr->make.opaque);
+	} else {
+		ret = rndr->make.link(ob, u_link, title, content, rndr->make.opaque);
+	}
 
 	/* cleanup */
 cleanup:

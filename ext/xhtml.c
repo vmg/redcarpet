@@ -49,9 +49,41 @@ put_scaped_char(struct buf *ob, char c)
 	}
 }
 
-/* lus_attr_escape • copy the buffer entity-escaping '<', '>', '&' and '"' */
 static void
-lus_attr_escape(struct buf *ob, const char *src, size_t size)
+uri_escape(struct buf *ob, const char *src, size_t size)
+{
+	size_t i;
+
+	for (i = 0; i < size; ++i) {
+		char c = src[i];
+
+		if (c == '%' && i + 2 < size && isxdigit(src[i + 1]) && isxdigit(src[i + 2])) {
+			bufput(ob, src + i, 3);
+			i += 2;
+			continue;
+		}
+
+		switch (c) {
+			case ';': case '/':
+			case '?': case ':':
+			case '@': case '=':
+			case '#': case '&':
+			case '.': case '+':
+			case '-':
+				bufputc(ob, c);
+				continue;
+		}
+
+		if (!isalnum(c))
+			bufprintf(ob, "%%%02x", (int)c);
+		else
+			bufputc(ob, c);
+	}
+}
+
+/* attr_escape • copy the buffer entity-escaping '<', '>', '&' and '"' */
+static void
+attr_escape(struct buf *ob, const char *src, size_t size)
 {
 	size_t  i = 0, org;
 	while (i < size) {
@@ -122,7 +154,7 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 	BUFPUTSL(ob, "<a href=\"");
 	if (type == MKDA_EMAIL)
 		BUFPUTSL(ob, "mailto:");
-	bufput(ob, link->data, link->size);
+	uri_escape(ob, link->data, link->size);
 	BUFPUTSL(ob, "\">");
 
 	/*
@@ -131,9 +163,9 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 	 * want to print the `mailto:` prefix
 	 */
 	if (bufprefix(link, "mailto:") == 0) {
-		lus_attr_escape(ob, link->data + 7, link->size - 7);
+		attr_escape(ob, link->data + 7, link->size - 7);
 	} else {
-		lus_attr_escape(ob, link->data, link->size);
+		attr_escape(ob, link->data, link->size);
 	}
 
 	BUFPUTSL(ob, "</a>");
@@ -162,7 +194,7 @@ rndr_blockcode(struct buf *ob, struct buf *text, struct buf *lang, void *opaque)
 		BUFPUTSL(ob, "<pre><code>");
 
 	if (text)
-		lus_attr_escape(ob, text->data, text->size);
+		attr_escape(ob, text->data, text->size);
 
 	BUFPUTSL(ob, "</code></pre>\n");
 }
@@ -208,7 +240,7 @@ rndr_blockcode_github(struct buf *ob, struct buf *text, struct buf *lang, void *
 		BUFPUTSL(ob, "<pre><code>");
 
 	if (text)
-		lus_attr_escape(ob, text->data, text->size);
+		attr_escape(ob, text->data, text->size);
 
 	BUFPUTSL(ob, "</code></pre>\n");
 }
@@ -225,7 +257,7 @@ static int
 rndr_codespan(struct buf *ob, struct buf *text, void *opaque)
 {
 	BUFPUTSL(ob, "<code>");
-	if (text) lus_attr_escape(ob, text->data, text->size);
+	if (text) attr_escape(ob, text->data, text->size);
 	BUFPUTSL(ob, "</code>");
 	return 1;
 }
@@ -291,10 +323,10 @@ rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *conte
 		return 0;
 
 	BUFPUTSL(ob, "<a href=\"");
-	if (link && link->size) lus_attr_escape(ob, link->data, link->size);
+	if (link && link->size) uri_escape(ob, link->data, link->size);
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
-		lus_attr_escape(ob, title->data, title->size); }
+		attr_escape(ob, title->data, title->size); }
 	BUFPUTSL(ob, "\">");
 	if (content && content->size) bufput(ob, content->data, content->size);
 	BUFPUTSL(ob, "</a>");
@@ -406,13 +438,13 @@ rndr_image(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt,
 {
 	if (!link || !link->size) return 0;
 	BUFPUTSL(ob, "<img src=\"");
-	lus_attr_escape(ob, link->data, link->size);
+	attr_escape(ob, link->data, link->size);
 	BUFPUTSL(ob, "\" alt=\"");
 	if (alt && alt->size)
-		lus_attr_escape(ob, alt->data, alt->size);
+		attr_escape(ob, alt->data, alt->size);
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
-		lus_attr_escape(ob, title->data, title->size); }
+		attr_escape(ob, title->data, title->size); }
 	BUFPUTSL(ob, "\" />");
 	return 1;
 }
@@ -444,7 +476,7 @@ rndr_raw_html(struct buf *ob, struct buf *text, void *opaque)
 
 
 	if (escape_html)
-		lus_attr_escape(ob, text->data, text->size);
+		attr_escape(ob, text->data, text->size);
 	else
 		bufput(ob, text->data, text->size);
 
@@ -591,7 +623,7 @@ static void
 rndr_normal_text(struct buf *ob, struct buf *text, void *opaque)
 {
 	if (text)
-		lus_attr_escape(ob, text->data, text->size);
+		attr_escape(ob, text->data, text->size);
 }
 
 static void
