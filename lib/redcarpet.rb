@@ -49,7 +49,7 @@ class Redcarpet
   # Treat newlines in paragraphs as real line breaks, GitHub style
   attr_accessor :hard_wrap
 
-  # Disable superscript and relaxed emphasis processing.
+  # Disable relaxed emphasis processing.
   attr_accessor :strict
 
   # Generate safer HTML for code blocks (no custom CSS classes)
@@ -97,6 +97,7 @@ class RedcarpetCompat < Redcarpet
     super(text, *extensions)
     self.tables = !self.no_tables
     self.strikethrough = true
+    self.lax_htmlblock = true
   end
 end
 

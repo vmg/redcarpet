@@ -56,7 +56,7 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	 * Markdown extensions -- all disabled by default 
 	 */
 	if (rb_funcall(ruby_obj, rb_intern("strict"), 0) == Qtrue)
-		extensions |= MKDEXT_LAX_EMPHASIS;
+		extensions |= MKDEXT_STRICT_EMPHASIS;
 
 	if (rb_funcall(ruby_obj, rb_intern("tables"), 0) == Qtrue)
 		extensions |= MKDEXT_TABLES;
