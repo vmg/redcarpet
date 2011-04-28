@@ -49,38 +49,6 @@ put_scaped_char(struct buf *ob, char c)
 	}
 }
 
-static void
-uri_escape(struct buf *ob, const char *src, size_t size)
-{
-	size_t i;
-
-	for (i = 0; i < size; ++i) {
-		char c = src[i];
-
-		if (c == '%' && i + 2 < size && isxdigit(src[i + 1]) && isxdigit(src[i + 2])) {
-			bufput(ob, src + i, 3);
-			i += 2;
-			continue;
-		}
-
-		switch (c) {
-			case ';': case '/':
-			case '?': case ':':
-			case '@': case '=':
-			case '#': case '&':
-			case '.': case '+':
-			case '-':
-				bufputc(ob, c);
-				continue;
-		}
-
-		if (!isalnum(c))
-			bufprintf(ob, "%%%02x", (int)c);
-		else
-			bufputc(ob, c);
-	}
-}
-
 /* attr_escape • copy the buffer entity-escaping '<', '>', '&' and '"' */
 static void
 attr_escape(struct buf *ob, const char *src, size_t size)
@@ -154,7 +122,7 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *op
 	BUFPUTSL(ob, "<a href=\"");
 	if (type == MKDA_EMAIL)
 		BUFPUTSL(ob, "mailto:");
-	uri_escape(ob, link->data, link->size);
+	bufput(ob, link->data, link->size);
 	BUFPUTSL(ob, "\">");
 
 	/*
@@ -323,7 +291,7 @@ rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *conte
 		return 0;
 
 	BUFPUTSL(ob, "<a href=\"");
-	if (link && link->size) uri_escape(ob, link->data, link->size);
+	if (link && link->size) bufput(ob, link->data, link->size);
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
 		attr_escape(ob, title->data, title->size); }
