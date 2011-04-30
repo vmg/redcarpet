@@ -147,14 +147,24 @@ rndr_blockcode(struct buf *ob, struct buf *text, struct buf *lang, void *opaque)
 	if (ob->size) bufputc(ob, '\n');
 
 	if (lang && lang->size) {
-		size_t i = 0;
+		size_t i, cls;
 		BUFPUTSL(ob, "<pre><code class=\"");
 
-		for (i = 0; i < lang->size; ++i) {
-			if (lang->data[i] == '.' && (i == 0 || isspace(lang->data[i - 1])))
-				continue;
+		for (i = 0, cls = 0; i < lang->size; ++i, ++cls) {
+			while (i < lang->size && isspace(lang->data[i]))
+				i++;
 
-			bufputc(ob, lang->data[i]);
+			if (i < lang->size) {
+				size_t org = i;
+				while (i < lang->size && !isspace(lang->data[i]))
+					i++;
+
+				if (lang->data[org] == '.')
+					org++;
+
+				if (cls) bufputc(ob, ' ');
+				attr_escape(ob, lang->data + org, i - org);
+			}
 		}
 
 		BUFPUTSL(ob, "\">");
@@ -194,14 +204,13 @@ rndr_blockcode_github(struct buf *ob, struct buf *text, struct buf *lang, void *
 		size_t i = 0;
 		BUFPUTSL(ob, "<pre lang=\"");
 
-		for (; i < lang->size; ++i)
-			if (isspace(lang->data[i]))
-				break;
+		while (i < lang->size && !isspace(lang->data[i]))
+			i++;
 
 		if (lang->data[0] == '.')
-			bufput(ob, lang->data + 1, i - 1);
+			attr_escape(ob, lang->data + 1, i - 1);
 		else
-			bufput(ob, lang->data, i);
+			attr_escape(ob, lang->data, i);
 
 		BUFPUTSL(ob, "\"><code>");
 	} else

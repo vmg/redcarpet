@@ -33,7 +33,7 @@ enum mkd_autolink {
 };
 
 enum mkd_extensions {
-	MKDEXT_STRICT_EMPHASIS = (1 << 0),
+	MKDEXT_NO_INTRA_EMPHASIS = (1 << 0),
 	MKDEXT_TABLES = (1 << 1),
 	MKDEXT_FENCED_CODE = (1 << 2),
 	MKDEXT_AUTOLINK = (1 << 3),

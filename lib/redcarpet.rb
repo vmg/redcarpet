@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.11.4'
+  VERSION = '1.12.0'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -48,9 +48,6 @@ class Redcarpet
 
   # Treat newlines in paragraphs as real line breaks, GitHub style
   attr_accessor :hard_wrap
-
-  # Disable relaxed emphasis processing.
-  attr_accessor :strict
 
   # Generate safer HTML for code blocks (no custom CSS classes)
   attr_accessor :gh_blockcode
@@ -76,6 +73,9 @@ class Redcarpet
   # Allow HTML blocks inside of paragraphs without being surrounded by newlines
   attr_accessor :lax_htmlblock
 
+  # Do not render emphasis_inside_words
+  attr_accessor :no_intraemphasis
+
   def initialize(text, *extensions)
     @text  = text
     extensions.each { |e| send("#{e}=", true) }
@@ -92,12 +92,14 @@ class RedcarpetCompat < Redcarpet
   attr_accessor :fold_lines
   attr_accessor :no_tables
   attr_accessor :fold_lines
+  attr_accessor :strict
 
   def initialize(text, *extensions)
     super(text, *extensions)
     self.tables = !self.no_tables
     self.strikethrough = true
     self.lax_htmlblock = true
+    self.no_intraemphasis = !self.strict
   end
 end
 

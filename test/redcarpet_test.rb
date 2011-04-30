@@ -64,7 +64,7 @@ class RedcarpetTest < Test::Unit::TestCase
   end
 
   def test_that_strict_flag_works
-    rd = Redcarpet.new("foo_bar_baz", :strict)
+    rd = RedcarpetCompat.new("foo_bar_baz", :strict)
     assert_equal "<p>foo<em>bar</em>baz</p>\n", rd.to_html
   end
 

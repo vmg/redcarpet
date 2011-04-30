@@ -32,7 +32,7 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_that_inline_markdown_starts_and_ends_correctly
-    markdown = Markdown.new('_start _ foo_bar bar_baz _ end_ *italic* **bold** <a>_blah_</a>')
+    markdown = Markdown.new('_start _ foo_bar bar_baz _ end_ *italic* **bold** <a>_blah_</a>', :no_intraemphasis)
     assert_respond_to markdown, :to_html
     html_equal "<p><em>start _ foo_bar bar_baz _ end</em> <em>italic</em> <strong>bold</strong> <a><em>blah</em></a></p>", markdown.to_html.strip
 
