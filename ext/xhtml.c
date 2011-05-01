@@ -439,10 +439,7 @@ rndr_raw_html(struct buf *ob, struct buf *text, void *opaque)
 	struct xhtml_renderopt *options = opaque;	
 	int escape_html = 0;
 
-	if (options->flags & XHTML_SKIP_HTML)
-		escape_html = 1;
-
-	else if ((options->flags & XHTML_SKIP_STYLE) != 0 && is_html_tag(text, "style"))
+	if ((options->flags & XHTML_SKIP_STYLE) != 0 && is_html_tag(text, "style"))
 		escape_html = 1;
 
 	else if ((options->flags & XHTML_SKIP_LINKS) != 0 && is_html_tag(text, "a"))
@@ -786,6 +783,11 @@ ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 	if (render_flags & XHTML_SKIP_LINKS) {
 		renderer->link = NULL;
 		renderer->autolink = NULL;
+	}
+
+	if (render_flags & XHTML_SKIP_HTML) {
+		renderer->raw_html_tag = NULL;
+		renderer->blockhtml = NULL;
 	}
 
 	if (render_flags & XHTML_SMARTYPANTS)
