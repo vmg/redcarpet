@@ -42,7 +42,7 @@ class MarkdownTest < Test::Unit::TestCase
 
   def test_that_filter_html_works
     markdown = Markdown.new('Through <em>NO</em> <script>DOUBLE NO</script>', :filter_html)
-    html_equal "<p>Through &lt;em>NO&lt;/em> &lt;script>DOUBLE NO&lt;/script></p>", markdown.to_html.strip
+    html_equal "<p>Through NO DOUBLE NO</p>", markdown.to_html.strip
   end
 
   def test_that_bluecloth_restrictions_are_supported

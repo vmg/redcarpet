@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.12.1'
+  VERSION = '1.12.2'
 
   # Original Markdown formatted text.
   attr_reader :text
