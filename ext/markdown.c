@@ -1755,18 +1755,32 @@ parse_table_header(struct buf *ob, struct render *rndr, char *data, size_t size,
 		under_end++;
 
 	for (col = 0; col < *columns && i < under_end; ++col) {
+		size_t dashes = 0;
+
+		while (i < under_end && (data[i] == ' ' || data[i] == '\t'))
+			i++;
+
 		if (data[i] == ':') {
 			i++; (*column_data)[col] |= MKD_TABLE_ALIGN_L;
+			dashes++;
 		}
 
-		while (i < under_end && data[i] == '-')
-			i++;
+		while (i < under_end && data[i] == '-') {
+			i++; dashes++;
+		}
 
 		if (i < under_end && data[i] == ':') {
 			i++; (*column_data)[col] |= MKD_TABLE_ALIGN_R;
+			dashes++;
 		}
 
+		while (i < under_end && (data[i] == ' ' || data[i] == '\t'))
+			i++;
+
 		if (i < under_end && data[i] != '|')
+			break;
+
+		if (dashes < 3)
 			break;
 
 		i++;
