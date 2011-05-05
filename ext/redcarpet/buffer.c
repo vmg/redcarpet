@@ -23,6 +23,7 @@
  */
 
 #define BUFFER_STDARG
+#define BUFFER_MAX_ALLOC_SIZE (1024 * 1024 * 16) //16mb
 
 #include "buffer.h"
 
@@ -147,6 +148,25 @@ bufdup(const struct buf *src, size_t dupunit) {
 #endif
 	return ret; }
 
+/* bufgrow • increasing the allocated size to the given value */
+int
+bufgrow(struct buf *buf, size_t neosz) {
+	size_t neoasz;
+	void *neodata;
+	if (!buf || !buf->unit || neosz > BUFFER_MAX_ALLOC_SIZE) return 0;
+	if (buf->asize >= neosz) return 1;
+	neoasz = buf->asize + buf->unit;
+	while (neoasz < neosz) neoasz += buf->unit;
+	neodata = realloc(buf->data, neoasz);
+	if (!neodata) return 0;
+#ifdef BUFFER_STATS
+	buffer_stat_alloc_bytes += (neoasz - buf->asize);
+#endif
+	buf->data = neodata;
+	buf->asize = neoasz;
+	return 1; }
+
+
 /* bufnew • allocation of a new buffer */
 struct buf *
 bufnew(size_t unit) {
@@ -194,6 +214,14 @@ bufput(struct buf *buf, const void *data, size_t len) {
 void
 bufputs(struct buf *buf, const char *str) {
 	bufput(buf, str, strlen (str)); }
+
+
+/* bufputc • appends a single char to a buffer */
+void
+bufputc(struct buf *buf, char c) {
+	if (!buf || !bufgrow(buf, buf->size + 1)) return;
+	buf->data[buf->size] = c;
+	buf->size += 1; }
 
 
 /* bufrelease • decrease the reference count and free the buffer if needed */
