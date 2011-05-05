@@ -29,11 +29,6 @@ struct xhtml_renderopt {
 		int current_level;
 	} toc_data;
 
-	struct {
-		int in_squote;
-		int in_dquote;
-	} quotes;
-
 	unsigned int flags;
 };
 
@@ -367,10 +362,6 @@ rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
 		bufput(ob, &text->data[i], text->size - i);
 	}
 	BUFPUTSL(ob, "</p>\n");
-
-	/* Close any open quotes at the end of the paragraph */
-	options->quotes.in_squote = 0;
-	options->quotes.in_dquote = 0;
 }
 
 static void
@@ -504,148 +495,11 @@ rndr_tablecell(struct buf *ob, struct buf *text, int align, void *opaque)
 	BUFPUTSL(ob, "</td>");
 }
 
-static struct {
-    char c0;
-    const char *pattern;
-    const char *entity;
-    int skip;
-} smartypants_subs[] = {
-    { '\'', "'s>",      "&rsquo;",  0 },
-    { '\'', "'t>",      "&rsquo;",  0 },
-    { '\'', "'re>",     "&rsquo;",  0 },
-    { '\'', "'ll>",     "&rsquo;",  0 },
-    { '\'', "'ve>",     "&rsquo;",  0 },
-    { '\'', "'m>",      "&rsquo;",  0 },
-    { '\'', "'d>",      "&rsquo;",  0 },
-    { '-',  "--",       "&mdash;",  1 },
-    { '-',  "<->",      "&ndash;",  0 },
-    { '.',  "...",      "&hellip;", 2 },
-    { '.',  ". . .",    "&hellip;", 4 },
-    { '(',  "(c)",      "&copy;",   2 },
-    { '(',  "(r)",      "&reg;",    2 },
-    { '(',  "(tm)",     "&trade;",  3 },
-    { '3',  "<3/4>",    "&frac34;", 2 },
-    { '3',  "<3/4ths>", "&frac34;", 2 },
-    { '1',  "<1/2>",    "&frac12;", 2 },
-    { '1',  "<1/4>",    "&frac14;", 2 },
-    { '1',  "<1/4th>",  "&frac14;", 2 },
-    { '&',  "&#0;",      0,       3 },
-};
-
-#define SUBS_COUNT (sizeof(smartypants_subs) / sizeof(smartypants_subs[0]))
-
-static inline int
-word_boundary(char c)
-{
-	return isspace(c) || ispunct(c);
-}
-
-static int
-smartypants_cmpsub(const struct buf *buf, size_t start, const char *prefix)
-{
-	size_t i;
-
-	if (prefix[0] == '<') {
-		if (start == 0 || !word_boundary(buf->data[start - 1]))
-			return 0;
-
-		prefix++;
-	}
-
-	for (i = start; i < buf->size; ++i) {
-		char c, p;
-
-		c = tolower(buf->data[i]);
-		p = *prefix++;
-
-		if (p == 0)
-			return 1;
-
-		if (p == '>')
-			return word_boundary(c);
-
-		if (c != p)
-			return 0;
-	}
-
-	return (*prefix == '>');
-}
-
-static int
-smartypants_quotes(struct buf *ob, struct buf *text, size_t i, int is_open)
-{
-	char ent[8];
-
-	if (is_open && i + 1 < text->size && !word_boundary(text->data[i + 1]))
-		return 0;
-
-	if (!is_open && i > 0 && !word_boundary(text->data[i - 1]))
-		return 0;
-
-	snprintf(ent, sizeof(ent), "&%c%cquo;",
-		is_open ? 'r' : 'l',
-		text->data[i] == '\'' ? 's' : 'd');
-
-	bufputs(ob, ent);
-	return 1;
-}
-
 static void
 rndr_normal_text(struct buf *ob, struct buf *text, void *opaque)
 {
 	if (text)
 		attr_escape(ob, text->data, text->size);
-}
-
-static void
-rndr_smartypants(struct buf *ob, struct buf *text, void *opaque)
-{
-	struct xhtml_renderopt *options = opaque;
-	size_t i;
-
-	if (!text)
-		return;
-
-	for (i = 0; i < text->size; ++i) {
-		size_t sub;
-		char c = text->data[i];
-
-		for (sub = 0; sub < SUBS_COUNT; ++sub) {
-			if (c == smartypants_subs[sub].c0 &&
-				smartypants_cmpsub(text, i, smartypants_subs[sub].pattern)) {
-
-				if (smartypants_subs[sub].entity)
-					bufputs(ob, smartypants_subs[sub].entity);
-
-				i += smartypants_subs[sub].skip;
-				break;
-			}
-		}
-
-		if (sub < SUBS_COUNT)
-			continue;
-
-		switch (c) {
-		case '\"':
-			if (smartypants_quotes(ob, text, i, options->quotes.in_dquote)) {
-				options->quotes.in_dquote = !options->quotes.in_dquote;
-				continue;
-			}
-			break;
-
-		case '\'':
-			if (smartypants_quotes(ob, text, i, options->quotes.in_squote)) {
-				options->quotes.in_squote = !options->quotes.in_squote;
-				continue;
-			}
-			break;
-		}
-
-		/*
-		 * Copy raw character
-		 */
-		put_scaped_char(ob, c);
-	}
 }
 
 static void
@@ -784,9 +638,6 @@ ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 
 	if (render_flags & XHTML_SKIP_HTML)
 		renderer->blockhtml = NULL;
-
-	if (render_flags & XHTML_SMARTYPANTS)
-		renderer->normal_text = rndr_smartypants;
 
 	if (render_flags & XHTML_GITHUB_BLOCKCODE)
 		renderer->blockcode = rndr_blockcode_github;

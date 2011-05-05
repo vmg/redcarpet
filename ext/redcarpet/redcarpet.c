@@ -19,10 +19,6 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	unsigned int render_flags = XHTML_EXPAND_TABS;
 	unsigned int extensions = 0;
 
-	/* smart */
-	if (rb_funcall(ruby_obj, rb_intern("smart"), 0) == Qtrue)
-		render_flags |= XHTML_SMARTYPANTS;
-
 	/* filter_html */
 	if (rb_funcall(ruby_obj, rb_intern("filter_html"), 0) == Qtrue)
 		render_flags |= XHTML_SKIP_HTML;
@@ -112,7 +108,15 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 
 	ups_markdown(output_buf, &input_buf, &renderer, enabled_extensions);
 
-	result = rb_str_new(output_buf->data, output_buf->size);
+	if (rb_funcall(self, rb_intern("smart"), 0) == Qtrue) {
+		struct buf *smart_buf = bufnew(128);
+		ups_xhtml_smartypants(smart_buf, output_buf);
+		result = rb_str_new(smart_buf->data, smart_buf->size);
+		bufrelease(smart_buf);
+	} else {
+		result = rb_str_new(output_buf->data, output_buf->size);
+	}
+
 	bufrelease(output_buf);
 	ups_free_renderer(&renderer);
 

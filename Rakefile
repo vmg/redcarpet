@@ -118,6 +118,7 @@ task :gather => 'upskirt/src/markdown.h' do |t|
       'upskirt/src/{markdown,buffer,array}.h',
       'upskirt/src/{markdown,buffer,array}.c',
       'upskirt/render/xhtml.c',
+      'upskirt/render/xhtml_smartypants.c',
       'upskirt/render/xhtml.h',
     ]
   cp files, 'ext/redcarpet/',
