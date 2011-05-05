@@ -1,5 +1,6 @@
 require 'date'
 require 'rake/clean'
+require 'rake/extensiontask'
 require 'digest/md5'
 
 task :default => :test
@@ -8,31 +9,7 @@ task :default => :test
 # Ruby Extension
 # ==========================================================
 
-DLEXT = Config::MAKEFILE_CONFIG['DLEXT']
-RUBYDIGEST = Digest::MD5.hexdigest(`#{RUBY} --version`)
-
-file "ext/ruby-#{RUBYDIGEST}" do |f|
-  rm_f FileList["ext/ruby-*"]
-  touch f.name
-end
-CLEAN.include "ext/ruby-*"
-
-file 'ext/Makefile' => FileList['ext/*.{c,h,rb}', "ext/ruby-#{RUBYDIGEST}"] do
-  chdir('ext') { ruby 'extconf.rb' }
-end
-CLEAN.include 'ext/Makefile', 'ext/mkmf.log'
-
-file "ext/redcarpet.#{DLEXT}" => FileList["ext/Makefile"] do |f|
-  sh 'cd ext && make clean && make && rm -rf conftest.dSYM'
-end
-CLEAN.include 'ext/*.{o,bundle,so,dll}'
-
-file "lib/redcarpet.#{DLEXT}" => "ext/redcarpet.#{DLEXT}" do |f|
-  cp f.prerequisites, "lib/", :preserve => true
-end
-
-desc 'Build the redcarpet extension'
-task :build => "lib/redcarpet.#{DLEXT}"
+Rake::ExtensionTask.new('redcarpet')
 
 # ==========================================================
 # Testing
@@ -43,10 +20,10 @@ Rake::TestTask.new('test:unit') do |t|
   t.test_files = FileList['test/*_test.rb']
   t.ruby_opts += ['-rubygems'] if defined? Gem
 end
-task 'test:unit' => [:build]
+task 'test:unit' => [:compile]
 
 desc 'Run conformance tests (MARKDOWN_TEST_VER=1.0)'
-task 'test:conformance' => [:build] do |t|
+task 'test:conformance' => [:compile] do |t|
   script = "#{pwd}/bin/redcarpet"
   test_version = ENV['MARKDOWN_TEST_VER'] || '1.0.3'
   lib_dir = "#{pwd}/lib"
@@ -56,13 +33,13 @@ task 'test:conformance' => [:build] do |t|
 end
 
 desc 'Run version 1.0 conformance suite'
-task 'test:conformance:1.0' => [:build] do |t|
+task 'test:conformance:1.0' => [:compile] do |t|
   ENV['MARKDOWN_TEST_VER'] = '1.0'
   Rake::Task['test:conformance'].invoke
 end
 
 desc 'Run 1.0.3 conformance suite'
-task 'test:conformance:1.0.3' => [:build] do |t|
+task 'test:conformance:1.0.3' => [:compile] do |t|
   ENV['MARKDOWN_TEST_VER'] = '1.0.3'
   Rake::Task['test:conformance'].invoke
 end
@@ -143,7 +120,7 @@ task :gather => 'upskirt/src/markdown.h' do |t|
       'upskirt/render/xhtml.c',
       'upskirt/render/xhtml.h',
     ]
-  cp files, 'ext/',
+  cp files, 'ext/redcarpet/',
     :preserve => true,
     :verbose => true
 end
