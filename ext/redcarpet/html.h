@@ -14,34 +14,35 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef UPSKIRT_XHTML_H
-#define UPSKIRT_XHTML_H
+#ifndef UPSKIRT_HTML_H
+#define UPSKIRT_HTML_H
 
 #include "markdown.h"
 
 typedef enum {
-	XHTML_SKIP_HTML = (1 << 0),
-	XHTML_SKIP_STYLE = (1 << 1),
-	XHTML_SKIP_IMAGES = (1 << 2),
-	XHTML_SKIP_LINKS = (1 << 3),
-	XHTML_EXPAND_TABS = (1 << 5),
-	XHTML_SAFELINK = (1 << 7),
-	XHTML_TOC = (1 << 8),
-	XHTML_HARD_WRAP = (1 << 9),
-	XHTML_GITHUB_BLOCKCODE = (1 << 10),
+	HTML_SKIP_HTML = (1 << 0),
+	HTML_SKIP_STYLE = (1 << 1),
+	HTML_SKIP_IMAGES = (1 << 2),
+	HTML_SKIP_LINKS = (1 << 3),
+	HTML_EXPAND_TABS = (1 << 5),
+	HTML_SAFELINK = (1 << 7),
+	HTML_TOC = (1 << 8),
+	HTML_HARD_WRAP = (1 << 9),
+	HTML_GITHUB_BLOCKCODE = (1 << 10),
+	HTML_USE_XHTML = (1 << 11),
 } render_mode;
 
 extern void
-ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags);
+upshtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags);
 
 extern void
-ups_toc_renderer(struct mkd_renderer *renderer);
+upshtml_toc_renderer(struct mkd_renderer *renderer);
 
 extern void
-ups_free_renderer(struct mkd_renderer *renderer);
+upshtml_free_renderer(struct mkd_renderer *renderer);
 
 extern void
-ups_xhtml_smartypants(struct buf *ob, struct buf *text);
+upshtml_smartypants(struct buf *ob, struct buf *text);
 
 #endif
 

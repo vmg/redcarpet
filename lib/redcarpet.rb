@@ -76,6 +76,9 @@ class Redcarpet
   # Do not render emphasis_inside_words
   attr_accessor :no_intraemphasis
 
+  # Generate XHTML 1.0 compilant self-closing tags (e.g. <br/>)
+  attr_accessor :xhtml
+
   def initialize(text, *extensions)
     @text  = text
     extensions.each { |e| send("#{e}=", true) }

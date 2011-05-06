@@ -2,11 +2,11 @@
 #include "ruby.h"
 
 #include "markdown.h"
-#include "xhtml.h"
+#include "html.h"
 
 typedef enum
 {
-	REDCARPET_RENDER_XHTML,
+	REDCARPET_RENDER_HTML,
 	REDCARPET_RENDER_TOC
 } RendererType;
 
@@ -16,37 +16,40 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 		unsigned int *enabled_extensions_p,
 		unsigned int *render_flags_p)
 {
-	unsigned int render_flags = XHTML_EXPAND_TABS;
+	unsigned int render_flags = HTML_EXPAND_TABS;
 	unsigned int extensions = 0;
 
 	/* filter_html */
 	if (rb_funcall(ruby_obj, rb_intern("filter_html"), 0) == Qtrue)
-		render_flags |= XHTML_SKIP_HTML;
+		render_flags |= HTML_SKIP_HTML;
 
 	/* no_image */
 	if (rb_funcall(ruby_obj, rb_intern("no_image"), 0) == Qtrue)
-		render_flags |= XHTML_SKIP_IMAGES;
+		render_flags |= HTML_SKIP_IMAGES;
 
 	/* no_links */
 	if (rb_funcall(ruby_obj, rb_intern("no_links"), 0) == Qtrue)
-		render_flags |= XHTML_SKIP_LINKS;
+		render_flags |= HTML_SKIP_LINKS;
 
 	/* filter_style */
 	if (rb_funcall(ruby_obj, rb_intern("filter_styles"), 0) == Qtrue)
-		render_flags |= XHTML_SKIP_STYLE;
+		render_flags |= HTML_SKIP_STYLE;
 
 	/* safelink */
 	if (rb_funcall(ruby_obj, rb_intern("safelink"), 0) == Qtrue)
-		render_flags |= XHTML_SAFELINK;
+		render_flags |= HTML_SAFELINK;
 
 	if (rb_funcall(ruby_obj, rb_intern("generate_toc"), 0) == Qtrue)
-		render_flags |= XHTML_TOC;
+		render_flags |= HTML_TOC;
 
 	if (rb_funcall(ruby_obj, rb_intern("hard_wrap"), 0) == Qtrue)
-		render_flags |= XHTML_HARD_WRAP;
+		render_flags |= HTML_HARD_WRAP;
 
 	if (rb_funcall(ruby_obj, rb_intern("gh_blockcode"), 0) == Qtrue)
-		render_flags |= XHTML_GITHUB_BLOCKCODE;
+		render_flags |= HTML_GITHUB_BLOCKCODE;
+
+	if (rb_funcall(ruby_obj, rb_intern("xhtml"), 0) == Qtrue)
+		render_flags |= HTML_USE_XHTML;
 
 	/**
 	 * Markdown extensions -- all disabled by default 
@@ -94,12 +97,12 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 	rb_redcarpet__get_flags(self, &enabled_extensions, &render_flags);
 
 	switch (render_type) {
-	case REDCARPET_RENDER_XHTML:
-		ups_xhtml_renderer(&renderer, render_flags);
+	case REDCARPET_RENDER_HTML:
+		upshtml_renderer(&renderer, render_flags);
 		break;
 
 	case REDCARPET_RENDER_TOC:
-		ups_toc_renderer(&renderer);
+		upshtml_toc_renderer(&renderer);
 		break;
 
 	default:
@@ -110,7 +113,7 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 
 	if (rb_funcall(self, rb_intern("smart"), 0) == Qtrue) {
 		struct buf *smart_buf = bufnew(128);
-		ups_xhtml_smartypants(smart_buf, output_buf);
+		upshtml_smartypants(smart_buf, output_buf);
 		result = rb_str_new(smart_buf->data, smart_buf->size);
 		bufrelease(smart_buf);
 	} else {
@@ -118,7 +121,7 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 	}
 
 	bufrelease(output_buf);
-	ups_free_renderer(&renderer);
+	upshtml_free_renderer(&renderer);
 
 	/* force the input encoding */
 	if (rb_respond_to(text, rb_intern("encoding"))) {
@@ -138,7 +141,7 @@ rb_redcarpet_toc(int argc, VALUE *argv, VALUE self)
 static VALUE
 rb_redcarpet_to_html(int argc, VALUE *argv, VALUE self)
 {
-	return rb_redcarpet__render(self, REDCARPET_RENDER_XHTML);
+	return rb_redcarpet__render(self, REDCARPET_RENDER_HTML);
 }
 
 void Init_redcarpet()

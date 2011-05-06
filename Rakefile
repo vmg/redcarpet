@@ -117,9 +117,9 @@ task :gather => 'upskirt/src/markdown.h' do |t|
     FileList[
       'upskirt/src/{markdown,buffer,array}.h',
       'upskirt/src/{markdown,buffer,array}.c',
-      'upskirt/render/xhtml.c',
-      'upskirt/render/xhtml_smartypants.c',
-      'upskirt/render/xhtml.h',
+      'upskirt/render/html.c',
+      'upskirt/render/html_smartypants.c',
+      'upskirt/render/html.h',
     ]
   cp files, 'ext/redcarpet/',
     :preserve => true,

@@ -16,20 +16,21 @@
  */
 
 #include "markdown.h"
-#include "xhtml.h"
+#include "html.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 
-struct xhtml_renderopt {
+struct html_renderopt {
 	struct {
 		int header_count;
 		int current_level;
 	} toc_data;
 
 	unsigned int flags;
+	const char *close_tag;
 };
 
 static inline void
@@ -104,12 +105,12 @@ is_html_tag(struct buf *tag, const char *tagname)
 static int
 rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *opaque)
 {
-	struct xhtml_renderopt *options = opaque;
+	struct html_renderopt *options = opaque;
 
 	if (!link || !link->size)
 		return 0;
 
-	if ((options->flags & XHTML_SAFELINK) != 0 &&
+	if ((options->flags & HTML_SAFELINK) != 0 &&
 		!is_safe_link(link->data, link->size) &&
 		type != MKDA_EMAIL)
 		return 0;
@@ -272,12 +273,12 @@ rndr_emphasis(struct buf *ob, struct buf *text, void *opaque)
 static void
 rndr_header(struct buf *ob, struct buf *text, int level, void *opaque)
 {
-	struct xhtml_renderopt *options = opaque;
+	struct html_renderopt *options = opaque;
 	
 	if (ob->size)
 		bufputc(ob, '\n');
 
-	if (options->flags & XHTML_TOC) {
+	if (options->flags & HTML_TOC) {
 		bufprintf(ob, "<a name=\"toc_%d\"></a>", options->toc_data.header_count++);
 	}
 
@@ -289,9 +290,9 @@ rndr_header(struct buf *ob, struct buf *text, int level, void *opaque)
 static int
 rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, void *opaque)
 {
-	struct xhtml_renderopt *options = opaque;
+	struct html_renderopt *options = opaque;
 	
-	if ((options->flags & XHTML_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
+	if ((options->flags & HTML_SAFELINK) != 0 && !is_safe_link(link->data, link->size))
 		return 0;
 
 	BUFPUTSL(ob, "<a href=\"");
@@ -328,7 +329,7 @@ rndr_listitem(struct buf *ob, struct buf *text, int flags, void *opaque)
 static void
 rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
 {
-	struct xhtml_renderopt *options = opaque;
+	struct html_renderopt *options = opaque;
 	size_t i = 0;
 
 	if (ob->size) bufputc(ob, '\n');
@@ -342,7 +343,7 @@ rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
 		return;
 
 	BUFPUTSL(ob, "<p>");
-	if (options->flags & XHTML_HARD_WRAP) {
+	if (options->flags & HTML_HARD_WRAP) {
 		size_t org;
 		while (i < text->size) {
 			org = i;
@@ -355,7 +356,8 @@ rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
 			if (i >= text->size)
 				break;
 
-			BUFPUTSL(ob, "<br/>\n");
+			BUFPUTSL(ob, "<br");
+			bufputs(ob, options->close_tag);
 			i++;
 		}
 	} else {
@@ -389,21 +391,19 @@ rndr_triple_emphasis(struct buf *ob, struct buf *text, void *opaque)
 	return 1;
 }
 
-
-/**********************
- * XHTML 1.0 RENDERER *
- **********************/
-
 static void
 rndr_hrule(struct buf *ob, void *opaque)
 {
+	struct html_renderopt *options = opaque;	
 	if (ob->size) bufputc(ob, '\n');
-	BUFPUTSL(ob, "<hr />\n");
+	BUFPUTSL(ob, "<hr");
+	bufputs(ob, options->close_tag);
 }
 
 static int
 rndr_image(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, void *opaque)
 {
+	struct html_renderopt *options = opaque;	
 	if (!link || !link->size) return 0;
 	BUFPUTSL(ob, "<img src=\"");
 	attr_escape(ob, link->data, link->size);
@@ -413,32 +413,36 @@ rndr_image(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt,
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
 		attr_escape(ob, title->data, title->size); }
-	BUFPUTSL(ob, "\" />");
+
+	bufputc(ob, '"');
+	bufputs(ob, options->close_tag);
 	return 1;
 }
 
 static int
 rndr_linebreak(struct buf *ob, void *opaque)
 {
-	BUFPUTSL(ob, "<br />\n");
+	struct html_renderopt *options = opaque;	
+	BUFPUTSL(ob, "<br");
+	bufputs(ob, options->close_tag);
 	return 1;
 }
 
 static int
 rndr_raw_html(struct buf *ob, struct buf *text, void *opaque)
 {
-	struct xhtml_renderopt *options = opaque;	
+	struct html_renderopt *options = opaque;	
 
-	if ((options->flags & XHTML_SKIP_HTML) != 0)
+	if ((options->flags & HTML_SKIP_HTML) != 0)
 		return 1;
 
-	if ((options->flags & XHTML_SKIP_STYLE) != 0 && is_html_tag(text, "style"))
+	if ((options->flags & HTML_SKIP_STYLE) != 0 && is_html_tag(text, "style"))
 		return 1;
 
-	if ((options->flags & XHTML_SKIP_LINKS) != 0 && is_html_tag(text, "a"))
+	if ((options->flags & HTML_SKIP_LINKS) != 0 && is_html_tag(text, "a"))
 		return 1;
 
-	if ((options->flags & XHTML_SKIP_IMAGES) != 0 && is_html_tag(text, "img"))
+	if ((options->flags & HTML_SKIP_IMAGES) != 0 && is_html_tag(text, "img"))
 		return 1;
 
 	bufput(ob, text->data, text->size);
@@ -505,7 +509,7 @@ rndr_normal_text(struct buf *ob, struct buf *text, void *opaque)
 static void
 toc_header(struct buf *ob, struct buf *text, int level, void *opaque)
 {
-	struct xhtml_renderopt *options = opaque;
+	struct html_renderopt *options = opaque;
 
 	if (level > options->toc_data.current_level) {
 		if (level > 1)
@@ -530,7 +534,7 @@ toc_header(struct buf *ob, struct buf *text, int level, void *opaque)
 static void
 toc_finalize(struct buf *ob, void *opaque)
 {
-	struct xhtml_renderopt *options = opaque;
+	struct html_renderopt *options = opaque;
 
 	while (options->toc_data.current_level > 1) {
 		BUFPUTSL(ob, "</ul></li>\n");
@@ -542,7 +546,7 @@ toc_finalize(struct buf *ob, void *opaque)
 }
 
 void
-ups_toc_renderer(struct mkd_renderer *renderer)
+upshtml_toc_renderer(struct mkd_renderer *renderer)
 {
 	static const struct mkd_renderer toc_render = {
 		NULL,
@@ -577,17 +581,20 @@ ups_toc_renderer(struct mkd_renderer *renderer)
 		NULL
 	};
 
-	struct xhtml_renderopt *options;	
-	options = calloc(1, sizeof(struct xhtml_renderopt));
-	options->flags = XHTML_TOC;
+	struct html_renderopt *options;	
+	options = calloc(1, sizeof(struct html_renderopt));
+	options->flags = HTML_TOC;
 
 	memcpy(renderer, &toc_render, sizeof(struct mkd_renderer));
 	renderer->opaque = options;
 }
 
 void
-ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
+upshtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 {
+	static const char *xhtml_close = "/>\n";
+	static const char *html_close = ">\n";
+
 	static const struct mkd_renderer renderer_default = {
 		rndr_blockcode,
 		rndr_blockquote,
@@ -621,30 +628,31 @@ ups_xhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags)
 		NULL
 	};
 
-	struct xhtml_renderopt *options;	
-	options = calloc(1, sizeof(struct xhtml_renderopt));
+	struct html_renderopt *options;	
+	options = calloc(1, sizeof(struct html_renderopt));
 	options->flags = render_flags;
+	options->close_tag = (render_flags & HTML_USE_XHTML) ? xhtml_close : html_close;
 
 	memcpy(renderer, &renderer_default, sizeof(struct mkd_renderer));
 	renderer->opaque = options;
 
-	if (render_flags & XHTML_SKIP_IMAGES)
+	if (render_flags & HTML_SKIP_IMAGES)
 		renderer->image = NULL;
 
-	if (render_flags & XHTML_SKIP_LINKS) {
+	if (render_flags & HTML_SKIP_LINKS) {
 		renderer->link = NULL;
 		renderer->autolink = NULL;
 	}
 
-	if (render_flags & XHTML_SKIP_HTML)
+	if (render_flags & HTML_SKIP_HTML)
 		renderer->blockhtml = NULL;
 
-	if (render_flags & XHTML_GITHUB_BLOCKCODE)
+	if (render_flags & HTML_GITHUB_BLOCKCODE)
 		renderer->blockcode = rndr_blockcode_github;
 }
 
 void
-ups_free_renderer(struct mkd_renderer *renderer)
+upshtml_free_renderer(struct mkd_renderer *renderer)
 {
 	free(renderer->opaque);
 }

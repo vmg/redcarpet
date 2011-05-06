@@ -15,7 +15,7 @@
  */
 
 #include "buffer.h"
-#include "xhtml.h"
+#include "html.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -304,7 +304,7 @@ static struct {
 #endif
 
 void
-ups_xhtml_smartypants(struct buf *ob, struct buf *text)
+upshtml_smartypants(struct buf *ob, struct buf *text)
 {
 	size_t i;
 	struct smartypants_data smrt = {0, 0};

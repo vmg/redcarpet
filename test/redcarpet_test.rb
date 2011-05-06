@@ -231,6 +231,6 @@ this should have a line break
 This is just a test.
 text
   
-    assert rd.to_html =~ /<br\/>/
+    assert rd.to_html =~ /<br>/
   end
 end
