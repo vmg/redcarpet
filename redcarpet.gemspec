@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '1.12.2'
+  s.version = '1.13.0'
   s.summary = "Ruby bindings for libupskirt"
   s.description = 'A fast and safe Markdown to (X)HTML parser'
-  s.date = '2011-05-01'
+  s.date = '2011-05-06'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/tanoku/redcarpet'
   s.has_rdoc = true
@@ -14,16 +14,17 @@ Gem::Specification.new do |s|
     README.markdown
     Rakefile
     bin/redcarpet
-    ext/array.c
-    ext/array.h
-    ext/buffer.c
-    ext/buffer.h
-    ext/extconf.rb
-    ext/markdown.c
-    ext/markdown.h
-    ext/redcarpet.c
-    ext/xhtml.c
-    ext/xhtml.h
+    ext/redcarpet/array.c
+    ext/redcarpet/array.h
+    ext/redcarpet/buffer.c
+    ext/redcarpet/buffer.h
+    ext/redcarpet/extconf.rb
+    ext/redcarpet/html.c
+    ext/redcarpet/html.h
+    ext/redcarpet/html_smartypants.c
+    ext/redcarpet/markdown.c
+    ext/redcarpet/markdown.h
+    ext/redcarpet/redcarpet.c
     lib/markdown.rb
     lib/redcarpet.rb
     redcarpet.gemspec
@@ -36,7 +37,7 @@ Gem::Specification.new do |s|
   # = MANIFEST =
   s.test_files = ["test/markdown_test.rb", "test/redcarpet_test.rb"]
   s.extra_rdoc_files = ["COPYING"]
-  s.extensions = ["ext/extconf.rb"]
+  s.extensions = ["ext/redcarpet/extconf.rb"]
   s.executables = ["redcarpet"]
   s.require_paths = ["lib"]
 end
