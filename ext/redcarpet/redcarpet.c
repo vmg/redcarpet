@@ -72,6 +72,9 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	if (rb_funcall(ruby_obj, rb_intern("lax_htmlblock"), 0) == Qtrue)
 		extensions |= MKDEXT_LAX_HTML_BLOCKS;
 
+	if (rb_funcall(ruby_obj, rb_intern("space_header"), 0) == Qtrue)
+		extensions |= MKDEXT_SPACE_HEADERS;
+
 	*enabled_extensions_p = extensions;
 	*render_flags_p = render_flags;
 }

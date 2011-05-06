@@ -233,4 +233,9 @@ text
   
     assert rd.to_html =~ /<br>/
   end
+
+  def test_spaced_headers
+    rd = Redcarpet.new("#123 a header yes\n", :space_header)
+    assert rd.to_html !~ /<h1>/
+  end
 end

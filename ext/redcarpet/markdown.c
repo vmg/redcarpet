@@ -1100,6 +1100,26 @@ is_codefence(char *data, size_t size, struct buf *syntax)
 	return i + 1;
 }
 
+/* is_atxheader • returns whether the line is a hash-prefixed header */
+static int
+is_atxheader(struct render *rndr, char *data, size_t size)
+{
+	if (data[0] != '#')
+		return 0;
+
+	if (rndr->ext_flags & MKDEXT_SPACE_HEADERS) {
+		size_t level = 0;
+
+		while (level < size && level < 6 && data[level] == '#')
+			level++;
+
+		if (level < size && data[level] != ' ' && data[level] != '\t')
+			return 0;
+	}
+
+	return 1;
+}
+
 /* is_headerline • returns whether the line is a setext-style hdr underline */
 static int
 is_headerline(char *data, size_t size)
@@ -1248,7 +1268,7 @@ parse_paragraph(struct buf *ob, struct render *rndr, char *data, size_t size)
 			}
 		}
 
-		if (data[i] == '#' || is_hrule(data + i, size - i)) {
+		if (is_atxheader(rndr, data + i, size - i) || is_hrule(data + i, size - i)) {
 			end = i;
 			break;
 		}
@@ -1532,16 +1552,12 @@ parse_list(struct buf *ob, struct render *rndr, char *data, size_t size, int fla
 	return i;
 }
 
-
 /* parse_atxheader • parsing of atx-style headers */
 static size_t
 parse_atxheader(struct buf *ob, struct render *rndr, char *data, size_t size)
 {
 	size_t level = 0;
 	size_t i, end, skip;
-
-	if (!size || data[0] != '#')
-		return 0;
 
 	while (level < size && level < 6 && data[level] == '#')
 		level++;
@@ -1887,7 +1903,7 @@ parse_block(struct buf *ob, struct render *rndr, char *data, size_t size)
 		txt_data = data + beg;
 		end = size - beg;
 
-		if (data[beg] == '#')
+		if (is_atxheader(rndr, txt_data, end))
 			beg += parse_atxheader(ob, rndr, txt_data, end);
 
 		else if (data[beg] == '<' && rndr->make.blockhtml &&

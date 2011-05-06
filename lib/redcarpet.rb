@@ -26,7 +26,7 @@
 #   end
 #
 class Redcarpet
-  VERSION = '1.13.0'
+  VERSION = '1.13.1'
 
   # Original Markdown formatted text.
   attr_reader :text
@@ -78,6 +78,9 @@ class Redcarpet
 
   # Generate XHTML 1.0 compilant self-closing tags (e.g. <br/>)
   attr_accessor :xhtml
+
+  # Force a space between header hashes and the header itself
+  attr_accessor :space_header
 
   def initialize(text, *extensions)
     @text  = text
