@@ -34,14 +34,18 @@ Usage
 
 Redcarpet implements the basic protocol popularized by RedCloth:
 
-    require 'redcarpet'
-    markdown = Redcarpet.new("Hello World!")
-    puts markdown.to_html
+~~~~~~ {ruby}
+require 'redcarpet'
+markdown = Redcarpet.new("Hello World!")
+puts markdown.to_html
+~~~~~~
 
 Additional processing options can be turned on when creating the
 Redcarpet object:
 
-    markdown = Redcarpet.new("Hello World!", :smart, :filter_html)
+~~~~~~ {ruby}
+markdown = Redcarpet.new("Hello World!", :smart, :filter_html)
+~~~~~~
 
 Note that by default, Redcarpet parses standard Markdown (with no extensions)
 and offers a sane subset of parse options which allow you to modify the rendering
