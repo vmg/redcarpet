@@ -2215,4 +2215,12 @@ ups_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndrer, 
 	parr_free(&rndr.work_bufs[BUFFER_BLOCK]);
 }
 
+void
+ups_version(int *ver_major, int *ver_minor, int *ver_revision)
+{
+	*ver_major = UPSKIRT_VER_MAJOR;
+	*ver_minor = UPSKIRT_VER_MINOR;
+	*ver_revision = UPSKIRT_VER_REVISION;
+}
+
 /* vim: set filetype=c: */

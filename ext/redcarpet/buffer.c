@@ -188,7 +188,7 @@ void
 bufnullterm(struct buf *buf) {
 	if (!buf || !buf->unit) return;
 	if (buf->size < buf->asize && buf->data[buf->size] == 0) return;
-	if (bufgrow(buf, buf->size + 1))
+	if (buf->size + 1 <= buf->asize || bufgrow(buf, buf->size + 1))
 		buf->data[buf->size] = 0; }
 
 
@@ -205,7 +205,9 @@ bufprintf(struct buf *buf, const char *fmt, ...) {
 /* bufput • appends raw data to a buffer */
 void
 bufput(struct buf *buf, const void *data, size_t len) {
-	if (!buf || !bufgrow(buf, buf->size + len)) return;
+	if (!buf) return;
+	if (buf->size + len > buf->asize && !bufgrow(buf, buf->size + len))
+		return;
 	memcpy(buf->data + buf->size, data, len);
 	buf->size += len; }
 
@@ -219,7 +221,9 @@ bufputs(struct buf *buf, const char *str) {
 /* bufputc • appends a single char to a buffer */
 void
 bufputc(struct buf *buf, char c) {
-	if (!buf || !bufgrow(buf, buf->size + 1)) return;
+	if (!buf) return;
+	if (buf->size + 1 > buf->asize && !bufgrow(buf, buf->size + 1))
+		return;
 	buf->data[buf->size] = c;
 	buf->size += 1; }
 

@@ -113,7 +113,7 @@ class RedcarpetTest < Test::Unit::TestCase
   def test_that_generate_toc_sets_toc_ids
     rd = Redcarpet.new("# Level 1\n\n## Level 2", :generate_toc)
     assert rd.generate_toc
-    assert_equal %(<a name="toc_0"></a><h1>Level 1</h1>\n\n<a name="toc_1"></a><h2>Level 2</h2>\n), rd.to_html
+    assert_equal %(<h1 id="toc_0">Level 1</h1>\n\n<h2 id="toc_1">Level 2</h2>\n), rd.to_html
   end
 
   def test_should_get_the_generated_toc

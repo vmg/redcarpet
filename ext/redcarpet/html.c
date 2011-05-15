@@ -278,11 +278,11 @@ rndr_header(struct buf *ob, struct buf *text, int level, void *opaque)
 	if (ob->size)
 		bufputc(ob, '\n');
 
-	if (options->flags & HTML_TOC) {
-		bufprintf(ob, "<a name=\"toc_%d\"></a>", options->toc_data.header_count++);
-	}
+	if (options->flags & HTML_TOC)
+		bufprintf(ob, "<h%d id=\"toc_%d\">", level, options->toc_data.header_count++);
+	else
+		bufprintf(ob, "<h%d>", level);
 
-	bufprintf(ob, "<h%d>", level);
 	if (text) bufput(ob, text->data, text->size);
 	bufprintf(ob, "</h%d>\n", level);
 }
@@ -511,19 +511,19 @@ toc_header(struct buf *ob, struct buf *text, int level, void *opaque)
 {
 	struct html_renderopt *options = opaque;
 
-	if (level > options->toc_data.current_level) {
-		if (level > 1)
+	while (level > options->toc_data.current_level) {
+		if (options->toc_data.current_level > 0)
 			BUFPUTSL(ob, "<li>");
 		BUFPUTSL(ob, "<ul>\n");
+		options->toc_data.current_level++;
 	}
-	
-	if (level < options->toc_data.current_level) {
+
+	while (level < options->toc_data.current_level) {
 		BUFPUTSL(ob, "</ul>");
 		if (options->toc_data.current_level > 1)
 			BUFPUTSL(ob, "</li>\n");
+		options->toc_data.current_level--;
 	}
-
-	options->toc_data.current_level = level;
 
 	bufprintf(ob, "<li><a href=\"#toc_%d\">", options->toc_data.header_count++);
 	if (text)
