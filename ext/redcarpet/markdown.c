@@ -261,15 +261,28 @@ is_mail_autolink(char *data, size_t size)
 	size_t i = 0, nb = 0;
 
 	/* address is assumed to be: [-@._a-zA-Z0-9]+ with exactly one '@' */
-	while (i < size && (data[i] == '-' || data[i] == '.'
-	|| data[i] == '_' || data[i] == '@'
-	|| (data[i] >= 'a' && data[i] <= 'z')
-	|| (data[i] >= 'A' && data[i] <= 'Z')
-	|| (data[i] >= '0' && data[i] <= '9'))) {
-		if (data[i] == '@') nb += 1;
-		i += 1; }
-	if (i >= size || data[i] != '>' || nb != 1) return 0;
-	return i + 1;
+	for (i = 0; i < size; ++i) {
+		if (isalnum(data[i]))
+			continue;
+
+		switch (data[i]) {
+			case '@':
+				nb++;
+
+			case '-':
+			case '.':
+			case '_':
+				break;
+
+			case '>':
+				return (nb == 1) ? i + 1 : 0;
+
+			default:
+				return 0;
+		}
+	}
+
+	return 0;
 }
 
 /* tag_length • returns the length of the given tag, or 0 is it's not valid */
@@ -281,17 +294,18 @@ tag_length(char *data, size_t size, enum mkd_autolink *autolink)
 	/* a valid tag can't be shorter than 3 chars */
 	if (size < 3) return 0;
 
-	/* begins with a '<' optionally followed by '/', followed by letter */
+	/* begins with a '<' optionally followed by '/', followed by letter or number */
 	if (data[0] != '<') return 0;
 	i = (data[1] == '/') ? 2 : 1;
-	if ((data[i] < 'a' || data[i] > 'z')
-	&&  (data[i] < 'A' || data[i] > 'Z')) return 0;
+
+	if (!isalnum(data[i]))
+		return 0;
 
 	/* scheme test */
 	*autolink = MKDA_NOT_AUTOLINK;
 
 	/* try to find the beggining of an URI */
-	while (i < size && (isalpha(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-'))
+	while (i < size && (isalnum(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-'))
 		i++;
 
 	if (i > 1 && data[i] == '@') {
