@@ -172,7 +172,9 @@ is_safe_link(const char *link, size_t link_len)
 	for (i = 0; i < valid_uris_count; ++i) {
 		size_t len = strlen(valid_uris[i]);
 
-		if (link_len > len && strncasecmp(link, valid_uris[i], len) == 0)
+		if (link_len > len &&
+			strncasecmp(link, valid_uris[i], len) == 0 &&
+			isalnum(link[len]))
 			return 1;
 	}
 
@@ -722,26 +724,12 @@ static size_t
 char_autolink(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
 	struct buf work = { data, 0, 0, 0, 0 };
-	char cclose = 0;
+	char copen = 0;
 	size_t link_end;
 
-	/* TODO:
-	 * what's the fastest check we can do, previous char
-	 * or URI prefix? We want to do the fastest one first
-	 * to break asap
-	 */
-
 	if (offset > 0) {
-		switch (data[-1]) {
-		case '"':	cclose = '"'; break;
-		case '\'':	cclose = '\''; break;
-		case '(':	cclose = ')'; break;
-		case '[':	cclose = ']'; break;
-		case '{':	cclose = '}'; break;
-		case ' ': case '\t': case '\n': break;
-		default:
+		if (!isspace(data[-1]) && !ispunct(data[-1]))
 			return 0;
-		}
 	}
 
 	if (!is_safe_link(data, size))
@@ -751,13 +739,60 @@ char_autolink(struct buf *ob, struct render *rndr, char *data, size_t offset, si
 	while (link_end < size && !isspace(data[link_end]))
 		link_end++;
 
-	if (cclose != 0) {
-		size_t i = link_end;
-		while (i > 0 && data[i] != cclose)
-			i--;
+	/* Skip punctuation at the end of the link */
+	if ((data[link_end - 1] == '.' ||
+		data[link_end - 1] == ',' ||
+		data[link_end - 1] == ';') &&
+		data[link_end - 2] != '\\')
+		link_end--;
 
-		if (i > 0)
-			link_end = i;
+	/* See if the link finishes with a punctuation sign that can be closed. */
+	switch (data[link_end - 1]) {
+	case '"':	copen = '"'; break;
+	case '\'':	copen = '\''; break;
+	case ')':	copen = '('; break;
+	case ']':	copen = '['; break;
+	case '}':	copen = '{'; break;
+	}
+
+	if (copen != 0) {
+		char *buf_start = data - offset;
+		char *buf_end = data + link_end - 2;
+
+		size_t open_delim = 1;
+
+		/* Try to close the final punctuation sign in this same line;
+		 * if we managed to close it outside of the URL, that means that it's
+		 * not part of the URL. If it closes inside the URL, that means it
+		 * is part of the URL.
+		 *
+		 * Examples:
+		 *
+		 *	foo http://www.pokemon.com/Pikachu_(Electric) bar
+		 *		=> http://www.pokemon.com/Pikachu_(Electric)
+		 *
+		 *	foo (http://www.pokemon.com/Pikachu_(Electric)) bar
+		 *		=> http://www.pokemon.com/Pikachu_(Electric)
+		 *
+		 *	foo http://www.pokemon.com/Pikachu_(Electric)) bar
+		 *		=> http://www.pokemon.com/Pikachu_(Electric))
+		 *
+		 *	(foo http://www.pokemon.com/Pikachu_(Electric)) bar
+		 *		=> foo http://www.pokemon.com/Pikachu_(Electric)
+		 */
+
+		while (buf_end >= buf_start && *buf_end != '\n' && open_delim) {
+			if (*buf_end == data[link_end - 1])
+				open_delim++;
+
+			if (*buf_end == copen)
+				open_delim--;
+
+			buf_end--;
+		}
+
+		if (open_delim == 0)
+			link_end--;
 	}
 
 	work.size = link_end;
