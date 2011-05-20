@@ -651,9 +651,13 @@ char_codespan(struct buf *ob, struct render *rndr, char *data, size_t offset, si
 static size_t
 char_escape(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
+	static const char *escape_chars = "\\`*_{}[]()#+-.!:|&<>";
 	struct buf work = { 0, 0, 0, 0, 0 };
 
 	if (size > 1) {
+		if (strchr(escape_chars, data[1]) == NULL)
+			return 0;
+
 		if (rndr->make.normal_text) {
 			work.data = data + 1;
 			work.size = 1;
