@@ -40,7 +40,7 @@ markdown = Redcarpet.new("Hello World!")
 puts markdown.to_html
 ~~~~~~
 
-Additional processing options can be turned on when creating the
+[Additional processing options](http://rdoc.info/github/tanoku/redcarpet/master/Redcarpet#autolink-instance_method) can be turned on when creating the
 Redcarpet object:
 
 ~~~~~~ {ruby}
