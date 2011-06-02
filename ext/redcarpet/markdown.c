@@ -878,7 +878,7 @@ char_autolink_email(struct buf *ob, struct render *rndr, char *data, size_t offs
 		if (isalnum(c))
 			continue;
 
-		if (strchr(".!#$%&*+-/=?^_`|~", c) != NULL)
+		if (strchr(".+-_", c) != NULL)
 			continue;
 
 		break;
@@ -895,7 +895,7 @@ char_autolink_email(struct buf *ob, struct render *rndr, char *data, size_t offs
 
 		if (c == '@')
 			nb++;
-		else if (c == '.')
+		else if (c == '.' && link_end < size - 1)
 			np++;
 		else if (c != '-' && c != '_')
 			break;
