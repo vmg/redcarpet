@@ -21,7 +21,6 @@
 
 #include <stdlib.h>
 
-
 /********************
  * TYPE DEFINITIONS *
  ********************/
