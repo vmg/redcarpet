@@ -148,22 +148,12 @@ static struct html_tag block_tags[] = {
 /*10*/	{ "del",	3 },
 	{ "div",	3 },
 /*12*/	{ "ins",	3 },
-	{ "nav",	3 },
 	{ "pre",	3 },
-	{ "abbr",	4 },
 	{ "form",	4 },
 	{ "math",	4 },
-	{ "aside",	5 },
 	{ "table",	5 },
-	{ "canvas",	6 },
-	{ "figure",	6 },
-	{ "footer",	6 },
-	{ "header",	6 },
-	{ "hgroup",	6 },
 	{ "iframe",	6 },
 	{ "script",	6 },
-	{ "article",	7 },
-	{ "section",	7 },
 	{ "fieldset",	8 },
 	{ "noscript",	8 },
 	{ "blockquote",	10 }
@@ -743,7 +733,7 @@ char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, 
 static size_t
 autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
 {
-	char copen = 0;
+	char cclose, copen = 0;
 
 	/* See if the link finishes with a punctuation sign that can be skipped. */
 	switch (data[link_end - 1]) {
@@ -779,7 +769,9 @@ autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
 		break;
 	}
 
-	switch (data[link_end - 1]) {
+	cclose = data[link_end - 1];
+
+	switch (cclose) {
 	case '"':	copen = '"'; break;
 	case '\'':	copen = '\''; break;
 	case ')':	copen = '('; break;
@@ -788,9 +780,9 @@ autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
 	}
 
 	if (copen != 0) {
-		char *buf_start = data - offset;
-		char *buf_end = data + link_end - 2;
-		char *open_delim = NULL;
+		size_t closing = 0;
+		size_t opening = 0;
+		size_t i = 0;
 
 		/* Try to close the final punctuation sign in this same line;
 		 * if we managed to close it outside of the URL, that means that it's
@@ -812,14 +804,16 @@ autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
 		 *		=> foo http://www.pokemon.com/Pikachu_(Electric)
 		 */
 
-		while (buf_end >= buf_start && *buf_end != '\n') {
-			if (*buf_end == copen)
-				open_delim = buf_end;
+		while (i < link_end) {
+			if (data[i] == copen)
+				opening++;
+			else if (data[i] == cclose)
+				closing++;
 
-			buf_end--;
+			i++;
 		}
 
-		if (open_delim != NULL && open_delim < data)
+		if (closing != opening)
 			link_end--;
 	}
 
@@ -925,7 +919,7 @@ char_autolink_email(struct buf *ob, struct render *rndr, char *data, size_t offs
 		ob->size -= rewind;
 		rndr->make.autolink(ob, u_link, MKDA_EMAIL, rndr->make.opaque);
 		rndr_popbuf(rndr, BUFFER_SPAN);
-	}
+	}	
 
 	return link_end;
 }
