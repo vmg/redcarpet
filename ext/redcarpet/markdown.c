@@ -165,28 +165,6 @@ static struct html_tag block_tags[] = {
 /***************************
  * HELPER FUNCTIONS *
  ***************************/
-int
-is_safe_link(const char *link, size_t link_len)
-{
-	static const size_t valid_uris_count = 4;
-	static const char *valid_uris[] = {
-		"http://", "https://", "ftp://", "mailto://"
-	};
-
-	size_t i;
-
-	for (i = 0; i < valid_uris_count; ++i) {
-		size_t len = strlen(valid_uris[i]);
-
-		if (link_len > len &&
-			strncasecmp(link, valid_uris[i], len) == 0 &&
-			isalnum(link[len]))
-			return 1;
-	}
-
-	return 0;
-}
-
 static void
 unscape_text(struct buf *ob, struct buf *src)
 {
@@ -731,236 +709,68 @@ char_langle_tag(struct buf *ob, struct render *rndr, char *data, size_t offset, 
 }
 
 static size_t
-autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
-{
-	char cclose, copen = 0;
-
-	/* See if the link finishes with a punctuation sign that can be skipped. */
-	switch (data[link_end - 1]) {
-	case '?':
-	case '!':
-	case '.':
-	case ',':
-		link_end--;
-		break;
-
-	case ';':
-	{
-		size_t new_end = link_end - 2;
-
-		while (new_end > 0 && isalpha(data[new_end]))
-			new_end--;
-
-		if (new_end < link_end - 2 && data[new_end] == '&')
-			link_end = new_end;
-		else
-			link_end--;
-
-		break;
-	}
-
-	case '>':
-		while (link_end > 0 && data[link_end] != '<')
-			link_end--;
-
-		if (link_end == 0)
-			return 0;
-
-		break;
-	}
-
-	cclose = data[link_end - 1];
-
-	switch (cclose) {
-	case '"':	copen = '"'; break;
-	case '\'':	copen = '\''; break;
-	case ')':	copen = '('; break;
-	case ']':	copen = '['; break;
-	case '}':	copen = '{'; break;
-	}
-
-	if (copen != 0) {
-		size_t closing = 0;
-		size_t opening = 0;
-		size_t i = 0;
-
-		/* Try to close the final punctuation sign in this same line;
-		 * if we managed to close it outside of the URL, that means that it's
-		 * not part of the URL. If it closes inside the URL, that means it
-		 * is part of the URL.
-		 *
-		 * Examples:
-		 *
-		 *	foo http://www.pokemon.com/Pikachu_(Electric) bar
-		 *		=> http://www.pokemon.com/Pikachu_(Electric)
-		 *
-		 *	foo (http://www.pokemon.com/Pikachu_(Electric)) bar
-		 *		=> http://www.pokemon.com/Pikachu_(Electric)
-		 *
-		 *	foo http://www.pokemon.com/Pikachu_(Electric)) bar
-		 *		=> http://www.pokemon.com/Pikachu_(Electric))
-		 *
-		 *	(foo http://www.pokemon.com/Pikachu_(Electric)) bar
-		 *		=> foo http://www.pokemon.com/Pikachu_(Electric)
-		 */
-
-		while (i < link_end) {
-			if (data[i] == copen)
-				opening++;
-			else if (data[i] == cclose)
-				closing++;
-
-			i++;
-		}
-
-		if (closing != opening)
-			link_end--;
-	}
-
-	return link_end;
-}
-
-
-static size_t
 char_autolink_www(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
-	struct buf work = { 0, 0, 0, 0, 0 };
-	size_t link_end;
-	int np = 0;
+	struct buf *link, *link_url;
+	size_t link_len, rewind;
 
-	if (offset > 0 && !ispunct(data[-1]) && !isspace(data[-1]))
+	if (!rndr->make.link)
 		return 0;
 
-	if (size < 4 || memcmp(data, "www.", STRLEN("www.")) != 0)
-		return 0;
+	link = rndr_newbuf(rndr, BUFFER_SPAN);
 
-	link_end = 0;
-	while (link_end < size && !isspace(data[link_end])) {
-		if (data[link_end] == '.')
-			np++;
+	if ((link_len = ups_autolink__www(&rewind, link, data, offset, size)) > 0) {
+		link_url = rndr_newbuf(rndr, BUFFER_SPAN);
+		BUFPUTSL(link_url, "http://");
+		bufput(link_url, link->data, link->size);
 
-		link_end++;
-	}
-
-	if (np < 2)
-		return 0;
-
-	link_end = autolink_delim(data, link_end, offset, size);
-
-	if (link_end == 0)
-		return 0;
-
-	work.size = link_end;
-	work.data = data;
-
-	if (rndr->make.link) {
-		struct buf *u_link = rndr_newbuf(rndr, BUFFER_SPAN);
-		BUFPUTSL(u_link, "http://");
-		unscape_text(u_link, &work);
-
-		rndr->make.link(ob, u_link, NULL, &work, rndr->make.opaque);
+		ob->size -= rewind;
+		rndr->make.link(ob, link_url, NULL, link, rndr->make.opaque);
 		rndr_popbuf(rndr, BUFFER_SPAN);
 	}
 
-	return link_end;
+	rndr_popbuf(rndr, BUFFER_SPAN);
+	return link_len;
 }
 
 static size_t
 char_autolink_email(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
-	struct buf work = { 0, 0, 0, 0, 0 };
-	size_t link_end, rewind;
-	int nb = 0, np = 0;
+	struct buf *link;
+	size_t link_len, rewind;
 
-	for (rewind = 0; rewind < offset; ++rewind) {
-		char c = data[-rewind - 1];
-
-		if (isalnum(c))
-			continue;
-
-		if (strchr(".+-_", c) != NULL)
-			continue;
-
-		break;
-	}
-
-	if (rewind == 0)
+	if (!rndr->make.autolink)
 		return 0;
 
-	for (link_end = 0; link_end < size; ++link_end) {
-		char c = data[link_end];
+	link = rndr_newbuf(rndr, BUFFER_SPAN);
 
-		if (isalnum(c))
-			continue;
-
-		if (c == '@')
-			nb++;
-		else if (c == '.' && link_end < size - 1)
-			np++;
-		else if (c != '-' && c != '_')
-			break;
-	}
-
-	if (link_end < 2 || nb != 1 || np == 0)
-		return 0;
-
-	link_end = autolink_delim(data, link_end, offset, size);
-
-	if (link_end == 0)
-		return 0;
-
-	work.size = link_end + rewind;
-	work.data = data - rewind;
-
-	if (rndr->make.autolink) {
-		struct buf *u_link = rndr_newbuf(rndr, BUFFER_SPAN);
-		unscape_text(u_link, &work);
-
+	if ((link_len = ups_autolink__email(&rewind, link, data, offset, size)) > 0) {
 		ob->size -= rewind;
-		rndr->make.autolink(ob, u_link, MKDA_EMAIL, rndr->make.opaque);
-		rndr_popbuf(rndr, BUFFER_SPAN);
-	}	
+		rndr->make.autolink(ob, link, MKDA_EMAIL, rndr->make.opaque);
+	}
 
-	return link_end;
+	rndr_popbuf(rndr, BUFFER_SPAN);
+	return link_len;
 }
 
 static size_t
 char_autolink_url(struct buf *ob, struct render *rndr, char *data, size_t offset, size_t size)
 {
-	struct buf work = { 0, 0, 0, 0, 0 };
-	size_t link_end, rewind = 0;
+	struct buf *link;
+	size_t link_len, rewind;
 
-	if (size < 4 || data[1] != '/' || data[2] != '/')
+	if (!rndr->make.autolink)
 		return 0;
 
-	while (rewind < offset && isalpha(data[-rewind - 1]))
-		rewind++;
+	link = rndr_newbuf(rndr, BUFFER_SPAN);
 
-	if (!is_safe_link(data - rewind, size + rewind))
-		return 0;
-
-	link_end = 0;
-	while (link_end < size && !isspace(data[link_end]))
-		link_end++;
-
-	link_end = autolink_delim(data, link_end, offset, size);
-
-	if (link_end == 0)
-		return 0;
-
-	work.size = link_end + rewind;
-	work.data = data - rewind;
-
-	if (rndr->make.autolink) {
-		struct buf *u_link = rndr_newbuf(rndr, BUFFER_SPAN);
-		unscape_text(u_link, &work);
-
+	if ((link_len = ups_autolink__url(&rewind, link, data, offset, size)) > 0) {
 		ob->size -= rewind;
-		rndr->make.autolink(ob, u_link, MKDA_NORMAL, rndr->make.opaque);
-		rndr_popbuf(rndr, BUFFER_SPAN);
+		rndr->make.autolink(ob, link, MKDA_NORMAL, rndr->make.opaque);
 	}
 
-	return link_end;
+	rndr_popbuf(rndr, BUFFER_SPAN);
+	return link_len;
 }
 
 /* char_link • '[': parsing a link or an image */

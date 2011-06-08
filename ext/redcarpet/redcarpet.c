@@ -79,6 +79,31 @@ static void rb_redcarpet__get_flags(VALUE ruby_obj,
 	*render_flags_p = render_flags;
 }
 
+static VALUE rb_redcarpet_autolink(VALUE self, VALUE text)
+{
+	VALUE result;
+	struct buf input_buf, *output_buf;
+
+	memset(&input_buf, 0x0, sizeof(struct buf));
+	input_buf.data = RSTRING_PTR(text);
+	input_buf.size = RSTRING_LEN(text);
+
+	output_buf = bufnew(128);
+
+	upshtml_autolink(output_buf, &input_buf, AUTOLINK_ALL);
+	result = rb_str_new(output_buf->data, output_buf->size);
+
+	bufrelease(output_buf);
+
+	/* force the input encoding */
+	if (rb_respond_to(text, rb_intern("encoding"))) {
+		VALUE encoding = rb_funcall(text, rb_intern("encoding"), 0);
+		rb_funcall(result, rb_intern("force_encoding"), 1, encoding);
+	}
+
+	return result;
+}
+
 static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 {
 	VALUE text = rb_funcall(self, rb_intern("text"), 0);
@@ -152,5 +177,7 @@ void Init_redcarpet()
     rb_cRedcarpet = rb_define_class("Redcarpet", rb_cObject);
     rb_define_method(rb_cRedcarpet, "to_html", rb_redcarpet_to_html, -1);
     rb_define_method(rb_cRedcarpet, "toc_content", rb_redcarpet_toc, -1);
+
+	rb_define_singleton_method(rb_cRedcarpet, "auto_link", rb_redcarpet_autolink, 1);
 }
 

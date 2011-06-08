@@ -18,6 +18,8 @@
 #define UPSKIRT_HTML_H
 
 #include "markdown.h"
+#include "buffer.h"
+#include <stdlib.h>
 
 typedef enum {
 	HTML_SKIP_HTML = (1 << 0),
@@ -32,6 +34,15 @@ typedef enum {
 	HTML_USE_XHTML = (1 << 11),
 } render_mode;
 
+typedef enum {
+	AUTOLINK_URLS = (1 << 0),
+	AUTOLINK_EMAILS = (1 << 1),
+	AUTOLINK_ALL = AUTOLINK_URLS|AUTOLINK_EMAILS
+} autolink_mode;
+
+void
+upshtml_escape(struct buf *ob, const char *src, size_t size);
+
 extern void
 upshtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags);
 
@@ -43,6 +54,10 @@ upshtml_free_renderer(struct mkd_renderer *renderer);
 
 extern void
 upshtml_smartypants(struct buf *ob, struct buf *text);
+
+extern void
+upshtml_autolink(struct buf *ob, struct buf *text, unsigned int autolink_flags);
+
 
 #endif
 
