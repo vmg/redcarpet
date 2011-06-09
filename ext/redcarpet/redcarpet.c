@@ -1,5 +1,13 @@
+#define RSTRING_NOT_MODIFIED
+
 #include <stdio.h>
 #include "ruby.h"
+
+#ifdef HAVE_RUBY_ENCODING_H
+#include <ruby/encoding.h>
+#else
+#define rb_enc_copy(dst, src)
+#endif
 
 #include "markdown.h"
 #include "html.h"
@@ -127,11 +135,8 @@ static VALUE rb_redcarpet__render(VALUE self, RendererType render_type)
 	upshtml_free_renderer(&renderer);
 
 	/* force the input encoding */
-	if (rb_respond_to(text, rb_intern("encoding"))) {
-		VALUE encoding = rb_funcall(text, rb_intern("encoding"), 0);
-		rb_funcall(result, rb_intern("force_encoding"), 1, encoding);
-	}
-
+	rb_enc_copy(result, text);
+	
 	return result;
 }
 
