@@ -34,12 +34,6 @@ typedef enum {
 	HTML_USE_XHTML = (1 << 11),
 } render_mode;
 
-typedef enum {
-	AUTOLINK_URLS = (1 << 0),
-	AUTOLINK_EMAILS = (1 << 1),
-	AUTOLINK_ALL = AUTOLINK_URLS|AUTOLINK_EMAILS
-} autolink_mode;
-
 void
 upshtml_escape(struct buf *ob, const char *src, size_t size);
 
@@ -54,10 +48,6 @@ upshtml_free_renderer(struct mkd_renderer *renderer);
 
 extern void
 upshtml_smartypants(struct buf *ob, struct buf *text);
-
-extern void
-upshtml_autolink(struct buf *ob, struct buf *text, unsigned int autolink_flags);
-
 
 #endif
 

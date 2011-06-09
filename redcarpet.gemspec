@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '1.16.0'
+  s.version = '1.17.0'
   s.summary = "Ruby bindings for libupskirt"
   s.description = 'A fast and safe Markdown to (X)HTML parser'
-  s.date = '2011-06-08'
+  s.date = '2011-06-09'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/tanoku/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
     ext/redcarpet/extconf.rb
     ext/redcarpet/html.c
     ext/redcarpet/html.h
-    ext/redcarpet/html_autolink.c
     ext/redcarpet/html_smartypants.c
     ext/redcarpet/markdown.c
     ext/redcarpet/markdown.h
@@ -29,7 +28,6 @@ Gem::Specification.new do |s|
     lib/markdown.rb
     lib/redcarpet.rb
     redcarpet.gemspec
-    test/autolink_test.rb
     test/benchmark.rb
     test/benchmark.txt
     test/markdown_test.rb

@@ -20,6 +20,7 @@
 #define UPSKIRT_MARKDOWN_H
 
 #include "buffer.h"
+#include "autolink.h"
 
 #define UPSKIRT_VERSION "1.15.2"
 #define UPSKIRT_VER_MAJOR 1
@@ -104,15 +105,6 @@ struct mkd_renderer {
  *******************/
 int
 is_safe_link(const char *link, size_t link_len);
-
-size_t
-ups_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size);
-
-size_t
-ups_autolink__email(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size);
-
-size_t
-ups_autolink__url(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size);
 
 /**********************
  * EXPORTED FUNCTIONS *
