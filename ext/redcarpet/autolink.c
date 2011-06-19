@@ -47,6 +47,13 @@ static size_t
 autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
 {
 	char cclose, copen = 0;
+	size_t i;
+
+	for (i = 0; i < link_end; ++i)
+		if (data[i] == '<') {
+			link_end = i;
+			break;
+		}
 
 	while (link_end > 0) {
 		if (strchr("?!.,", data[link_end - 1]) != NULL)
@@ -61,11 +68,6 @@ autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
 			if (new_end < link_end - 2 && data[new_end] == '&')
 				link_end = new_end;
 			else
-				link_end--;
-		}
-
-		else if (data[link_end - 1] == '>') {
-			while (link_end > 0 && data[link_end] != '<')
 				link_end--;
 		}
 		else break;
@@ -125,11 +127,29 @@ autolink_delim(char *data, size_t link_end, size_t offset, size_t size)
 	return link_end;
 }
 
+static size_t
+check_domain(char *data, size_t size)
+{
+	size_t i, np = 0;
+
+	if (!isalnum(data[0]))
+		return 0;
+
+	for (i = 1; i < size - 1; ++i) {
+		if (data[i] == '.') np++;
+		else if (!isalnum(data[i]) && data[i] != '-') break;
+	}
+
+	if (!isalnum(data[i - 1]) || np == 0)
+		return 0;
+
+	return i;
+}
+
 size_t
 ups_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
 {
 	size_t link_end;
-	int np = 0;
 
 	if (offset > 0 && !ispunct(data[-1]) && !isspace(data[-1]))
 		return 0;
@@ -137,16 +157,13 @@ ups_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset,
 	if (size < 4 || memcmp(data, "www.", STRLEN("www.")) != 0)
 		return 0;
 
-	link_end = 0;
-	while (link_end < size && !isspace(data[link_end])) {
-		if (data[link_end] == '.')
-			np++;
+	link_end = check_domain(data, size);
 
-		link_end++;
-	}
-
-	if (np < 2)
+	if (link_end == 0)
 		return 0;
+
+	while (link_end < size && !isspace(data[link_end]))
+		link_end++;
 
 	link_end = autolink_delim(data, link_end, offset, size);
 
@@ -211,7 +228,7 @@ ups_autolink__email(size_t *rewind_p, struct buf *link, char *data, size_t offse
 size_t
 ups_autolink__url(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
 {
-	size_t link_end, rewind = 0;
+	size_t link_end, rewind = 0, domain_len;
 
 	if (size < 4 || data[1] != '/' || data[2] != '/')
 		return 0;
@@ -221,8 +238,13 @@ ups_autolink__url(size_t *rewind_p, struct buf *link, char *data, size_t offset,
 
 	if (!is_safe_link(data - rewind, size + rewind))
 		return 0;
+	link_end = STRLEN("://");
 
-	link_end = 0;
+	domain_len = check_domain(data + link_end, size - link_end);
+	if (domain_len == 0)
+		return 0;
+
+	link_end += domain_len;
 	while (link_end < size && !isspace(data[link_end]))
 		link_end++;
 

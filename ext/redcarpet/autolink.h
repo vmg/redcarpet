@@ -19,12 +19,6 @@
 
 #include "buffer.h"
 
-typedef enum {
-	AUTOLINK_URLS = (1 << 0),
-	AUTOLINK_EMAILS = (1 << 1),
-	AUTOLINK_ALL = AUTOLINK_URLS|AUTOLINK_EMAILS
-} autolink_mode;
-
 extern size_t
 ups_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size);
 
