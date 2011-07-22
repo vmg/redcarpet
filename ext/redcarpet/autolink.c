@@ -22,7 +22,7 @@
 #include <ctype.h>
 
 int
-is_safe_link(const char *link, size_t link_len)
+sd_autolink_issafe(const char *link, size_t link_len)
 {
 	static const size_t valid_uris_count = 4;
 	static const char *valid_uris[] = {
@@ -147,7 +147,7 @@ check_domain(char *data, size_t size)
 }
 
 size_t
-ups_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
+sd_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
 {
 	size_t link_end;
 
@@ -177,7 +177,7 @@ ups_autolink__www(size_t *rewind_p, struct buf *link, char *data, size_t offset,
 }
 
 size_t
-ups_autolink__email(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
+sd_autolink__email(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
 {
 	size_t link_end, rewind;
 	int nb = 0, np = 0;
@@ -226,7 +226,7 @@ ups_autolink__email(size_t *rewind_p, struct buf *link, char *data, size_t offse
 }
 
 size_t
-ups_autolink__url(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
+sd_autolink__url(size_t *rewind_p, struct buf *link, char *data, size_t offset, size_t size)
 {
 	size_t link_end, rewind = 0, domain_len;
 
@@ -236,7 +236,7 @@ ups_autolink__url(size_t *rewind_p, struct buf *link, char *data, size_t offset,
 	while (rewind < offset && isalpha(data[-rewind - 1]))
 		rewind++;
 
-	if (!is_safe_link(data - rewind, size + rewind))
+	if (!sd_autolink_issafe(data - rewind, size + rewind))
 		return 0;
 	link_end = STRLEN("://");
 

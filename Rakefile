@@ -70,9 +70,6 @@ task :install => package('.gem') do
   sh "gem install #{package('.gem')}"
 end
 
-desc 'Update the gemspec'
-task :update_gem => file('redcarpet.gemspec')
-
 directory 'pkg/'
 
 file package('.gem') => %w[pkg/ redcarpet.gemspec] + $spec.files do |f|
@@ -91,9 +88,10 @@ def source_version
   line.match(/.*VERSION = '(.*)'/)[1]
 end
 
-file 'redcarpet.gemspec' => FileList['Rakefile','lib/redcarpet.rb'] do |f|
+task :update_gem do
   # read spec file and split out manifest section
-  spec = File.read(f.name)
+  GEMFILE = 'redcarpet.gemspec'
+  spec = File.read(GEMFILE)
   head, manifest, tail = spec.split("  # = MANIFEST =\n")
   head.sub!(/\.version = '.*'/, ".version = '#{source_version}'")
   head.sub!(/\.date = '.*'/, ".date = '#{Date.today.to_s}'")
@@ -107,26 +105,26 @@ file 'redcarpet.gemspec' => FileList['Rakefile','lib/redcarpet.rb'] do |f|
   # piece file back together and write...
   manifest = "  s.files = %w[\n#{files}\n  ]\n"
   spec = [head,manifest,tail].join("  # = MANIFEST =\n")
-  File.open(f.name, 'w') { |io| io.write(spec) }
-  puts "updated #{f.name}"
+  File.open(GEMFILE, 'w') { |io| io.write(spec) }
+  puts "updated #{GEMFILE}"
 end
 
-desc 'Gather required Upskirt sources into extension directory'
-task :gather => 'upskirt/src/markdown.h' do |t|
+desc 'Gather required Sundown sources into extension directory'
+task :gather => 'sundown/src/markdown.h' do |t|
   files =
     FileList[
-      'upskirt/src/{markdown,buffer,array,autolink}.h',
-      'upskirt/src/{markdown,buffer,array,autolink}.c',
-      'upskirt/html/{html,html_smartypants}.c',
-      'upskirt/html/html.h',
+      'sundown/src/{markdown,buffer,array,autolink}.h',
+      'sundown/src/{markdown,buffer,array,autolink}.c',
+      'sundown/html/{html,html_smartypants}.c',
+      'sundown/html/html.h',
     ]
   cp files, 'ext/redcarpet/',
     :preserve => true,
     :verbose => true
 end
 
-file 'upskirt/src/markdown.h' do |t|
-  abort "The Upskirt submodule is required."
+file 'sundown/src/markdown.h' do |t|
+  abort "The Sundown submodule is required."
 end
 
 

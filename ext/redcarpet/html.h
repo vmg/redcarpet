@@ -34,20 +34,29 @@ typedef enum {
 	HTML_USE_XHTML = (1 << 11),
 } render_mode;
 
+typedef enum {
+	HTML_TAG_NONE = 0,
+	HTML_TAG_OPEN,
+	HTML_TAG_CLOSE,
+} html_tag;
+
 void
-upshtml_escape(struct buf *ob, const char *src, size_t size);
+sdhtml_escape(struct buf *ob, const char *src, size_t size);
+
+int
+sdhtml_tag(const char *tag_data, size_t tag_size, const char *tagname);
 
 extern void
-upshtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags);
+sdhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags, void *extra);
 
 extern void
-upshtml_toc_renderer(struct mkd_renderer *renderer);
+sdhtml_toc_renderer(struct mkd_renderer *renderer, void *extra);
 
 extern void
-upshtml_free_renderer(struct mkd_renderer *renderer);
+sdhtml_free_renderer(struct mkd_renderer *renderer);
 
 extern void
-upshtml_smartypants(struct buf *ob, struct buf *text);
+sdhtml_smartypants(struct buf *ob, struct buf *text);
 
 #endif
 

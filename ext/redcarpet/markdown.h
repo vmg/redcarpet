@@ -46,6 +46,7 @@ enum mkd_extensions {
 	MKDEXT_STRIKETHROUGH = (1 << 4),
 	MKDEXT_LAX_HTML_BLOCKS = (1 << 5),
 	MKDEXT_SPACE_HEADERS = (1 << 6),
+	MKDEXT_SUPERSCRIPT = (1 << 7),
 };
 
 /* mkd_renderer • functions for rendering parsed data */
@@ -75,6 +76,7 @@ struct mkd_renderer {
 	int (*raw_html_tag)(struct buf *ob, struct buf *tag, void *opaque);
 	int (*triple_emphasis)(struct buf *ob, struct buf *text, void *opaque);
 	int (*strikethrough)(struct buf *ob, struct buf *text, void *opaque);
+	int (*superscript)(struct buf *ob, struct buf *text, void *opaque);
 
 	/* low level callbacks - NULL copies input directly into the output */
 	void (*entity)(struct buf *ob, struct buf *entity, void *opaque);
@@ -100,23 +102,17 @@ struct mkd_renderer {
 #define MKD_TABLE_ALIGN_R (1 << 1)
 #define MKD_TABLE_ALIGN_CENTER (MKD_TABLE_ALIGN_L | MKD_TABLE_ALIGN_R)
 
-/*******************
- * Auxiliar methods
- *******************/
-int
-is_safe_link(const char *link, size_t link_len);
-
 /**********************
  * EXPORTED FUNCTIONS *
  **********************/
 
-/* ups_markdown * parses the input buffer and renders it into the output buffer */
+/* sd_markdown * parses the input buffer and renders it into the output buffer */
 extern void
-ups_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr, unsigned int extensions);
+sd_markdown(struct buf *ob, struct buf *ib, const struct mkd_renderer *rndr, unsigned int extensions);
 
-/* ups_version * returns the library version as major.minor.rev */
+/* sd_version * returns the library version as major.minor.rev */
 extern void
-ups_version(int *major, int *minor, int *revision);
+sd_version(int *major, int *minor, int *revision);
 
 #endif
 

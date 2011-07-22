@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '1.17.2'
-  s.summary = "Ruby bindings for libupskirt"
-  s.description = 'A fast and safe Markdown to (X)HTML parser'
-  s.date = '2011-06-19'
+  s.version = '2.0.0b'
+  s.summary = "Markdown that smells nice"
+  s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
+  s.date = '2011-08-03'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/tanoku/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
@@ -25,18 +25,15 @@ Gem::Specification.new do |s|
     ext/redcarpet/html_smartypants.c
     ext/redcarpet/markdown.c
     ext/redcarpet/markdown.h
-    ext/redcarpet/redcarpet.c
-    lib/markdown.rb
+    ext/redcarpet/rc_markdown.c
+    ext/redcarpet/rc_render.c
     lib/redcarpet.rb
     redcarpet.gemspec
-    test/benchmark.rb
-    test/benchmark.txt
-    test/markdown_test.rb
+    sundown
     test/redcarpet_test.rb
-    upskirt
   ]
   # = MANIFEST =
-  s.test_files = ["test/markdown_test.rb", "test/redcarpet_test.rb"]
+  s.test_files = ["test/redcarpet_test.rb"]
   s.extra_rdoc_files = ["COPYING"]
   s.extensions = ["ext/redcarpet/extconf.rb"]
   s.executables = ["redcarpet"]

@@ -10,4 +10,4 @@ if ARGV.include?('--help')
 end
 
 require 'redcarpet'
-STDOUT.write(Redcarpet.new(ARGF.read).to_html)
+STDOUT.write(Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(ARGF.read))

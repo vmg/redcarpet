@@ -1,139 +1,204 @@
-# encoding: utf-8
 rootdir = File.dirname(File.dirname(__FILE__))
 $LOAD_PATH.unshift "#{rootdir}/lib"
 
 require 'test/unit'
 require 'redcarpet'
+require 'nokogiri'
 
-class RedcarpetTest < Test::Unit::TestCase
-  def test_that_discount_does_not_blow_up_with_weird_formatting_case
-    text = (<<-TEXT).gsub(/^ {4}/, '').rstrip
-    1. some text
+def html_equal(html_a, html_b)
+  assert_equal Nokogiri::HTML::DocumentFragment.parse(html_a).to_html,
+               Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
+end
 
-    1.
-    TEXT
-    Redcarpet.new(text).to_html
+class SmartyPantsTest < Test::Unit::TestCase
+  def setup
+    @pants = Redcarpet::Render::SmartyPants
+  end
+
+  def test_that_smart_converts_single_quotes_in_words_that_end_in_re
+    markdown = @pants.render("<p>They're not for sale.</p>")
+    html_equal "<p>They&rsquo;re not for sale.</p>", markdown
+  end
+
+  def test_that_smart_converts_single_quotes_in_words_that_end_in_ll
+    markdown = @pants.render("<p>Well that'll be the day</p>")
+    html_equal "<p>Well that&rsquo;ll be the day</p>", markdown
   end
 
   def test_that_smart_converts_double_quotes_to_curly_quotes
-    rd = Redcarpet.new(%("Quoted text"), :smart)
-    assert_equal %(<p>&ldquo;Quoted text&rdquo;</p>\n), rd.to_html
-  end
-
-  def test_that_smart_converts_double_quotes_to_curly_quotes_before_a_heading
-    rd = Redcarpet.new(%("Quoted text"\n\n# Heading), :smart)
-    assert_equal %(<p>&ldquo;Quoted text&rdquo;</p>\n\n<h1>Heading</h1>\n), rd.to_html
-  end
-
-  def test_that_smart_converts_double_quotes_to_curly_quotes_after_a_heading
-    rd = Redcarpet.new(%(# Heading\n\n"Quoted text"), :smart)
-    assert_equal %(<h1>Heading</h1>\n\n<p>&ldquo;Quoted text&rdquo;</p>\n), rd.to_html
+    rd = @pants.render(%(<p>"Quoted text"</p>))
+    html_equal %(<p>&ldquo;Quoted text&rdquo;</p>), rd
   end
 
   def test_that_smart_gives_ve_suffix_a_rsquo
-    rd = Redcarpet.new("I've been meaning to tell you ..", :smart)
-    assert_equal "<p>I&rsquo;ve been meaning to tell you ..</p>\n", rd.to_html
+    rd = @pants.render("<p>I've been meaning to tell you ..</p>")
+    html_equal "<p>I&rsquo;ve been meaning to tell you ..</p>\n", rd
   end
 
   def test_that_smart_gives_m_suffix_a_rsquo
-    rd = Redcarpet.new("I'm not kidding", :smart)
-    assert_equal "<p>I&rsquo;m not kidding</p>\n", rd.to_html
+    rd = @pants.render("<p>I'm not kidding</p>")
+    html_equal "<p>I&rsquo;m not kidding</p>\n", rd
   end
 
   def test_that_smart_gives_d_suffix_a_rsquo
-    rd = Redcarpet.new("what'd you say?", :smart)
-    assert_equal "<p>what&rsquo;d you say?</p>\n", rd.to_html
+    rd = @pants.render("<p>what'd you say?</p>")
+    html_equal "<p>what&rsquo;d you say?</p>\n", rd
+  end
+end
+
+class HTMLRenderTest < Test::Unit::TestCase
+  def setup
+    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    @rndr = {
+      :no_html => Redcarpet::Render::HTML.new(:filter_html => true),
+      :no_image => Redcarpet::Render::HTML.new(:no_image => true),
+      :no_links => Redcarpet::Render::HTML.new(:no_links => true),
+      :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
+    }
+  end
+
+  def test_that_filter_html_works
+    markdown = @markdown.render_with(@rndr[:no_html], 'Through <em>NO</em> <script>DOUBLE NO</script>')
+    html_equal "<p>Through NO DOUBLE NO</p>", markdown
+  end
+
+  def test_filter_html_doesnt_break_two_space_hard_break
+    markdown = @markdown.render_with(@rndr[:no_html], "Lorem,  \nipsum\n")
+    html_equal "<p>Lorem,<br/>\nipsum</p>\n", markdown
+  end
+
+  def test_that_no_image_flag_works
+    rd = @markdown.render_with(@rndr[:no_image], %(![dust mite](http://dust.mite/image.png) <img src="image.png" />))
+    assert rd !~ /<img/
+  end
+
+  def test_that_no_links_flag_works
+    rd = @markdown.render_with(@rndr[:no_links], %([This link](http://example.net/) <a href="links.html">links</a>))
+    assert rd !~ /<a /
+  end
+
+  def test_that_safelink_flag_works
+    rd = @markdown.render_with(@rndr[:safe_links], "[IRC](irc://chat.freenode.org/#freenode)")
+    html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", rd
+  end
+
+end
+
+class MarkdownTest < Test::Unit::TestCase
+
+  def setup
+    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  end
+
+  def test_that_simple_one_liner_goes_to_html
+    assert_respond_to @markdown, :render
+    html_equal "<p>Hello World.</p>", @markdown.render("Hello World.")
+  end
+
+  def test_that_inline_markdown_goes_to_html
+    markdown = @markdown.render('_Hello World_!')
+    html_equal "<p><em>Hello World</em>!</p>", markdown
+  end
+
+  def test_that_inline_markdown_starts_and_ends_correctly
+    @markdown.no_intra_emphasis = true
+    markdown = @markdown.render('_start _ foo_bar bar_baz _ end_ *italic* **bold** <a>_blah_</a>')
+
+    html_equal "<p><em>start _ foo_bar bar_baz _ end</em> <em>italic</em> <strong>bold</strong> <a><em>blah</em></a></p>", markdown
+
+    markdown = @markdown.render("Run 'rake radiant:extensions:rbac_base:migrate'")
+    html_equal "<p>Run 'rake radiant:extensions:rbac_base:migrate'</p>", markdown
+  end
+
+  def test_that_urls_are_not_doubly_escaped
+    markdown = @markdown.render('[Page 2](/search?query=Markdown+Test&page=2)')
+    html_equal "<p><a href=\"/search?query=Markdown+Test&amp;page=2\">Page 2</a></p>\n", markdown
+  end
+
+  def test_simple_inline_html
+    #markdown = Markdown.new("before\n\n<div>\n  foo\n</div>\nafter")
+    markdown = @markdown.render("before\n\n<div>\n  foo\n</div>\n\nafter")
+    html_equal "<p>before</p>\n\n<div>\n  foo\n</div>\n\n<p>after</p>\n", markdown
+  end
+
+  def test_that_html_blocks_do_not_require_their_own_end_tag_line
+    markdown = @markdown.render("Para 1\n\n<div><pre>HTML block\n</pre></div>\n\nPara 2 [Link](#anchor)")
+    html_equal "<p>Para 1</p>\n\n<div><pre>HTML block\n</pre></div>\n\n<p>Para 2 <a href=\"#anchor\">Link</a></p>\n",
+      markdown
+  end
+
+  # This isn't in the spec but is Markdown.pl behavior.
+  def test_block_quotes_preceded_by_spaces
+    markdown = @markdown.render(
+      "A wise man once said:\n\n" +
+      " > Isn't it wonderful just to be alive.\n"
+    )
+    html_equal "<p>A wise man once said:</p>\n\n" +
+      "<blockquote><p>Isn't it wonderful just to be alive.</p>\n</blockquote>\n",
+      markdown
+  end
+
+  def test_para_before_block_html_should_not_wrap_in_p_tag
+    @markdown.lax_html_blocks = true
+    markdown = @markdown.render(
+      "Things to watch out for\n" +
+      "<ul>\n<li>Blah</li>\n</ul>\n")
+
+    html_equal "<p>Things to watch out for</p>\n\n" +
+      "<ul>\n<li>Blah</li>\n</ul>\n", markdown
+  end
+
+  # http://github.com/rtomayko/rdiscount/issues/#issue/13
+  def test_headings_with_trailing_space
+    text = "The Ant-Sugar Tales \n"         +
+           "=================== \n\n"        +
+           "By Candice Yellowflower   \n"
+    html_equal "<h1>The Ant-Sugar Tales </h1>\n\n<p>By Candice Yellowflower   </p>\n", @markdown.render(text)
+  end
+
+  def test_that_intra_emphasis_works
+    rd = @markdown.render("foo_bar_baz")
+    html_equal "<p>foo<em>bar</em>baz</p>\n", rd
+
+    @markdown.no_intra_emphasis = true
+    rd = @markdown.render("foo_bar_baz")
+    html_equal "<p>foo_bar_baz</p>\n", rd
+  end
+
+  def test_that_autolink_flag_works
+    @markdown.autolink = true
+    rd = @markdown.render("http://github.com/rtomayko/rdiscount")
+    html_equal "<p><a href=\"http://github.com/rtomayko/rdiscount\">http://github.com/rtomayko/rdiscount</a></p>\n", rd
   end
 
   if "".respond_to?(:encoding)
     def test_should_return_string_in_same_encoding_as_input
       input = "Yogācāra"
-      output = Redcarpet.new(input).to_html
+      output = @markdown.render(input)
       assert_equal input.encoding.name, output.encoding.name
     end
   end
 
-  def test_that_no_image_flag_works
-    rd = Redcarpet.new(%(![dust mite](http://dust.mite/image.png) <img src="image.png" />), :no_image)
-    assert rd.to_html !~ /<img/
-  end
-
-  def test_that_no_links_flag_works
-    rd = Redcarpet.new(%([This link](http://example.net/) <a href="links.html">links</a>), :no_links)
-    assert rd.to_html !~ /<a /
-  end
-
-  def test_that_strict_flag_works
-    rd = RedcarpetCompat.new("foo_bar_baz", :strict)
-    assert_equal "<p>foo<em>bar</em>baz</p>\n", rd.to_html
-  end
-
-  def test_that_autolink_flag_works
-    rd = Redcarpet.new("http://github.com/rtomayko/rdiscount", :autolink)
-    assert_equal "<p><a href=\"http://github.com/rtomayko/rdiscount\">http://github.com/rtomayko/rdiscount</a></p>\n", rd.to_html
-  end
-
-  def test_that_safelink_flag_works
-    rd = Redcarpet.new("[IRC](irc://chat.freenode.org/#freenode)", :safelink)
-    assert_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", rd.to_html
-  end
-
   def test_that_tags_can_have_dashes_and_underscores
-    rd = Redcarpet.new("foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b>")
-    assert_equal "<p>foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b></p>\n", rd.to_html
-  end
-  
-  def xtest_pathological_1
-    star = '*'  * 250000
-    Redcarpet.new("#{star}#{star} hi #{star}#{star}").to_html
-  end
-
-  def xtest_pathological_2
-    crt = '^' * 255
-    str = "#{crt}(\\)"
-    Redcarpet.new("#{str*300}").to_html
-  end
-
-  def xtest_pathological_3
-    c = "`t`t`t`t`t`t" * 20000000
-    Redcarpet.new(c).to_html
-  end
-
-  def xtest_pathological_4
-    Redcarpet.new(" [^a]: #{ "A" * 10000 }\n#{ "[^a][]" * 1000000 }\n").to_html.size
+    rd = @markdown.render("foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b>")
+    html_equal "<p>foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b></p>\n", rd
   end
 
   def test_link_syntax_is_not_processed_within_code_blocks
-    markdown = Markdown.new("    This is a code block\n    This is a link [[1]] inside\n")
-
-    assert_equal "<pre><code>This is a code block\nThis is a link [[1]] inside\n</code></pre>\n",
-      markdown.to_html
-  end
-
-  def test_that_generate_toc_sets_toc_ids
-    rd = Redcarpet.new("# Level 1\n\n## Level 2", :generate_toc)
-    assert rd.generate_toc
-    assert_equal %(<h1 id="toc_0">Level 1</h1>\n\n<h2 id="toc_1">Level 2</h2>\n), rd.to_html
-  end
-
-  def test_should_get_the_generated_toc
-    rd = Redcarpet.new("# Level 1\n\n## Level 2", :generate_toc)
-    exp = %(<ul>\n<li><a href="#toc_0">Level 1</a></li>\n<li><ul>\n<li><a href="#toc_1">Level 2</a></li>\n</ul></li>\n</ul>)
-    assert_equal exp, rd.toc_content.strip
+    markdown = @markdown.render("    This is a code block\n    This is a link [[1]] inside\n")
+    html_equal "<pre><code>This is a code block\nThis is a link [[1]] inside\n</code></pre>\n",
+      markdown
   end
 
   def test_whitespace_after_urls
-    rd = Redcarpet.new("Japan: http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm (yes, japan)", :autolink)
+    @markdown.autolink = true
+    rd = @markdown.render("Japan: http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm (yes, japan)")
     exp = %{<p>Japan: <a href="http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm">http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm</a> (yes, japan)</p>}
-    assert_equal exp, rd.to_html.strip
-  end
-
-  def test_unbound_recursion
-    Redcarpet.new(("[" * 10000) + "foo" + ("](bar)" * 10000)).to_html
+    html_equal exp, rd
   end
 
   def test_memory_leak_when_parsing_char_links
-    Redcarpet.new(<<-leaks).to_html
+    @markdown.render(<<-leaks)
 2. Identify the wild-type cluster and determine all clusters
    containing or contained by it:
    
@@ -148,7 +213,7 @@ class RedcarpetTest < Test::Unit::TestCase
   end
 
   def test_infinite_loop_in_header
-    assert_equal Redcarpet.new(<<-header).to_html.strip, "<h1>Body</h1>"
+    html_equal @markdown.render(<<-header), "<h1>Body</h1>"
 ######
 #Body#
 ######
@@ -162,14 +227,19 @@ class RedcarpetTest < Test::Unit::TestCase
 hello|sailor
 EOS
 
-    assert Redcarpet.new(text).to_html !~ /<table/
-    assert Redcarpet.new(text, :tables).to_html =~ /<table/
+    assert @markdown.render(text) !~ /<table/
+
+    @markdown.tables = true
+    assert @markdown.render(text) =~ /<table/
   end
 
   def test_strikethrough_flag_works
     text = "this is ~some~ striked ~~text~~"
-    assert Redcarpet.new(text).to_html !~ /<del/
-    assert Redcarpet.new(text, :strikethrough).to_html =~ /<del/
+
+    assert @markdown.render(text) !~ /<del/
+
+    @markdown.strikethrough = true
+    assert @markdown.render(text) =~ /<del/
   end
 
   def test_that_fenced_flag_works
@@ -182,60 +252,74 @@ This is some awesome code
 ~~~
 fenced
 
-    assert Redcarpet.new(text).to_html !~ /<code/
-    assert Redcarpet.new(text, :fenced_code).to_html =~ /<code/
-  end
+    assert @markdown.render(text) !~ /<code/
 
-  def test_that_gh_blockcode_works
-    text = <<fenced
-~~~~~ {.python .numbered}
-This is some unsafe code block
-    with custom CSS classes
-~~~~~
-fenced
-
-    assert Redcarpet.new(text, :fenced_code).to_html =~ /<code class/
-    assert Redcarpet.new(text, :fenced_code, :gh_blockcode).to_html !~ /<code class/
-  end
-
-  def test_that_compat_is_working
-    rd = RedcarpetCompat.new(<<EOS)
- aaa | bbbb
------|------
-hello|sailor
-
-This is ~~striked through~~ test
-EOS
-    assert rd.tables
-    assert rd.to_html =~ /<table/
-    assert rd.to_html =~ /<del/
+    @markdown.fenced_code_blocks = true
+    assert @markdown.render(text) =~ /<code/
   end
 
   def test_that_headers_are_linkable
-    markdown = Redcarpet.new('### Hello [GitHub](http://github.com)')
-    assert_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>", markdown.to_html.strip
+    markdown = @markdown.render('### Hello [GitHub](http://github.com)')
+    html_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>", markdown
   end
 
   def test_autolinking_with_ent_chars
-    markdown = Redcarpet.new(<<text, :autolink)
+    @markdown.autolink = true
+    markdown = @markdown.render(<<text)
 This a stupid link: https://github.com/rtomayko/tilt/issues?milestone=1&state=open
 text
-    assert_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown.to_html
-  end
-
-  def test_hard_wrap
-    rd = Redcarpet.new(<<text, :hard_wrap)
-This is just a test
-this should have a line break
-
-This is just a test.
-text
-  
-    assert rd.to_html =~ /<br>/
+    html_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown
   end
 
   def test_spaced_headers
-    rd = Redcarpet.new("#123 a header yes\n", :space_header)
-    assert rd.to_html !~ /<h1>/
+    @markdown.space_after_headers = true
+    rd = @markdown.render("#123 a header yes\n")
+    assert rd !~ /<h1>/
+  end
+end
+
+class CustomRenderTest < Test::Unit::TestCase
+  class SimpleRender < Redcarpet::Render::HTML
+    def emphasis(text)
+      "<em class=\"cool\">#{text}</em>"
+    end
+  end
+
+  def test_simple_overload
+    md = Redcarpet::Markdown.new(SimpleRender)
+    html_equal "<p>This is <em class=\"cool\">just</em> a test</p>",
+      md.render("This is *just* a test")
+  end
+end
+
+# Disabled by default
+# (these are the easy ones -- the evil ones are not disclosed)
+class PathologicalInputsTest # < Test::Unit::TestCase
+  def setup
+    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  end
+
+  def test_pathological_1
+    star = '*'  * 250000
+    @markdown.render("#{star}#{star} hi #{star}#{star}")
+  end
+
+  def test_pathological_2
+    crt = '^' * 255
+    str = "#{crt}(\\)"
+    @markdown.render("#{str*300}")
+  end
+
+  def test_pathological_3
+    c = "`t`t`t`t`t`t" * 20000000
+    @markdown.render(c)
+  end
+
+  def test_pathological_4
+    @markdown.render(" [^a]: #{ "A" * 10000 }\n#{ "[^a][]" * 1000000 }\n")
+  end
+
+  def test_unbound_recursion
+    @markdown.render(("[" * 10000) + "foo" + ("](bar)" * 10000))
   end
 end
