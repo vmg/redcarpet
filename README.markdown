@@ -180,7 +180,7 @@ The following instance methods may be implemented by the renderer:
     header(text, header_level)
     hrule()
     list(contents, list_type)
-    list_item(text)
+    list_item(text, list_type)
     paragraph(text)
     table(header, body)
     table_row(content)

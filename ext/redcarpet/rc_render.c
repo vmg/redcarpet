@@ -88,7 +88,8 @@ rndr_list(struct buf *ob, struct buf *text, int flags, void *opaque)
 static void
 rndr_listitem(struct buf *ob, struct buf *text, int flags, void *opaque)
 {
-	BLOCK_CALLBACK("list_item", 1, buf2str(text));
+	BLOCK_CALLBACK("list_item", 2, buf2str(text),
+			(flags & MKD_LIST_ORDERED) ? CSTR2SYM("ordered") : CSTR2SYM("unordered"));
 }
 
 static void

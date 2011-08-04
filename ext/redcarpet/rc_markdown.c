@@ -98,7 +98,6 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 	return rb_redcarpet_md_render_with(self, rb_iv_get(self, "@renderer"), text);
 }
 
-
 void Init_redcarpet()
 {
     rb_mRedcarpet = rb_define_module("Redcarpet");
