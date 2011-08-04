@@ -47,6 +47,12 @@ class SmartyPantsTest < Test::Unit::TestCase
   end
 end
 
+class SmartyHTMLTests < SmartyPantsTest
+  def setup
+    @pants = Redcarpet::Markdown.new Redcarpet::Render::SmartyHTML
+  end
+end
+
 class HTMLRenderTest < Test::Unit::TestCase
   def setup
     @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
