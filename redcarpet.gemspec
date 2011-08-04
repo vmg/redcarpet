@@ -38,4 +38,5 @@ Gem::Specification.new do |s|
   s.extensions = ["ext/redcarpet/extconf.rb"]
   s.executables = ["redcarpet"]
   s.require_paths = ["lib"]
+  s.add_development_dependency "rake-compiler"
 end

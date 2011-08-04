@@ -1,3 +1,4 @@
+# coding: UTF-8
 rootdir = File.dirname(File.dirname(__FILE__))
 $LOAD_PATH.unshift "#{rootdir}/lib"
 
@@ -43,6 +44,12 @@ class SmartyPantsTest < Test::Unit::TestCase
   def test_that_smart_gives_d_suffix_a_rsquo
     rd = @pants.render("<p>what'd you say?</p>")
     html_equal "<p>what&rsquo;d you say?</p>\n", rd
+  end
+end
+
+class SmartyHTMLTests < SmartyPantsTest
+  def setup
+    @pants = Redcarpet::Markdown.new Redcarpet::Render::SmartyHTML
   end
 end
 
