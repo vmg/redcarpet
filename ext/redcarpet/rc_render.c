@@ -465,5 +465,5 @@ void Init_redcarpet_rndr()
 	rb_define_method(rb_cRenderHTML_TOC, "initialize", rb_redcarpet_htmltoc_init, 0);
 
 	rb_mSmartyPants = rb_define_module_under(rb_mRender, "SmartyPants");
-	rb_define_singleton_method(rb_mSmartyPants, "postprocess", rb_redcarpet_smartypants_render, 1);
+	rb_define_method(rb_mSmartyPants, "postprocess", rb_redcarpet_smartypants_render, 1);
 }
