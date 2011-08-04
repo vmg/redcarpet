@@ -14,23 +14,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#define RSTRING_NOT_MODIFIED
-
-#include <ruby.h>
-#include "markdown.h"
-#include "html.h"
-
-#ifdef HAVE_RUBY_ENCODING_H
-#include <ruby/encoding.h>
-#else
-#define rb_enc_copy(dst, src)
-#endif
-
-#define CSTR2SYM(s) (ID2SYM(rb_intern((s))))
+#include "redcarpet.h"
 
 #define SPAN_CALLBACK(method_name, ...) {\
-	struct redcarpet_pload *load = opaque;\
-	VALUE ret = rb_funcall(load->self, rb_intern(method_name), __VA_ARGS__);\
+	struct redcarpet_renderopt *opt = opaque;\
+	VALUE ret = rb_funcall(opt->self, rb_intern(method_name), __VA_ARGS__);\
 	if (NIL_P(ret)) return 0;\
 	Check_Type(ret, T_STRING);\
 	bufput(ob, RSTRING_PTR(ret), RSTRING_LEN(ret));\
@@ -38,8 +26,8 @@
 }
 
 #define BLOCK_CALLBACK(method_name, ...) {\
-	struct redcarpet_pload *load = opaque;\
-	VALUE ret = rb_funcall(load->self, rb_intern(method_name), __VA_ARGS__);\
+	struct redcarpet_renderopt *opt = opaque;\
+	VALUE ret = rb_funcall(opt->self, rb_intern(method_name), __VA_ARGS__);\
 	if (NIL_P(ret)) return;\
 	Check_Type(ret, T_STRING);\
 	bufput(ob, RSTRING_PTR(ret), RSTRING_LEN(ret));\
@@ -51,10 +39,6 @@ VALUE rb_cRenderBase;
 VALUE rb_cRenderHTML;
 VALUE rb_cRenderHTML_TOC;
 VALUE rb_mSmartyPants;
-
-struct redcarpet_pload {
-	VALUE self;
-};
 
 static inline VALUE
 buf2str(struct buf *text)
@@ -251,7 +235,7 @@ rndr_doc_footer(struct buf *ob, void *opaque)
 	BLOCK_CALLBACK("doc_footer", 0);
 }
 
-static struct mkd_renderer rb_redcarpet_rndr = {
+static struct sd_callbacks rb_redcarpet_callbacks = {
 	rndr_blockcode,
 	rndr_blockquote,
 	rndr_raw_block,
@@ -281,8 +265,6 @@ static struct mkd_renderer rb_redcarpet_rndr = {
 
 	rndr_doc_header,
 	rndr_doc_footer,
-
-	NULL
 };
 
 static const char *rb_redcarpet_method_names[] = {
@@ -319,58 +301,51 @@ static const char *rb_redcarpet_method_names[] = {
 
 static const size_t rb_redcarpet_method_count = sizeof(rb_redcarpet_method_names)/sizeof(char *);
 
-static void rb_redcarpet_rbase_free(struct mkd_renderer *rndr)
-{
-	xfree(rndr->opaque);
-	xfree(rndr);
-}
-
 static VALUE rb_redcarpet_rbase_alloc(VALUE klass)
 {
-	struct mkd_renderer *rndr = ALLOC(struct mkd_renderer);
-	memset(rndr, 0x0, sizeof(struct mkd_renderer));
-	return Data_Wrap_Struct(klass, NULL, rb_redcarpet_rbase_free, rndr);
+	struct rb_redcarpet_rndr *rndr = ALLOC(struct rb_redcarpet_rndr);
+	memset(rndr, 0x0, sizeof(struct rb_redcarpet_rndr));
+	return Data_Wrap_Struct(klass, NULL, NULL, rndr);
 }
 
-static void rb_redcarpet__overload(VALUE self)
+static void rb_redcarpet__overload(VALUE self, VALUE base_class)
 {
-	size_t i;
-	struct mkd_renderer *rndr;
+	struct rb_redcarpet_rndr *rndr;
 
-	void **source = (void **)&rb_redcarpet_rndr;
-	void **dest;
+	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
+	rndr->options.self = self;
+	rndr->options.base_class = base_class;
 
-	Data_Get_Struct(self, struct mkd_renderer, rndr);
-	dest = (void **)rndr;
+	if (rb_obj_class(self) == rb_cRenderBase)
+		rb_raise(rb_eRuntimeError,
+			"The Redcarpet::Render::Base class cannot be instantiated. "
+			"Create an inheriting class instead to implement a custom renderer.");
 
-	for (i = 0; i < rb_redcarpet_method_count; ++i) {
-		if (rb_respond_to(self, rb_intern(rb_redcarpet_method_names[i])))
-			dest[i] = source[i];
+	if (rb_obj_class(self) != base_class) {
+		void **source = (void **)&rb_redcarpet_callbacks;
+		void **dest = (void **)&rndr->callbacks;
+		size_t i;
+
+		for (i = 0; i < rb_redcarpet_method_count; ++i) {
+			if (rb_respond_to(self, rb_intern(rb_redcarpet_method_names[i])))
+				dest[i] = source[i];
+		}
 	}
 }
 
 static VALUE rb_redcarpet_rbase_init(VALUE self)
 {
-	struct mkd_renderer *rndr;
-	struct redcarpet_pload *payload;
-
-	Data_Get_Struct(self, struct mkd_renderer, rndr);
-	rb_redcarpet__overload(self);
-
-	payload = ALLOC(struct redcarpet_pload);
-	payload->self = self;
-
-	rndr->opaque = payload;
+	rb_redcarpet__overload(self, rb_cRenderBase);
 	return Qnil;
 }
 
 static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 {
-	struct mkd_renderer *rndr;
+	struct rb_redcarpet_rndr *rndr;
 	unsigned int render_flags = 0;
 	VALUE hash;
 
-	Data_Get_Struct(self, struct mkd_renderer, rndr);
+	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
 
 	if (rb_scan_args(argc, argv, "01", &hash) == 1)
 	{
@@ -406,23 +381,19 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 			render_flags |= HTML_USE_XHTML;	
 	}
 
-	sdhtml_renderer(rndr, render_flags, (void *)self);
-
-	if (rb_obj_class(self) != rb_cRenderHTML)
-		rb_redcarpet__overload(self);
+	sdhtml_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html, render_flags);
+	rb_redcarpet__overload(self, rb_cRenderHTML);
 
 	return Qnil;
 }
 
 static VALUE rb_redcarpet_htmltoc_init(VALUE self)
 {
-	struct mkd_renderer *rndr;
-	Data_Get_Struct(self, struct mkd_renderer, rndr);
+	struct rb_redcarpet_rndr *rndr;
+	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
 
-	sdhtml_toc_renderer(rndr, (void *)self);
-
-	if (rb_obj_class(self) != rb_cRenderHTML_TOC)
-		rb_redcarpet__overload(self);
+	sdhtml_toc_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html);
+	rb_redcarpet__overload(self, rb_cRenderHTML_TOC);
 
 	return Qnil;
 }
@@ -448,7 +419,6 @@ static VALUE rb_redcarpet_smartypants_render(VALUE self, VALUE text)
 	bufrelease(output_buf);
 	return result;
 }
-
 
 void Init_redcarpet_rndr()
 {

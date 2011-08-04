@@ -21,6 +21,18 @@
 #include "buffer.h"
 #include <stdlib.h>
 
+struct html_renderopt {
+	struct {
+		int header_count;
+		int current_level;
+	} toc_data;
+
+	unsigned int flags;
+
+	/* extra callbacks */
+	void (*link_attributes)(struct buf *ob, struct buf *url, void *self);
+};
+
 typedef enum {
 	HTML_SKIP_HTML = (1 << 0),
 	HTML_SKIP_STYLE = (1 << 1),
@@ -32,7 +44,7 @@ typedef enum {
 	HTML_HARD_WRAP = (1 << 9),
 	HTML_GITHUB_BLOCKCODE = (1 << 10),
 	HTML_USE_XHTML = (1 << 11),
-} render_mode;
+} html_render_mode;
 
 typedef enum {
 	HTML_TAG_NONE = 0,
@@ -47,13 +59,10 @@ int
 sdhtml_tag(const char *tag_data, size_t tag_size, const char *tagname);
 
 extern void
-sdhtml_renderer(struct mkd_renderer *renderer, unsigned int render_flags, void *extra);
+sdhtml_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options_ptr, unsigned int render_flags);
 
 extern void
-sdhtml_toc_renderer(struct mkd_renderer *renderer, void *extra);
-
-extern void
-sdhtml_free_renderer(struct mkd_renderer *renderer);
+sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options_ptr);
 
 extern void
 sdhtml_smartypants(struct buf *ob, struct buf *text);
