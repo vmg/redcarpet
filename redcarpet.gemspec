@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '2.0.0b'
+  s.version = '2.0.0b2'
   s.summary = "Markdown that smells nice"
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
-  s.date = '2011-08-03'
+  s.date = '2011-08-05'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/tanoku/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
     ext/redcarpet/rc_markdown.c
     ext/redcarpet/rc_render.c
     lib/redcarpet.rb
+    lib/redcarpet/render_man.rb
     redcarpet.gemspec
     sundown
     test/redcarpet_test.rb
