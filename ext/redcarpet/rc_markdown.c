@@ -70,15 +70,16 @@ static VALUE rb_redcarpet_md_render_with(VALUE self, VALUE rb_rndr, VALUE text)
 	if (rb_respond_to(rb_rndr, rb_intern("preprocess")))
 		text = rb_funcall(rb_rndr, rb_intern("preprocess"), 1, text);
 
+	Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, rndr);
+
+	/* initialize buffers */
 	memset(&input_buf, 0x0, sizeof(struct buf));
 	input_buf.data = RSTRING_PTR(text);
 	input_buf.size = RSTRING_LEN(text);
 
 	output_buf = bufnew(128);
-	bufgrow(output_buf, RSTRING_LEN(text) * 1.4f);
 
-	Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, rndr);
-
+	/* render the magic */
 	rb_redcarpet_md_flags(self, &enabled_extensions);
 	sd_markdown(output_buf, &input_buf, enabled_extensions, &rndr->callbacks, &rndr->options);
 	result = rb_str_new(output_buf->data, output_buf->size);
