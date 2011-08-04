@@ -123,7 +123,7 @@ renderers are actually implemented in C, and hence offer a brilliant
 performance, several degrees of magnitude faster than other Ruby Markdown
 solutions.
 
-The `HTML` renderer has an alternate version, `Redcarpet::Render::HTML_toc`,
+The `HTML` renderer has an alternate version, `Redcarpet::Render::HTML_TOC`,
 which will output a table of contents in HTML based on the headers of the
 Markdown document.
 
