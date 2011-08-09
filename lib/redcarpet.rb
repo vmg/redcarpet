@@ -1,7 +1,7 @@
 require 'redcarpet.so'
 
 module Redcarpet
-  VERSION = '2.0.0b2'
+  VERSION = '2.0.0b3'
 
   class Markdown
     # Available Markdown extensions
