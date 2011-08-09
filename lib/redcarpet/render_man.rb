@@ -19,10 +19,10 @@ module Redcarpet
         when 1
           "\n.TH #{title}\n"
 
-        when 2:
+        when 2
           "\n.SH #{title}\n"
 
-        when 3:
+        when 3
           "\n.SS #{title}\n"
         end
       end
