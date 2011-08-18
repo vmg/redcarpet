@@ -357,7 +357,7 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 			render_flags |= HTML_SKIP_HTML;
 
 		/* no_image */
-		if (rb_hash_aref(hash, CSTR2SYM("no_image")) == Qtrue)
+		if (rb_hash_aref(hash, CSTR2SYM("no_images")) == Qtrue)
 			render_flags |= HTML_SKIP_IMAGES;
 
 		/* no_links */
