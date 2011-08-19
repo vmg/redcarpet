@@ -19,7 +19,7 @@ library so awesome.
 This library is written by people
 -------------------------------------------------------
 
-Redcarpet 2 has been rewritten from scratch by Vicent Marti (@tanoku). Why
+Redcarpet 2 has been rewritten from scratch by Vicent Martí (@tanoku). Why
 are you not following me on Twitter?
 
 Redcarpet would not be possible without the Sundown library and its authors
@@ -56,7 +56,7 @@ settings, and reused between parses.
                 If the given object has not been instantiated, the library
                 will do it with default arguments.
 
-    extensions - a hash containing the Markdown extesions which the parser
+    extensions - a hash containing the Markdown extensions which the parser
                 will identify. The following extensions are accepted:
 
                 :no_intra_emphasis - do not parse emphasis inside of words.
@@ -85,7 +85,7 @@ settings, and reused between parses.
                     by an empty line as in the Markdown standard.
 
                 :space_after_headers - A space is always required between the
-                    hash at the beggining of a header and its name, e.g.
+                    hash at the beginning of a header and its name, e.g.
                     `#this is my header` would not be a valid header.
 
                 :superscript - parse superscripts after the `^` character;
@@ -170,7 +170,7 @@ And you can even cook your own
 ------------------------------
 
 Custom renderers are created by inheriting from an existing renderer. The
-builtin renderers, `HTML` and `XHTML` may be extended as such:
+built-in renderers, `HTML` and `XHTML` may be extended as such:
 
 ~~~~~ ruby
 # create a custom renderer that allows highlighting of code blocks
@@ -260,7 +260,7 @@ Also, now our Pants are much smarter
 
 Redcarpet 2 comes with a standalone [SmartyPants](
 http://daringfireball.net/projects/smartypants/) implementation. It is fully
-compilant with the original implementation. It is the fastest SmartyPants
+compliant with the original implementation. It is the fastest SmartyPants
 parser there is, with a difference of several orders of magnitude.
 
 The SmartyPants parser can be found in `Redcarpet::Render::SmartyPants`. It has
