@@ -154,7 +154,7 @@ instantiating the renderer:
 
     Example:
 
-        rndr = Redcarpet::Render::HTML(:no_links => true, :hard_wrap => true)
+        rndr = Redcarpet::Render::HTML.new(:no_links => true, :hard_wrap => true)
 
 
 The `HTML` renderer has an alternate version, `Redcarpet::Render::HTML_TOC`,
