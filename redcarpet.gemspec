@@ -1,3 +1,4 @@
+# encoding: utf-8
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
   s.version = '2.0.0b3'
