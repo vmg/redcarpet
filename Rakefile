@@ -113,8 +113,8 @@ desc 'Gather required Sundown sources into extension directory'
 task :gather => 'sundown/src/markdown.h' do |t|
   files =
     FileList[
-      'sundown/src/{markdown,buffer,array,autolink}.h',
-      'sundown/src/{markdown,buffer,array,autolink}.c',
+      'sundown/src/{markdown,buffer,stack,autolink,html_blocks}.h',
+      'sundown/src/{markdown,buffer,stack,autolink}.c',
       'sundown/html/{html,html_smartypants}.c',
       'sundown/html/html.h',
     ]

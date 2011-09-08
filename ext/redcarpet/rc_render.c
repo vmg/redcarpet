@@ -41,33 +41,33 @@ VALUE rb_cRenderHTML_TOC;
 VALUE rb_mSmartyPants;
 
 static inline VALUE
-buf2str(struct buf *text)
+buf2str(const struct buf *text)
 {
 	if (!text || !text->size) return Qnil;
-	return rb_str_new(text->data, text->size);
+	return redcarpet_str_new(text->data, text->size);
 }
 
 
 static void
-rndr_blockcode(struct buf *ob, struct buf *text, struct buf *lang, void *opaque)
+rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque)
 {
 	BLOCK_CALLBACK("block_code", 2, buf2str(text), buf2str(lang));
 }
 
 static void
-rndr_blockquote(struct buf *ob, struct buf *text, void *opaque)
+rndr_blockquote(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BLOCK_CALLBACK("block_quote", 1, buf2str(text));
 }
 
 static void
-rndr_raw_block(struct buf *ob, struct buf *text, void *opaque)
+rndr_raw_block(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BLOCK_CALLBACK("block_html", 1, buf2str(text));
 }
 
 static void
-rndr_header(struct buf *ob, struct buf *text, int level, void *opaque)
+rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 {
 	BLOCK_CALLBACK("header", 2, buf2str(text), INT2FIX(level));
 }
@@ -79,39 +79,39 @@ rndr_hrule(struct buf *ob, void *opaque)
 }
 
 static void
-rndr_list(struct buf *ob, struct buf *text, int flags, void *opaque)
+rndr_list(struct buf *ob, const struct buf *text, int flags, void *opaque)
 {
 	BLOCK_CALLBACK("list", 2, buf2str(text),
 			(flags & MKD_LIST_ORDERED) ? CSTR2SYM("ordered") : CSTR2SYM("unordered"));
 }
 
 static void
-rndr_listitem(struct buf *ob, struct buf *text, int flags, void *opaque)
+rndr_listitem(struct buf *ob, const struct buf *text, int flags, void *opaque)
 {
 	BLOCK_CALLBACK("list_item", 2, buf2str(text),
 			(flags & MKD_LIST_ORDERED) ? CSTR2SYM("ordered") : CSTR2SYM("unordered"));
 }
 
 static void
-rndr_paragraph(struct buf *ob, struct buf *text, void *opaque)
+rndr_paragraph(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BLOCK_CALLBACK("paragraph", 1, buf2str(text));
 }
 
 static void
-rndr_table(struct buf *ob, struct buf *header, struct buf *body, void *opaque)
+rndr_table(struct buf *ob, const struct buf *header, const struct buf *body, void *opaque)
 {
 	BLOCK_CALLBACK("table", 2, buf2str(header), buf2str(body));
 }
 
 static void
-rndr_tablerow(struct buf *ob, struct buf *text, void *opaque)
+rndr_tablerow(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BLOCK_CALLBACK("table_row", 1, buf2str(text));
 }
 
 static void
-rndr_tablecell(struct buf *ob, struct buf *text, int align, void *opaque)
+rndr_tablecell(struct buf *ob, const struct buf *text, int align, void *opaque)
 {
 	VALUE rb_align;
 
@@ -143,32 +143,32 @@ rndr_tablecell(struct buf *ob, struct buf *text, int align, void *opaque)
  * SPAN LEVEL
  */
 static int
-rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type, void *opaque)
+rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque)
 {
 	SPAN_CALLBACK("autolink", 2, buf2str(link),
 		type == MKDA_NORMAL ? CSTR2SYM("url") : CSTR2SYM("email"));
 }
 
 static int
-rndr_codespan(struct buf *ob, struct buf *text, void *opaque)
+rndr_codespan(struct buf *ob, const struct buf *text, void *opaque)
 {
 	SPAN_CALLBACK("codespan", 1, buf2str(text));
 }
 
 static int
-rndr_double_emphasis(struct buf *ob, struct buf *text, void *opaque)
+rndr_double_emphasis(struct buf *ob, const struct buf *text, void *opaque)
 {
 	SPAN_CALLBACK("double_emphasis", 1, buf2str(text));
 }
 
 static int
-rndr_emphasis(struct buf *ob, struct buf *text, void *opaque)
+rndr_emphasis(struct buf *ob, const struct buf *text, void *opaque)
 {
 	SPAN_CALLBACK("emphasis", 1, buf2str(text));
 }
 
 static int
-rndr_image(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, void *opaque)
+rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *alt, void *opaque)
 {
 	SPAN_CALLBACK("image", 3, buf2str(link), buf2str(title), buf2str(alt));
 }
@@ -180,31 +180,31 @@ rndr_linebreak(struct buf *ob, void *opaque)
 }
 
 static int
-rndr_link(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, void *opaque)
+rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque)
 {
 	SPAN_CALLBACK("link", 3, buf2str(link), buf2str(title), buf2str(content));
 }
 
 static int
-rndr_raw_html(struct buf *ob, struct buf *text, void *opaque)
+rndr_raw_html(struct buf *ob, const struct buf *text, void *opaque)
 {
 	SPAN_CALLBACK("raw_html", 1, buf2str(text));
 }
 
 static int
-rndr_triple_emphasis(struct buf *ob, struct buf *text, void *opaque)
+rndr_triple_emphasis(struct buf *ob, const struct buf *text, void *opaque)
 {
 	SPAN_CALLBACK("triple_emphasis", 1, buf2str(text));
 }
 
 static int
-rndr_strikethrough(struct buf *ob, struct buf *text, void *opaque)
+rndr_strikethrough(struct buf *ob, const struct buf *text, void *opaque)
 {
 	SPAN_CALLBACK("strikethrough", 1, buf2str(text));
 }
 
 static int
-rndr_superscript(struct buf *ob, struct buf *text, void *opaque)
+rndr_superscript(struct buf *ob, const struct buf *text, void *opaque)
 {
 	SPAN_CALLBACK("superscript", 1, buf2str(text));
 }
@@ -213,13 +213,13 @@ rndr_superscript(struct buf *ob, struct buf *text, void *opaque)
  * direct writes
  */
 static void
-rndr_entity(struct buf *ob, struct buf *text, void *opaque)
+rndr_entity(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BLOCK_CALLBACK("entity", 1, buf2str(text));
 }
 
 static void
-rndr_normal_text(struct buf *ob, struct buf *text, void *opaque)
+rndr_normal_text(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BLOCK_CALLBACK("normal_text", 1, buf2str(text));
 }
@@ -379,7 +379,7 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 			render_flags |= HTML_HARD_WRAP;
 
 		if (rb_hash_aref(hash, CSTR2SYM("xhtml")) == Qtrue)
-			render_flags |= HTML_USE_XHTML;	
+			render_flags |= HTML_USE_XHTML;
 	}
 
 	sdhtml_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html, render_flags);
@@ -402,20 +402,14 @@ static VALUE rb_redcarpet_htmltoc_init(VALUE self)
 static VALUE rb_redcarpet_smartypants_render(VALUE self, VALUE text)
 {
 	VALUE result;
-	struct buf input_buf, *output_buf;
+	struct buf *output_buf;
 
 	Check_Type(text, T_STRING);
 
-	memset(&input_buf, 0x0, sizeof(struct buf));
-	input_buf.data = RSTRING_PTR(text);
-	input_buf.size = RSTRING_LEN(text);
-
 	output_buf = bufnew(128);
-	bufgrow(output_buf, RSTRING_LEN(text) * 1.1f);
 
-	sdhtml_smartypants(output_buf, &input_buf);
-	result = rb_str_new(output_buf->data, output_buf->size);
-	rb_enc_copy(result, text);
+	sdhtml_smartypants(output_buf, RSTRING_PTR(text), RSTRING_LEN(text));
+	result = redcarpet_str_new(output_buf->data, output_buf->size);
 
 	bufrelease(output_buf);
 	return result;

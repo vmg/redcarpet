@@ -2,6 +2,10 @@
 rootdir = File.dirname(File.dirname(__FILE__))
 $LOAD_PATH.unshift "#{rootdir}/lib"
 
+if defined? Encoding
+  Encoding.default_internal = 'UTF-8'
+end
+
 require 'test/unit'
 require 'redcarpet'
 require 'redcarpet/render_man'
@@ -9,7 +13,7 @@ require 'nokogiri'
 
 def html_equal(html_a, html_b)
   assert_equal Nokogiri::HTML::DocumentFragment.parse(html_a).to_html,
-               Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
+    Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
 end
 
 class SmartyPantsTest < Test::Unit::TestCase
@@ -19,38 +23,32 @@ class SmartyPantsTest < Test::Unit::TestCase
 
   def test_that_smart_converts_single_quotes_in_words_that_end_in_re
     markdown = @pants.render("<p>They're not for sale.</p>")
-    html_equal "<p>They&rsquo;re not for sale.</p>", markdown
+    assert_equal "<p>They&rsquo;re not for sale.</p>", markdown
   end
 
   def test_that_smart_converts_single_quotes_in_words_that_end_in_ll
     markdown = @pants.render("<p>Well that'll be the day</p>")
-    html_equal "<p>Well that&rsquo;ll be the day</p>", markdown
+    assert_equal "<p>Well that&rsquo;ll be the day</p>", markdown
   end
 
   def test_that_smart_converts_double_quotes_to_curly_quotes
     rd = @pants.render(%(<p>"Quoted text"</p>))
-    html_equal %(<p>&ldquo;Quoted text&rdquo;</p>), rd
+    assert_equal %(<p>&ldquo;Quoted text&rdquo;</p>), rd
   end
 
   def test_that_smart_gives_ve_suffix_a_rsquo
     rd = @pants.render("<p>I've been meaning to tell you ..</p>")
-    html_equal "<p>I&rsquo;ve been meaning to tell you ..</p>\n", rd
+    assert_equal "<p>I&rsquo;ve been meaning to tell you ..</p>", rd
   end
 
   def test_that_smart_gives_m_suffix_a_rsquo
     rd = @pants.render("<p>I'm not kidding</p>")
-    html_equal "<p>I&rsquo;m not kidding</p>\n", rd
+    assert_equal "<p>I&rsquo;m not kidding</p>", rd
   end
 
   def test_that_smart_gives_d_suffix_a_rsquo
     rd = @pants.render("<p>what'd you say?</p>")
-    html_equal "<p>what&rsquo;d you say?</p>\n", rd
-  end
-end
-
-class SmartyHTMLTests < SmartyPantsTest
-  def setup
-    @pants = Redcarpet::Markdown.new Redcarpet::Render::SmartyHTML
+    assert_equal "<p>what&rsquo;d you say?</p>", rd
   end
 end
 
@@ -59,34 +57,38 @@ class HTMLRenderTest < Test::Unit::TestCase
     @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
     @rndr = {
       :no_html => Redcarpet::Render::HTML.new(:filter_html => true),
-      :no_image => Redcarpet::Render::HTML.new(:no_image => true),
+      :no_images => Redcarpet::Render::HTML.new(:no_images => true),
       :no_links => Redcarpet::Render::HTML.new(:no_links => true),
       :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
     }
   end
 
+  def render_with(rndr, text)
+    Redcarpet::Markdown.new(rndr).render(text)
+  end
+
   def test_that_filter_html_works
-    markdown = @markdown.render_with(@rndr[:no_html], 'Through <em>NO</em> <script>DOUBLE NO</script>')
+    markdown = render_with(@rndr[:no_html], 'Through <em>NO</em> <script>DOUBLE NO</script>')
     html_equal "<p>Through NO DOUBLE NO</p>", markdown
   end
 
   def test_filter_html_doesnt_break_two_space_hard_break
-    markdown = @markdown.render_with(@rndr[:no_html], "Lorem,  \nipsum\n")
+    markdown = render_with(@rndr[:no_html], "Lorem,  \nipsum\n")
     html_equal "<p>Lorem,<br/>\nipsum</p>\n", markdown
   end
 
   def test_that_no_image_flag_works
-    rd = @markdown.render_with(@rndr[:no_image], %(![dust mite](http://dust.mite/image.png) <img src="image.png" />))
+    rd = render_with(@rndr[:no_images], %(![dust mite](http://dust.mite/image.png) <img src="image.png" />))
     assert rd !~ /<img/
   end
 
   def test_that_no_links_flag_works
-    rd = @markdown.render_with(@rndr[:no_links], %([This link](http://example.net/) <a href="links.html">links</a>))
+    rd = render_with(@rndr[:no_links], %([This link](http://example.net/) <a href="links.html">links</a>))
     assert rd !~ /<a /
   end
 
   def test_that_safelink_flag_works
-    rd = @markdown.render_with(@rndr[:safe_links], "[IRC](irc://chat.freenode.org/#freenode)")
+    rd = render_with(@rndr[:safe_links], "[IRC](irc://chat.freenode.org/#freenode)")
     html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", rd
   end
 
@@ -96,6 +98,10 @@ class MarkdownTest < Test::Unit::TestCase
 
   def setup
     @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  end
+
+  def render_with(flags, text)
+    Redcarpet::Markdown.new(Redcarpet::Render::HTML, flags).render(text)
   end
 
   def test_that_simple_one_liner_goes_to_html
@@ -109,8 +115,7 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_that_inline_markdown_starts_and_ends_correctly
-    @markdown.no_intra_emphasis = true
-    markdown = @markdown.render('_start _ foo_bar bar_baz _ end_ *italic* **bold** <a>_blah_</a>')
+    markdown = render_with({:no_intra_emphasis => true}, '_start _ foo_bar bar_baz _ end_ *italic* **bold** <a>_blah_</a>')
 
     html_equal "<p><em>start _ foo_bar bar_baz _ end</em> <em>italic</em> <strong>bold</strong> <a><em>blah</em></a></p>", markdown
 
@@ -147,8 +152,7 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_para_before_block_html_should_not_wrap_in_p_tag
-    @markdown.lax_html_blocks = true
-    markdown = @markdown.render(
+    markdown = render_with({:lax_html_blocks => true},
       "Things to watch out for\n" +
       "<ul>\n<li>Blah</li>\n</ul>\n")
 
@@ -165,17 +169,15 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_that_intra_emphasis_works
-    rd = @markdown.render("foo_bar_baz")
+    rd = render_with({}, "foo_bar_baz")
     html_equal "<p>foo<em>bar</em>baz</p>\n", rd
 
-    @markdown.no_intra_emphasis = true
-    rd = @markdown.render("foo_bar_baz")
+    rd = render_with({:no_intra_emphasis => true},"foo_bar_baz")
     html_equal "<p>foo_bar_baz</p>\n", rd
   end
 
   def test_that_autolink_flag_works
-    @markdown.autolink = true
-    rd = @markdown.render("http://github.com/rtomayko/rdiscount")
+    rd = render_with({:autolink => true}, "http://github.com/rtomayko/rdiscount")
     html_equal "<p><a href=\"http://github.com/rtomayko/rdiscount\">http://github.com/rtomayko/rdiscount</a></p>\n", rd
   end
 
@@ -199,8 +201,7 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_whitespace_after_urls
-    @markdown.autolink = true
-    rd = @markdown.render("Japan: http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm (yes, japan)")
+    rd = render_with({:autolink => true}, "Japan: http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm (yes, japan)")
     exp = %{<p>Japan: <a href="http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm">http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm</a> (yes, japan)</p>}
     html_equal exp, rd
   end
@@ -235,19 +236,17 @@ class MarkdownTest < Test::Unit::TestCase
 hello|sailor
 EOS
 
-    assert @markdown.render(text) !~ /<table/
+    assert render_with({}, text) !~ /<table/
 
-    @markdown.tables = true
-    assert @markdown.render(text) =~ /<table/
+    assert render_with({:tables => true}, text) =~ /<table/
   end
 
   def test_strikethrough_flag_works
     text = "this is ~some~ striked ~~text~~"
 
-    assert @markdown.render(text) !~ /<del/
+    assert render_with({}, text) !~ /<del/
 
-    @markdown.strikethrough = true
-    assert @markdown.render(text) =~ /<del/
+    assert render_with({:strikethrough => true}, text) =~ /<del/
   end
 
   def test_that_fenced_flag_works
@@ -260,10 +259,9 @@ This is some awesome code
 ~~~
 fenced
 
-    assert @markdown.render(text) !~ /<code/
+    assert render_with({}, text) !~ /<code/
 
-    @markdown.fenced_code_blocks = true
-    assert @markdown.render(text) =~ /<code/
+    assert render_with({:fenced_code_blocks => true}, text) =~ /<code/
   end
 
   def test_that_headers_are_linkable
@@ -272,16 +270,14 @@ fenced
   end
 
   def test_autolinking_with_ent_chars
-    @markdown.autolink = true
-    markdown = @markdown.render(<<text)
+    markdown = render_with({:autolink => true}, <<text)
 This a stupid link: https://github.com/rtomayko/tilt/issues?milestone=1&state=open
 text
     html_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown
   end
 
   def test_spaced_headers
-    @markdown.space_after_headers = true
-    rd = @markdown.render("#123 a header yes\n")
+    rd = render_with({:space_after_headers => true}, "#123 a header yes\n")
     assert rd !~ /<h1>/
   end
 end

@@ -1,29 +1,10 @@
 require 'redcarpet.so'
 
 module Redcarpet
-  VERSION = '2.0.0b3'
+  VERSION = '2.0.0b4'
 
   class Markdown
-    # Available Markdown extensions
-    attr_accessor :no_intra_emphasis
-    attr_accessor :tables
-    attr_accessor :fenced_code_blocks
-    attr_accessor :autolink
-    attr_accessor :strikethrough
-    attr_accessor :lax_html_blocks
-    attr_accessor :space_after_headers
-    attr_accessor :superscript
-
-    attr_accessor :renderer
-
-    def initialize(renderer, extensions={})
-      if renderer.instance_of? Class
-        renderer = renderer.new
-      end
-
-      @renderer = renderer
-      extensions.each_pair { |k, v| send("#{k}=", v) }
-    end
+    attr_reader :renderer
   end
 
   module Render
@@ -41,7 +22,7 @@ module Redcarpet
     end
 
     # SmartyPants Mixin module
-    # 
+    #
     # Implements SmartyPants.postprocess, which
     # performs smartypants replacements on the HTML file,
     # once it has been fully rendered.
@@ -61,7 +42,7 @@ module Redcarpet
     #   end
     #
     #   # Standalone
-    #   Redcarpet::Render::SmartyPants.postprocess("you're")
+    #   Redcarpet::Render::SmartyPants.render("you're")
     #
     module SmartyPants
       extend self

@@ -38,6 +38,14 @@ enum mkd_autolink {
 	MKDA_EMAIL,			/* e-mail link without explit mailto: */
 };
 
+enum mkd_tableflags {
+	MKD_TABLE_ALIGN_L = 1,
+	MKD_TABLE_ALIGN_R = 2,
+	MKD_TABLE_ALIGN_CENTER = 3,
+	MKD_TABLE_ALIGNMASK = 3,
+	MKD_TABLE_HEADER = 4
+};
+
 enum mkd_extensions {
 	MKDEXT_NO_INTRA_EMPHASIS = (1 << 0),
 	MKDEXT_TABLES = (1 << 1),
@@ -52,40 +60,42 @@ enum mkd_extensions {
 /* sd_callbacks - functions for rendering parsed data */
 struct sd_callbacks {
 	/* block level callbacks - NULL skips the block */
-	void (*blockcode)(struct buf *ob, struct buf *text, struct buf *lang, void *opaque);
-	void (*blockquote)(struct buf *ob, struct buf *text, void *opaque);
-	void (*blockhtml)(struct buf *ob, struct buf *text, void *opaque);
-	void (*header)(struct buf *ob, struct buf *text, int level, void *opaque);
+	void (*blockcode)(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque);
+	void (*blockquote)(struct buf *ob, const struct buf *text, void *opaque);
+	void (*blockhtml)(struct buf *ob,const  struct buf *text, void *opaque);
+	void (*header)(struct buf *ob, const struct buf *text, int level, void *opaque);
 	void (*hrule)(struct buf *ob, void *opaque);
-	void (*list)(struct buf *ob, struct buf *text, int flags, void *opaque);
-	void (*listitem)(struct buf *ob, struct buf *text, int flags, void *opaque);
-	void (*paragraph)(struct buf *ob, struct buf *text, void *opaque);
-	void (*table)(struct buf *ob, struct buf *header, struct buf *body, void *opaque);
-	void (*table_row)(struct buf *ob, struct buf *text, void *opaque);
-	void (*table_cell)(struct buf *ob, struct buf *text, int flags, void *opaque);
+	void (*list)(struct buf *ob, const struct buf *text, int flags, void *opaque);
+	void (*listitem)(struct buf *ob, const struct buf *text, int flags, void *opaque);
+	void (*paragraph)(struct buf *ob, const struct buf *text, void *opaque);
+	void (*table)(struct buf *ob, const struct buf *header, const struct buf *body, void *opaque);
+	void (*table_row)(struct buf *ob, const struct buf *text, void *opaque);
+	void (*table_cell)(struct buf *ob, const struct buf *text, int flags, void *opaque);
 
 
 	/* span level callbacks - NULL or return 0 prints the span verbatim */
-	int (*autolink)(struct buf *ob, struct buf *link, enum mkd_autolink type, void *opaque);
-	int (*codespan)(struct buf *ob, struct buf *text, void *opaque);
-	int (*double_emphasis)(struct buf *ob, struct buf *text, void *opaque);
-	int (*emphasis)(struct buf *ob, struct buf *text, void *opaque);
-	int (*image)(struct buf *ob, struct buf *link, struct buf *title, struct buf *alt, void *opaque);
+	int (*autolink)(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque);
+	int (*codespan)(struct buf *ob, const struct buf *text, void *opaque);
+	int (*double_emphasis)(struct buf *ob, const struct buf *text, void *opaque);
+	int (*emphasis)(struct buf *ob, const struct buf *text, void *opaque);
+	int (*image)(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *alt, void *opaque);
 	int (*linebreak)(struct buf *ob, void *opaque);
-	int (*link)(struct buf *ob, struct buf *link, struct buf *title, struct buf *content, void *opaque);
-	int (*raw_html_tag)(struct buf *ob, struct buf *tag, void *opaque);
-	int (*triple_emphasis)(struct buf *ob, struct buf *text, void *opaque);
-	int (*strikethrough)(struct buf *ob, struct buf *text, void *opaque);
-	int (*superscript)(struct buf *ob, struct buf *text, void *opaque);
+	int (*link)(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque);
+	int (*raw_html_tag)(struct buf *ob, const struct buf *tag, void *opaque);
+	int (*triple_emphasis)(struct buf *ob, const struct buf *text, void *opaque);
+	int (*strikethrough)(struct buf *ob, const struct buf *text, void *opaque);
+	int (*superscript)(struct buf *ob, const struct buf *text, void *opaque);
 
 	/* low level callbacks - NULL copies input directly into the output */
-	void (*entity)(struct buf *ob, struct buf *entity, void *opaque);
-	void (*normal_text)(struct buf *ob, struct buf *text, void *opaque);
+	void (*entity)(struct buf *ob, const struct buf *entity, void *opaque);
+	void (*normal_text)(struct buf *ob, const struct buf *text, void *opaque);
 
 	/* header and footer */
 	void (*doc_header)(struct buf *ob, void *opaque);
 	void (*doc_footer)(struct buf *ob, void *opaque);
 };
+
+struct sd_markdown;
 
 /*********
  * FLAGS *
@@ -95,19 +105,23 @@ struct sd_callbacks {
 #define MKD_LIST_ORDERED	1
 #define MKD_LI_BLOCK		2  /* <li> containing block data */
 
-#define MKD_TABLE_ALIGN_L (1 << 0)
-#define MKD_TABLE_ALIGN_R (1 << 1)
-#define MKD_TABLE_ALIGN_CENTER (MKD_TABLE_ALIGN_L | MKD_TABLE_ALIGN_R)
-
 /**********************
  * EXPORTED FUNCTIONS *
  **********************/
 
-/* sd_markdown * parses the input buffer and renders it into the output buffer */
-extern void
-sd_markdown(struct buf *ob, const struct buf *ib, unsigned int extensions, const struct sd_callbacks *rndr, void *opaque);
+extern struct sd_markdown *
+sd_markdown_new(
+	unsigned int extensions,
+	size_t max_nesting,
+	const struct sd_callbacks *callbacks,
+	void *opaque);
 
-/* sd_version * returns the library version as major.minor.rev */
+extern void
+sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, struct sd_markdown *md);
+
+extern void
+sd_markdown_free(struct sd_markdown *md);
+
 extern void
 sd_version(int *major, int *minor, int *revision);
 

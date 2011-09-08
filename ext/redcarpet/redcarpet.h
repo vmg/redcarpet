@@ -1,4 +1,4 @@
-#ifndef __REDCARPET_H__ 
+#ifndef __REDCARPET_H__
 #define __REDCARPET_H__
 
 #define RSTRING_NOT_MODIFIED
@@ -6,9 +6,10 @@
 #include <stdio.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
-#include <ruby/encoding.h>
+#	include <ruby/encoding.h>
+#	define redcarpet_str_new(data, size) rb_enc_str_new(data, size, rb_utf8_encoding())
 #else
-#define rb_enc_copy(dst, src)
+#	define redcarpet_str_new(data, size) rb_str_new(data, size)
 #endif
 
 #include "markdown.h"

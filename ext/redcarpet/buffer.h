@@ -1,7 +1,6 @@
-/* buffer.h - automatic buffer structure */
-
 /*
  * Copyright (c) 2008, Natacha Porté
+ * Copyright (c) 2011, Vicent Martí
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,139 +15,77 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef LITHIUM_BUFFER_H
-#define LITHIUM_BUFFER_H
+#ifndef __GEN_BUFFER_H__
+#define __GEN_BUFFER_H__
 
 #include <stddef.h>
+#include <stdarg.h>
+#include <stdint.h>
 
 #if defined(_MSC_VER)
 #define __attribute__(x)
 #define inline
-#define strncasecmp _strnicmp
-#define snprintf _snprintf
-#define va_copy(d,s) ((d) = (s))
 #endif
 
-/********************
- * TYPE DEFINITIONS *
- ********************/
+typedef enum {
+	BUF_OK = 0,
+	BUF_ENOMEM = -1,
+} buferror_t;
 
-/* struct buf • character array buffer */
+/* struct buf: character array buffer */
 struct buf {
-	char *	data;	/* actual character data */
-	size_t	size;	/* size of the string */
-	size_t	asize;	/* allocated size (0 = volatile buffer) */
-	size_t	unit;	/* reallocation unit size (0 = read-only buffer) */
-	int	ref; };	/* reference count */
+	uint8_t *data;		/* actual character data */
+	size_t size;	/* size of the string */
+	size_t asize;	/* allocated size (0 = volatile buffer) */
+	size_t unit;	/* reallocation unit size (0 = read-only buffer) */
+};
 
-/**********
- * MACROS *
- **********/
+/* CONST_BUF: global buffer from a string litteral */
+#define BUF_STATIC(string) \
+	{ (uint8_t *)string, sizeof string -1, sizeof string, 0, 0 }
 
-#define STRLEN(x) (sizeof(x) - 1)
+/* VOLATILE_BUF: macro for creating a volatile buffer on the stack */
+#define BUF_VOLATILE(strname) \
+	{ (uint8_t *)strname, strlen(strname), 0, 0, 0 }
 
-/* CONST_BUF • global buffer from a string litteral */
-#define CONST_BUF(name, string) \
-	static struct buf name = { string, sizeof string -1, sizeof string }
+/* BUFPUTSL: optimized bufputs of a string litteral */
+#define BUFPUTSL(output, literal) \
+	bufput(output, literal, sizeof literal - 1)
 
+/* bufgrow: increasing the allocated size to the given value */
+int bufgrow(struct buf *, size_t);
 
-/* VOLATILE_BUF • macro for creating a volatile buffer on the stack */
-#define VOLATILE_BUF(name, strname) \
-	struct buf name = { strname, strlen(strname) }
+/* bufnew: allocation of a new buffer */
+struct buf *bufnew(size_t) __attribute__ ((malloc));
 
+/* bufnullterm: NUL-termination of the string array (making a C-string) */
+const char *bufcstr(struct buf *);
 
-/* BUFPUTSL • optimized bufputs of a string litteral */
-#define BUFPUTSL(output, litteral) \
-	bufput(output, litteral, sizeof litteral - 1)
+/* bufprefix: compare the beginning of a buffer with a string */
+int bufprefix(const struct buf *buf, const char *prefix);
 
+/* bufput: appends raw data to a buffer */
+void bufput(struct buf *, const void *, size_t);
 
+/* bufputs: appends a NUL-terminated string to a buffer */
+void bufputs(struct buf *, const char *);
 
-/********************
- * BUFFER FUNCTIONS *
- ********************/
+/* bufputc: appends a single char to a buffer */
+void bufputc(struct buf *, int);
 
-/* bufcasecmp • case-insensitive buffer comparison */
-int
-bufcasecmp(const struct buf *, const struct buf *);
+/* bufrelease: decrease the reference count and free the buffer if needed */
+void bufrelease(struct buf *);
 
-/* bufcmp • case-sensitive buffer comparison */
-int
-bufcmp(const struct buf *, const struct buf *);
+/* bufreset: frees internal data of the buffer */
+void bufreset(struct buf *);
 
-/* bufcmps • case-sensitive comparison of a string to a buffer */
-int
-bufcmps(const struct buf *, const char *);
+/* bufslurp: removes a given number of bytes from the head of the array */
+void bufslurp(struct buf *, size_t);
 
-/* bufprefix * compare the beginning of a buffer with a string */
-int
-bufprefix(const struct buf *buf, const char *prefix);
+/* bufprintf: formatted printing to a buffer */
+void bufprintf(struct buf *, const char *, ...) __attribute__ ((format (printf, 2, 3)));
 
-/* bufdup • buffer duplication */
-struct buf *
-bufdup(const struct buf *, size_t)
-	__attribute__ ((malloc));
+/* vbufprintf: stdarg variant of formatted printing into a buffer */
+void vbufprintf(struct buf *, const char * , va_list);
 
-/* bufgrow • increasing the allocated size to the given value */
-int
-bufgrow(struct buf *, size_t);
-
-/* bufnew • allocation of a new buffer */
-struct buf *
-bufnew(size_t)
-	__attribute__ ((malloc));
-
-/* bufnullterm • NUL-termination of the string array (making a C-string) */
-void
-bufnullterm(struct buf *);
-
-/* bufprintf • formatted printing to a buffer */
-void
-bufprintf(struct buf *, const char *, ...)
-	__attribute__ ((format (printf, 2, 3)));
-
-/* bufput • appends raw data to a buffer */
-void
-bufput(struct buf *, const void*, size_t);
-
-/* bufputs • appends a NUL-terminated string to a buffer */
-void
-bufputs(struct buf *, const char*);
-
-/* bufputc • appends a single char to a buffer */
-void
-bufputc(struct buf *, char);
-
-/* bufrelease • decrease the reference count and free the buffer if needed */
-void
-bufrelease(struct buf *);
-
-/* bufreset • frees internal data of the buffer */
-void
-bufreset(struct buf *);
-
-/* bufset • safely assigns a buffer to another */
-void
-bufset(struct buf **, struct buf *);
-
-/* bufslurp • removes a given number of bytes from the head of the array */
-void
-bufslurp(struct buf *, size_t);
-
-/* buftoi • converts the numbers at the beginning of the buf into an int */
-int
-buftoi(struct buf *, size_t, size_t *);
-
-
-
-#ifdef BUFFER_STDARG
-#include <stdarg.h>
-
-/* vbufprintf • stdarg variant of formatted printing into a buffer */
-void
-vbufprintf(struct buf *, const char*, va_list);
-
-#endif /* def BUFFER_STDARG */
-
-#endif /* ndef LITHIUM_BUFFER_H */
-
-/* vim: set filetype=c: */
+#endif
