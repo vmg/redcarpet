@@ -14,8 +14,6 @@ Gem::Specification.new do |s|
     README.markdown
     Rakefile
     bin/redcarpet
-    ext/redcarpet/array.c
-    ext/redcarpet/array.h
     ext/redcarpet/autolink.c
     ext/redcarpet/autolink.h
     ext/redcarpet/buffer.c
@@ -23,12 +21,15 @@ Gem::Specification.new do |s|
     ext/redcarpet/extconf.rb
     ext/redcarpet/html.c
     ext/redcarpet/html.h
+    ext/redcarpet/html_blocks.h
     ext/redcarpet/html_smartypants.c
     ext/redcarpet/markdown.c
     ext/redcarpet/markdown.h
     ext/redcarpet/rc_markdown.c
     ext/redcarpet/rc_render.c
     ext/redcarpet/redcarpet.h
+    ext/redcarpet/stack.c
+    ext/redcarpet/stack.h
     lib/redcarpet.rb
     lib/redcarpet/render_man.rb
     redcarpet.gemspec
