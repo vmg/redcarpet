@@ -1,10 +1,10 @@
 # encoding: utf-8
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '2.0.0b4'
+  s.version = '2.0.0b5'
   s.summary = "Markdown that smells nice"
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
-  s.date = '2011-09-08'
+  s.date = '2011-09-14'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/tanoku/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
@@ -19,6 +19,9 @@ Gem::Specification.new do |s|
     ext/redcarpet/buffer.c
     ext/redcarpet/buffer.h
     ext/redcarpet/extconf.rb
+    ext/redcarpet/houdini.h
+    ext/redcarpet/houdini_href_e.c
+    ext/redcarpet/houdini_html_e.c
     ext/redcarpet/html.c
     ext/redcarpet/html.h
     ext/redcarpet/html_blocks.h
