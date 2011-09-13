@@ -115,8 +115,8 @@ task :gather => 'sundown/src/markdown.h' do |t|
     FileList[
       'sundown/src/{markdown,buffer,stack,autolink,html_blocks}.h',
       'sundown/src/{markdown,buffer,stack,autolink}.c',
-      'sundown/html/{html,html_smartypants}.c',
-      'sundown/html/html.h',
+      'sundown/html/{html,html_smartypants,houdini_html_e,houdini_href_e}.c',
+      'sundown/html/{html,houdini}.h',
     ]
   cp files, 'ext/redcarpet/',
     :preserve => true,

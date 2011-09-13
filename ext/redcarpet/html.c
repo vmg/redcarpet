@@ -23,45 +23,12 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "houdini.h"
+
 #define USE_XHTML(opt) (opt->flags & HTML_USE_XHTML)
 
-static inline void
-put_escaped_char(struct buf *ob, int c)
-{
-	switch (c) {
-		case '<': BUFPUTSL(ob, "&lt;"); break;
-		case '>': BUFPUTSL(ob, "&gt;"); break;
-		case '&': BUFPUTSL(ob, "&amp;"); break;
-		case '"': BUFPUTSL(ob, "&quot;"); break;
-		default: bufputc(ob, c); break;
-	}
-}
-
-/* sdhtml_escape • copy the buffer entity-escaping '<', '>', '&' and '"' */
-void
-sdhtml_escape(struct buf *ob, const uint8_t *src, size_t size)
-{
-	size_t  i = 0, org;
-	while (i < size) {
-		/* copying directly unescaped characters */
-		org = i;
-
-		while (i < size && src[i] != '<' && src[i] != '>'
-			&& src[i] != '&' && src[i] != '"')
-			i += 1;
-
-		if (i > org) bufput(ob, src + org, i - org);
-
-		/* escaping */
-		if (i >= size) break;
-
-		put_escaped_char(ob, src[i]);
-		i++;
-	}
-}
-
 int
-sdhtml_tag(const uint8_t *tag_data, size_t tag_size, const char *tagname)
+sdhtml_is_tag(const uint8_t *tag_data, size_t tag_size, const char *tagname)
 {
 	size_t i;
 	int closed = 0;
@@ -112,7 +79,7 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	BUFPUTSL(ob, "<a href=\"");
 	if (type == MKDA_EMAIL)
 		BUFPUTSL(ob, "mailto:");
-	sdhtml_escape(ob, link->data, link->size);
+	houdini_escape_href(ob, link->data, link->size);
 
 	if (options->link_attributes) {
 		bufputc(ob, '\"');
@@ -128,9 +95,9 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	 * want to print the `mailto:` prefix
 	 */
 	if (bufprefix(link, "mailto:") == 0) {
-		sdhtml_escape(ob, link->data + 7, link->size - 7);
+		houdini_escape_html(ob, link->data + 7, link->size - 7);
 	} else {
-		sdhtml_escape(ob, link->data, link->size);
+		houdini_escape_html(ob, link->data, link->size);
 	}
 
 	BUFPUTSL(ob, "</a>");
@@ -160,7 +127,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 					org++;
 
 				if (cls) bufputc(ob, ' ');
-				sdhtml_escape(ob, lang->data + org, i - org);
+				houdini_escape_html(ob, lang->data + org, i - org);
 			}
 		}
 
@@ -169,7 +136,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 		BUFPUTSL(ob, "<pre><code>");
 
 	if (text)
-		sdhtml_escape(ob, text->data, text->size);
+		houdini_escape_html(ob, text->data, text->size);
 
 	BUFPUTSL(ob, "</code></pre>\n");
 }
@@ -187,7 +154,7 @@ static int
 rndr_codespan(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BUFPUTSL(ob, "<code>");
-	if (text) sdhtml_escape(ob, text->data, text->size);
+	if (text) houdini_escape_html(ob, text->data, text->size);
 	BUFPUTSL(ob, "</code>");
 	return 1;
 }
@@ -263,11 +230,11 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 	BUFPUTSL(ob, "<a href=\"");
 
 	if (link && link->size)
-		sdhtml_escape(ob, link->data, link->size);
+		houdini_escape_href(ob, link->data, link->size);
 
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
-		sdhtml_escape(ob, title->data, title->size);
+		houdini_escape_html(ob, title->data, title->size);
 	}
 
 	if (options->link_attributes) {
@@ -387,14 +354,17 @@ rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, cons
 {
 	struct html_renderopt *options = opaque;
 	if (!link || !link->size) return 0;
+
 	BUFPUTSL(ob, "<img src=\"");
-	sdhtml_escape(ob, link->data, link->size);
+	houdini_escape_href(ob, link->data, link->size);
 	BUFPUTSL(ob, "\" alt=\"");
+
 	if (alt && alt->size)
-		sdhtml_escape(ob, alt->data, alt->size);
+		houdini_escape_html(ob, alt->data, alt->size);
+
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
-		sdhtml_escape(ob, title->data, title->size); }
+		houdini_escape_html(ob, title->data, title->size); }
 
 	bufputs(ob, USE_XHTML(options) ? "\"/>" : "\">");
 	return 1;
@@ -408,13 +378,16 @@ rndr_raw_html(struct buf *ob, const struct buf *text, void *opaque)
 	if ((options->flags & HTML_SKIP_HTML) != 0)
 		return 1;
 
-	if ((options->flags & HTML_SKIP_STYLE) != 0 && sdhtml_tag(text->data, text->size, "style"))
+	if ((options->flags & HTML_SKIP_STYLE) != 0 &&
+		sdhtml_is_tag(text->data, text->size, "style"))
 		return 1;
 
-	if ((options->flags & HTML_SKIP_LINKS) != 0 && sdhtml_tag(text->data, text->size, "a"))
+	if ((options->flags & HTML_SKIP_LINKS) != 0 &&
+		sdhtml_is_tag(text->data, text->size, "a"))
 		return 1;
 
-	if ((options->flags & HTML_SKIP_IMAGES) != 0 && sdhtml_tag(text->data, text->size, "img"))
+	if ((options->flags & HTML_SKIP_IMAGES) != 0 &&
+		sdhtml_is_tag(text->data, text->size, "img"))
 		return 1;
 
 	bufput(ob, text->data, text->size);
@@ -493,7 +466,7 @@ static void
 rndr_normal_text(struct buf *ob, const struct buf *text, void *opaque)
 {
 	if (text)
-		sdhtml_escape(ob, text->data, text->size);
+		houdini_escape_html(ob, text->data, text->size);
 }
 
 static void
