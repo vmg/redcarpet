@@ -3,7 +3,7 @@ module Redcarpet
     class ManPage < Base
 
       def normal_text(text)
-        text.gsub('-', '\\-').strip
+        text.gsub(/(?<=\W)-(?=\W)/, '\\-') if text
       end
 
       def block_code(code, language)
