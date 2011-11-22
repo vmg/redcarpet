@@ -111,6 +111,7 @@ struct sd_markdown {
 	struct stack work_bufs[2];
 	unsigned int ext_flags;
 	size_t max_nesting;
+	int in_link_body;
 };
 
 /***************************
@@ -372,7 +373,6 @@ parse_inline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t siz
 		if (end >= size) break;
 		i = end;
 
-		/* calling the trigger */
 		end = markdown_char_ptrs[(int)action](ob, rndr, data + i, i, size - i);
 		if (!end) /* no action from the callback */
 			end = i + 1;
@@ -682,7 +682,7 @@ char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 static size_t
 char_escape(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
 {
-	static const char *escape_chars = "\\`*_{}[]()#+-.!:|&<>";
+	static const char *escape_chars = "\\`*_{}[]()#+-.!:|&<>^~";
 	struct buf work = { 0, 0, 0, 0 };
 
 	if (size > 1) {
@@ -758,10 +758,10 @@ char_langle_tag(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 static size_t
 char_autolink_www(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
 {
-	struct buf *link, *link_url;
+	struct buf *link, *link_url, *link_text;
 	size_t link_len, rewind;
 
-	if (!rndr->cb.link)
+	if (!rndr->cb.link || rndr->in_link_body)
 		return 0;
 
 	link = rndr_newbuf(rndr, BUFFER_SPAN);
@@ -772,7 +772,14 @@ char_autolink_www(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_
 		bufput(link_url, link->data, link->size);
 
 		ob->size -= rewind;
-		rndr->cb.link(ob, link_url, NULL, link, rndr->opaque);
+		if (rndr->cb.normal_text) {
+			link_text = rndr_newbuf(rndr, BUFFER_SPAN);
+			rndr->cb.normal_text(link_text, link, rndr->opaque);
+			rndr->cb.link(ob, link_url, NULL, link_text, rndr->opaque);
+			rndr_popbuf(rndr, BUFFER_SPAN);
+		} else {
+			rndr->cb.link(ob, link_url, NULL, link, rndr->opaque);
+		}
 		rndr_popbuf(rndr, BUFFER_SPAN);
 	}
 
@@ -786,7 +793,7 @@ char_autolink_email(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, siz
 	struct buf *link;
 	size_t link_len, rewind;
 
-	if (!rndr->cb.autolink)
+	if (!rndr->cb.autolink || rndr->in_link_body)
 		return 0;
 
 	link = rndr_newbuf(rndr, BUFFER_SPAN);
@@ -806,7 +813,7 @@ char_autolink_url(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_
 	struct buf *link;
 	size_t link_len, rewind;
 
-	if (!rndr->cb.autolink)
+	if (!rndr->cb.autolink || rndr->in_link_body)
 		return 0;
 
 	link = rndr_newbuf(rndr, BUFFER_SPAN);
@@ -1019,8 +1026,15 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 	/* building content: img alt is escaped, link content is parsed */
 	if (txt_e > 1) {
 		content = rndr_newbuf(rndr, BUFFER_SPAN);
-		if (is_img) bufput(content, data + 1, txt_e - 1);
-		else parse_inline(content, rndr, data + 1, txt_e - 1);
+		if (is_img) {
+			bufput(content, data + 1, txt_e - 1);
+		} else {
+			/* disable autolinking when parsing inline the
+			 * content of a link */
+			rndr->in_link_body = 1;
+			parse_inline(content, rndr, data + 1, txt_e - 1);
+			rndr->in_link_body = 0;
+		}
 	}
 
 	if (link) {
@@ -1558,6 +1572,7 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 	struct buf *work = 0, *inter = 0;
 	size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
 	int in_empty = 0, has_inside_empty = 0;
+	int has_next_uli, has_next_oli;
 
 	/* keeping track of the first indentation prefix */
 	while (orgpre < 3 && orgpre < size && data[orgpre] == ' ')
@@ -1604,10 +1619,20 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 
 		pre = i;
 
+		has_next_uli = prefix_uli(data + beg + i, end - beg - i);
+		has_next_oli = prefix_oli(data + beg + i, end - beg - i);
+
+		/* checking for ul/ol switch */
+		if (in_empty && (
+					((*flags & MKD_LIST_ORDERED) && has_next_uli) ||
+					(!(*flags & MKD_LIST_ORDERED) && has_next_oli)
+			)){
+			*flags |= MKD_LI_END;
+			break; /* the following item must have same list type */
+		}
+
 		/* checking for a new item */
-		if ((prefix_uli(data + beg + i, end - beg - i) &&
-			!is_hrule(data + beg + i, end - beg - i)) ||
-			prefix_oli(data + beg + i, end - beg - i)) {
+		if ((has_next_uli && !is_hrule(data + beg + i, end - beg - i)) || has_next_oli) {
 			if (in_empty)
 				has_inside_empty = 1;
 

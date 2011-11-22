@@ -113,9 +113,35 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 	if (!buf || !buf->unit)
 		return;
 
+	int n;
+
+	if (buf == 0 || (buf->size >= buf->asize && bufgrow(buf, buf->size + 1)) < 0)
+		return;
+
 	va_start(ap, fmt);
-	vbufprintf(buf, fmt, ap);
+	n = _buf_vsnprintf((char *)buf->data + buf->size, buf->asize - buf->size, fmt, ap);
 	va_end(ap);
+
+	if (n < 0) {
+#ifdef _MSC_VER
+		n = _vscprintf(fmt, ap);
+#else
+		return;
+#endif
+	}
+
+	if ((size_t)n >= buf->asize - buf->size) {
+		if (bufgrow(buf, buf->size + n + 1) < 0)
+			return;
+		va_start(ap, fmt);
+		n = _buf_vsnprintf((char *)buf->data + buf->size, buf->asize - buf->size, fmt, ap);
+		va_end(ap);
+	}
+
+	if (n < 0)
+		return;
+
+	buf->size += n;
 }
 
 /* bufput: appends raw data to a buffer */
@@ -198,31 +224,6 @@ bufslurp(struct buf *buf, size_t len)
 void
 vbufprintf(struct buf *buf, const char *fmt, va_list ap)
 {
-	int n;
 
-	if (buf == 0 || (buf->size >= buf->asize && bufgrow(buf, buf->size + 1)) < 0)
-		return;
-
-	n = _buf_vsnprintf((char *)buf->data + buf->size, buf->asize - buf->size, fmt, ap);
-
-	if (n < 0) {
-#ifdef _MSC_VER
-		n = _vscprintf(fmt, ap);
-#else
-		return;
-#endif
-	}
-
-	if ((size_t)n >= buf->asize - buf->size) {
-		if (bufgrow(buf, buf->size + n + 1) < 0)
-			return;
-
-		n = _buf_vsnprintf((char *)buf->data + buf->size, buf->asize - buf->size, fmt, ap);
-	}
-
-	if (n < 0)
-		return;
-
-	buf->size += n;
 }
 
