@@ -92,6 +92,31 @@ class HTMLRenderTest < Test::Unit::TestCase
     html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", rd
   end
 
+  def test_that_safelink_flag_allows_relative_urls
+    rd = render_with(@rndr[:safe_links], "[Relative](/tanoku/redcarpet)")
+    html_equal "<p>[Relative](/tanoku/redcarpet)</p>\n", rd
+  end
+
+  def test_that_safelink_flag_allows_http_urls
+    rd = render_with(@rndr[:safe_links], "[HTTP](http://github.com/tanoku/redcarpet)")
+    html_equal "<p>[HTTP](http://github.com/tanoku/redcarpet)</p>\n", rd
+  end
+
+  def test_that_safelink_flag_allows_https_urls
+    rd = render_with(@rndr[:safe_links], "[HTTPS](https://github.com/tanoku/redcarpet)")
+    html_equal "<p>[HTTPS](https://github.com/tanoku/redcarpet)</p>\n", rd
+  end
+
+  def test_that_safelink_flag_allows_ftp_urls
+    rd = render_with(@rndr[:safe_links], "[FTP](http://ftp.mozilla.org/pub/mozilla.org/)")
+    html_equal "<p>[FTP](http://ftp.mozilla.org/pub/mozilla.org/)</p>\n", rd
+  end
+
+  def test_that_safelink_flag_allows_mailto_urls
+    rd = render_with(@rndr[:safe_links], "[Email](mailto:test@example.com)")
+    html_equal "<p>[Email](mailto:test@example.com)</p>\n", rd
+  end
+
 end
 
 class MarkdownTest < Test::Unit::TestCase
