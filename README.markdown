@@ -142,7 +142,7 @@ instantiating the renderer:
         :safe_links_only - only generate links for protocols which are considered safe
 
         :with_toc_data - add HTML anchors to each header in the output HTML,
-            to allow liking to each section.
+            to allow linking to each section.
 
         :hard_wrap - insert HTML `<br>` tags inside on paragraphs where the origin
             Markdown document had newlines (by default, Markdown ignores these
