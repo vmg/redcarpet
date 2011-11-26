@@ -839,6 +839,7 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 	struct buf *u_link = 0;
 	size_t org_work_size = rndr->work_bufs[BUFFER_SPAN].size;
 	int text_has_nl = 0, ret = 0;
+	int in_title = 0, qtype = 0;
 
 	/* checking whether the correct renderer exists */
 	if ((is_img && !rndr->cb.image) || (!is_img && !rndr->cb.link))
@@ -895,12 +896,15 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 
 		/* looking for title end if present */
 		if (data[i] == '\'' || data[i] == '"') {
+			qtype = data[i];
+			in_title = 1;
 			i++;
 			title_b = i;
 
 			while (i < size) {
 				if (data[i] == '\\') i += 2;
-				else if (data[i] == ')') break;
+				else if (data[i] == qtype) {in_title = 0; i++;}
+				else if ((data[i] == ')') && !in_title) break;
 				else i++;
 			}
 
@@ -2350,6 +2354,7 @@ sd_markdown_new(
 	md->ext_flags = extensions;
 	md->opaque = opaque;
 	md->max_nesting = max_nesting;
+	md->in_link_body = 0;
 
 	return md;
 }

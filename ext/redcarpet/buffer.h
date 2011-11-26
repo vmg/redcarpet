@@ -15,8 +15,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef __GEN_BUFFER_H__
-#define __GEN_BUFFER_H__
+#ifndef BUFFER_H__
+#define BUFFER_H__
 
 #include <stddef.h>
 #include <stdarg.h>

@@ -147,7 +147,7 @@ find_block_tag (str, len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 23,
+      TOTAL_KEYWORDS = 24,
       MIN_WORD_LENGTH = 1,
       MAX_WORD_LENGTH = 10,
       MIN_HASH_VALUE = 1,
@@ -179,7 +179,8 @@ find_block_tag (str, len)
       "script",
       "h5",
       "noscript",
-      "", "",
+      "",
+      "style",
       "iframe",
       "h4",
       "ins",

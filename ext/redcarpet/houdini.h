@@ -1,5 +1,5 @@
-#ifndef __HOUDINI_H__
-#define __HOUDINI_H__
+#ifndef HOUDINI_H__
+#define HOUDINI_H__
 
 #include "buffer.h"
 
@@ -17,6 +17,7 @@
 extern void houdini_escape_html(struct buf *ob, const uint8_t *src, size_t size);
 extern void houdini_escape_html0(struct buf *ob, const uint8_t *src, size_t size, int secure);
 extern void houdini_unescape_html(struct buf *ob, const uint8_t *src, size_t size);
+extern void houdini_escape_xml(struct buf *ob, const uint8_t *src, size_t size);
 extern void houdini_escape_uri(struct buf *ob, const uint8_t *src, size_t size);
 extern void houdini_escape_url(struct buf *ob, const uint8_t *src, size_t size);
 extern void houdini_escape_href(struct buf *ob, const uint8_t *src, size_t size);

@@ -1,5 +1,5 @@
-#ifndef __CR_STACK_H__
-#define __CR_STACK_H__
+#ifndef STACK_H__
+#define STACK_H__
 
 #include <stdlib.h>
 

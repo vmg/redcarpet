@@ -1,5 +1,5 @@
-#ifndef __REDCARPET_H__
-#define __REDCARPET_H__
+#ifndef REDCARPET_H__
+#define REDCARPET_H__
 
 #define RSTRING_NOT_MODIFIED
 #include "ruby.h"
