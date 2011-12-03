@@ -5,4 +5,8 @@ rvm:
   - rbx-2.0
   - ruby-head
   - ree
+
 gemfile: Gemfile.ci
+
+notifications:
+  email: false
