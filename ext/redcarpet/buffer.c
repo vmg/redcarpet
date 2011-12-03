@@ -117,7 +117,7 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 
 	if (buf == 0 || (buf->size >= buf->asize && bufgrow(buf, buf->size + 1)) < 0)
 		return;
-
+	
 	va_start(ap, fmt);
 	n = _buf_vsnprintf((char *)buf->data + buf->size, buf->asize - buf->size, fmt, ap);
 	va_end(ap);

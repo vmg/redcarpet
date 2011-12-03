@@ -425,7 +425,6 @@ find_emph_char(uint8_t *data, size_t size, uint8_t c)
 			}
 
 			if (i >= size) return tmp_i;
-			i++;
 		}
 		/* skipping a link */
 		else if (data[i] == '[') {
