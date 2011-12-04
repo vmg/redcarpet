@@ -54,20 +54,30 @@ module Redcarpet
 end
 
 # Compatibility class;
-# Creates a instance of Redcarpet with the RedCloth
-# API. This instance has no extensions enabled whatsoever,
-# and no accessors to change this. 100% pure, standard
-# Markdown.
+# Creates an instance of Redcarpet with the RedCloth API.
 class RedcarpetCompat
   attr_accessor :text
 
-  def initialize(text, *_dummy)
+  def initialize(text, *exts)
+    exts_hash = rename_extensions(exts).inject({}) {|h, k| h[k] = true; h }
     @text = text
-    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, exts_hash)
   end
 
   def to_html(*_dummy)
     @markdown.render(@text)
+  end
+  
+  private
+  
+  def rename_extensions(exts)
+    exts.map do |ext|
+      case ext
+      when :gh_blockcode; :fenced_code_blocks
+      when :no_intraemphasis; :no_intra_emphasis
+      else ext
+      end
+    end
   end
 end
 
