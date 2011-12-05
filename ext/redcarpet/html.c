@@ -605,6 +605,6 @@ sdhtml_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, 
 		callbacks->autolink = NULL;
 	}
 
-	if (render_flags & HTML_SKIP_HTML)
+	if (render_flags & HTML_SKIP_HTML || render_flags & HTML_ESCAPE)
 		callbacks->blockhtml = NULL;
 }
