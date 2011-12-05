@@ -60,11 +60,34 @@ class HTMLRenderTest < Test::Unit::TestCase
       :no_images => Redcarpet::Render::HTML.new(:no_images => true),
       :no_links => Redcarpet::Render::HTML.new(:no_links => true),
       :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
+      :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
     }
   end
 
   def render_with(rndr, text)
     Redcarpet::Markdown.new(rndr).render(text)
+  end
+
+  # Hint: overrides filter_html, no_images and no_links
+  def test_that_escape_html_works
+    source = <<EOS
+Through <em>NO</em> <script>DOUBLE NO</script>
+
+<script>BAD</script>
+
+<img src="/favicon.ico" />
+EOS
+    expected = <<EOE
+<p>Through &lt;em&gt;NO&lt;/em&gt; &lt;script&gt;DOUBLE NO&lt;/script&gt;</p>
+
+<p>&lt;script&gt;BAD&lt;/script&gt;</p>
+
+<p>&lt;img src=&quot;/favicon.ico&quot; /&gt;
+
+EOE
+
+    markdown = render_with(@rndr[:escape_html], source)
+    html_equal expected, markdown
   end
 
   def test_that_filter_html_works
