@@ -352,6 +352,10 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 	{
 		Check_Type(hash, T_HASH);
 
+		/* escape_html */
+		if (rb_hash_aref(hash, CSTR2SYM("escape_html")) == Qtrue)
+			render_flags |= HTML_ESCAPE;
+
 		/* filter_html */
 		if (rb_hash_aref(hash, CSTR2SYM("filter_html")) == Qtrue)
 			render_flags |= HTML_SKIP_HTML;
