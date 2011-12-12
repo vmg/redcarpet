@@ -34,6 +34,7 @@ Gem::Specification.new do |s|
     ext/redcarpet/stack.c
     ext/redcarpet/stack.h
     lib/redcarpet.rb
+    lib/redcarpet/compat.rb
     lib/redcarpet/render_man.rb
     redcarpet.gemspec
     sundown
