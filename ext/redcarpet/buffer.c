@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 /* MSVC compat */
 #if defined(_MSC_VER)
@@ -34,6 +35,7 @@ int
 bufprefix(const struct buf *buf, const char *prefix)
 {
 	size_t i;
+	assert(buf && buf->unit);
 
 	for (i = 0; i < buf->size; ++i) {
 		if (prefix[i] == 0)
@@ -52,7 +54,10 @@ bufgrow(struct buf *buf, size_t neosz)
 {
 	size_t neoasz;
 	void *neodata;
-	if (!buf || !buf->unit || neosz > BUFFER_MAX_ALLOC_SIZE)
+
+	assert(buf && buf->unit);
+
+	if (neosz > BUFFER_MAX_ALLOC_SIZE)
 		return BUF_ENOMEM;
 
 	if (buf->asize >= neosz)
@@ -91,8 +96,7 @@ bufnew(size_t unit)
 const char *
 bufcstr(struct buf *buf)
 {
-	if (!buf || !buf->unit)
-		return NULL;
+	assert(buf && buf->unit);
 
 	if (buf->size < buf->asize && buf->data[buf->size] == 0)
 		return (char *)buf->data;
@@ -110,12 +114,11 @@ void
 bufprintf(struct buf *buf, const char *fmt, ...)
 {
 	va_list ap;
-	if (!buf || !buf->unit)
-		return;
-
 	int n;
 
-	if (buf == 0 || (buf->size >= buf->asize && bufgrow(buf, buf->size + 1)) < 0)
+	assert(buf && buf->unit);
+
+	if (buf->size >= buf->asize && bufgrow(buf, buf->size + 1) < 0)
 		return;
 	
 	va_start(ap, fmt);
@@ -133,6 +136,7 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 	if ((size_t)n >= buf->asize - buf->size) {
 		if (bufgrow(buf, buf->size + n + 1) < 0)
 			return;
+
 		va_start(ap, fmt);
 		n = _buf_vsnprintf((char *)buf->data + buf->size, buf->asize - buf->size, fmt, ap);
 		va_end(ap);
@@ -148,8 +152,7 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 void
 bufput(struct buf *buf, const void *data, size_t len)
 {
-	if (!buf)
-		return;
+	assert(buf && buf->unit);
 
 	if (buf->size + len > buf->asize && bufgrow(buf, buf->size + len) < 0)
 		return;
@@ -170,8 +173,7 @@ bufputs(struct buf *buf, const char *str)
 void
 bufputc(struct buf *buf, int c)
 {
-	if (!buf)
-		return;
+	assert(buf && buf->unit);
 
 	if (buf->size + 1 > buf->asize && bufgrow(buf, buf->size + 1) < 0)
 		return;
@@ -208,8 +210,7 @@ bufreset(struct buf *buf)
 void
 bufslurp(struct buf *buf, size_t len)
 {
-	if (!buf || !buf->unit || len <= 0)
-		return;
+	assert(buf && buf->unit);
 
 	if (len >= buf->size) {
 		buf->size = 0;
@@ -218,12 +219,5 @@ bufslurp(struct buf *buf, size_t len)
 
 	buf->size -= len;
 	memmove(buf->data, buf->data + len, buf->size);
-}
-
-/* vbufprintf: stdarg variant of formatted printing into a buffer */
-void
-vbufprintf(struct buf *buf, const char *fmt, va_list ap)
-{
-
 }
 
