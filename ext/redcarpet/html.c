@@ -60,6 +60,16 @@ sdhtml_is_tag(const uint8_t *tag_data, size_t tag_size, const char *tagname)
 	return HTML_TAG_NONE;
 }
 
+static inline void escape_html(struct buf *ob, const uint8_t *source, size_t length)
+{
+	houdini_escape_html0(ob, source, length, 0);
+}
+
+static inline void escape_href(struct buf *ob, const uint8_t *source, size_t length)
+{
+	houdini_escape_href(ob, source, length);
+}
+
 /********************
  * GENERIC RENDERER *
  ********************/
@@ -79,7 +89,7 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	BUFPUTSL(ob, "<a href=\"");
 	if (type == MKDA_EMAIL)
 		BUFPUTSL(ob, "mailto:");
-	houdini_escape_href(ob, link->data, link->size);
+	escape_href(ob, link->data, link->size);
 
 	if (options->link_attributes) {
 		bufputc(ob, '\"');
@@ -95,9 +105,9 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	 * want to print the `mailto:` prefix
 	 */
 	if (bufprefix(link, "mailto:") == 0) {
-		houdini_escape_html(ob, link->data + 7, link->size - 7);
+		escape_html(ob, link->data + 7, link->size - 7);
 	} else {
-		houdini_escape_html(ob, link->data, link->size);
+		escape_html(ob, link->data, link->size);
 	}
 
 	BUFPUTSL(ob, "</a>");
@@ -127,7 +137,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 					org++;
 
 				if (cls) bufputc(ob, ' ');
-				houdini_escape_html(ob, lang->data + org, i - org);
+				escape_html(ob, lang->data + org, i - org);
 			}
 		}
 
@@ -136,7 +146,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 		BUFPUTSL(ob, "<pre><code>");
 
 	if (text)
-		houdini_escape_html(ob, text->data, text->size);
+		escape_html(ob, text->data, text->size);
 
 	BUFPUTSL(ob, "</code></pre>\n");
 }
@@ -154,7 +164,7 @@ static int
 rndr_codespan(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BUFPUTSL(ob, "<code>");
-	if (text) houdini_escape_html(ob, text->data, text->size);
+	if (text) escape_html(ob, text->data, text->size);
 	BUFPUTSL(ob, "</code>");
 	return 1;
 }
@@ -230,11 +240,11 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 	BUFPUTSL(ob, "<a href=\"");
 
 	if (link && link->size)
-		houdini_escape_href(ob, link->data, link->size);
+		escape_href(ob, link->data, link->size);
 
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
-		houdini_escape_html(ob, title->data, title->size);
+		escape_html(ob, title->data, title->size);
 	}
 
 	if (options->link_attributes) {
@@ -322,9 +332,9 @@ rndr_raw_block(struct buf *ob, const struct buf *text, void *opaque)
 	size_t org, sz;
 	if (!text) return;
 	sz = text->size;
-	while (sz > 0 && text->data[sz - 1] == '\n') sz -= 1;
+	while (sz > 0 && text->data[sz - 1] == '\n') sz--;
 	org = 0;
-	while (org < sz && text->data[org] == '\n') org += 1;
+	while (org < sz && text->data[org] == '\n') org++;
 	if (org >= sz) return;
 	if (ob->size) bufputc(ob, '\n');
 	bufput(ob, text->data + org, sz - org);
@@ -356,15 +366,15 @@ rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, cons
 	if (!link || !link->size) return 0;
 
 	BUFPUTSL(ob, "<img src=\"");
-	houdini_escape_href(ob, link->data, link->size);
+	escape_href(ob, link->data, link->size);
 	BUFPUTSL(ob, "\" alt=\"");
 
 	if (alt && alt->size)
-		houdini_escape_html(ob, alt->data, alt->size);
+		escape_html(ob, alt->data, alt->size);
 
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
-		houdini_escape_html(ob, title->data, title->size); }
+		escape_html(ob, title->data, title->size); }
 
 	bufputs(ob, USE_XHTML(options) ? "\"/>" : "\">");
 	return 1;
@@ -374,6 +384,13 @@ static int
 rndr_raw_html(struct buf *ob, const struct buf *text, void *opaque)
 {
 	struct html_renderopt *options = opaque;
+
+	/* HTML_ESCAPE overrides SKIP_HTML, SKIP_STYLE, SKIP_LINKS and SKIP_IMAGES
+	* It doens't see if there are any valid tags, just escape all of them. */
+	if((options->flags & HTML_ESCAPE) != 0) {
+		escape_html(ob, text->data, text->size);
+		return 1;
+	}
 
 	if ((options->flags & HTML_SKIP_HTML) != 0)
 		return 1;
@@ -466,7 +483,7 @@ static void
 rndr_normal_text(struct buf *ob, const struct buf *text, void *opaque)
 {
 	if (text)
-		houdini_escape_html(ob, text->data, text->size);
+		escape_html(ob, text->data, text->size);
 }
 
 static void
@@ -598,6 +615,6 @@ sdhtml_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, 
 		callbacks->autolink = NULL;
 	}
 
-	if (render_flags & HTML_SKIP_HTML)
+	if (render_flags & HTML_SKIP_HTML || render_flags & HTML_ESCAPE)
 		callbacks->blockhtml = NULL;
 }
