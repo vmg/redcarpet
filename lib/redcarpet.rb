@@ -1,7 +1,7 @@
 require 'redcarpet.so'
 
 module Redcarpet
-  VERSION = '2.0.0'
+  VERSION = '2.0.1'
 
   class Markdown
     attr_reader :renderer
