@@ -305,10 +305,16 @@ class RedcarpetCompatTest < Test::Unit::TestCase
     html = RedcarpetCompat.new("This is_just_a test", :no_intra_emphasis).to_html
     html_equal "<p>This is_just_a test</p>", html
   end
-  
-  def test_compat_api_knows_gh_blockcode_extension
+
+  def test_compat_api_knows_fenced_code_extension
     text = "```ruby\nx = 'foo'\n```"
-    html = RedcarpetCompat.new(text, :gh_blockcode).to_html
+    html = RedcarpetCompat.new(text, :fenced_code).to_html
+    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>", html
+  end
+  
+  def test_compat_api_ignores_gh_blockcode_extension
+    text = "```ruby\nx = 'foo'\n```"
+    html = RedcarpetCompat.new(text, :fenced_code, :gh_blockcode).to_html
     html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>", html
   end
 
