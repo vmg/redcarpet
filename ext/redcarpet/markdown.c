@@ -1575,7 +1575,7 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 	struct buf *work = 0, *inter = 0;
 	size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
 	int in_empty = 0, has_inside_empty = 0;
-	int has_next_uli, has_next_oli;
+	size_t has_next_uli, has_next_oli;
 
 	/* keeping track of the first indentation prefix */
 	while (orgpre < 3 && orgpre < size && data[orgpre] == ' ')
@@ -1627,9 +1627,8 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 
 		/* checking for ul/ol switch */
 		if (in_empty && (
-					((*flags & MKD_LIST_ORDERED) && has_next_uli) ||
-					(!(*flags & MKD_LIST_ORDERED) && has_next_oli)
-			)){
+			((*flags & MKD_LIST_ORDERED) && has_next_uli) ||
+			(!(*flags & MKD_LIST_ORDERED) && has_next_oli))){
 			*flags |= MKD_LI_END;
 			break; /* the following item must have same list type */
 		}
@@ -1804,7 +1803,7 @@ parse_htmlblock(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 		i++;
 
 	if (i < size)
-		curtag = find_block_tag((char *)data + 1, i - 1);
+		curtag = find_block_tag((char *)data + 1, (int)i - 1);
 
 	/* handling of special cases */
 	if (!curtag) {
@@ -2361,7 +2360,7 @@ sd_markdown_new(
 void
 sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, struct sd_markdown *md)
 {
-	static const float MARKDOWN_GROW_FACTOR = 1.4f;
+#define MARKDOWN_GROW(x) ((x) + ((x) >> 1))
 
 	struct buf *text;
 	size_t beg, end;
@@ -2401,7 +2400,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 		}
 
 	/* pre-grow the output buffer to minimize allocations */
-	bufgrow(ob, text->size * MARKDOWN_GROW_FACTOR);
+	bufgrow(ob, MARKDOWN_GROW(text->size));
 
 	/* second pass: actual rendering */
 	if (md->cb.doc_header)
