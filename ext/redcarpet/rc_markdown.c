@@ -94,7 +94,7 @@ static VALUE enforce_utf8_encoding(VALUE str)
 #ifdef HAVE_RUBY_ENCODING_H
 	rb_encoding *enc = rb_enc_get(str);
 	if (enc != rb_utf8_encoding() && enc != rb_usascii_encoding()) {
-	        str = rb_str_export_to_enc(str, rb_utf8_encoding());
+		str = rb_str_export_to_enc(str, rb_utf8_encoding());
 	}
 #endif
 	return str;
