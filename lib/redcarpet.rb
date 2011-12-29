@@ -73,9 +73,9 @@ class RedcarpetCompat
   def rename_extensions(exts)
     exts.map do |ext|
       case ext
-      when :gh_blockcode; nil
-      when :fenced_code; :fenced_code_blocks
-      when :no_intraemphasis; :no_intra_emphasis
+      when :gh_blockcode then nil
+      when :fenced_code then :fenced_code_blocks
+      when :no_intraemphasis then :no_intra_emphasis
       else ext
       end
     end.compact
