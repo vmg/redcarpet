@@ -209,6 +209,12 @@ class MarkdownTest < Test::Unit::TestCase
       output = @markdown.render(input)
       assert_equal input.encoding.name, output.encoding.name
     end
+
+    def test_should_return_string_in_same_encoding_not_in_utf8
+      input = "testing".encode('US-ASCII')
+      output = @markdown.render(input)
+      assert_equal input.encoding.name, output.encoding.name
+    end
   end
 
   def test_that_tags_can_have_dashes_and_underscores
