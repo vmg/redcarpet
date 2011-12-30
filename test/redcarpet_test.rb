@@ -324,6 +324,16 @@ class CustomRenderTest < Test::Unit::TestCase
   end
 end
 
+class EncodingsTest < Test::Unit::TestCase
+  def setup
+    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  end
+
+  def test_non_utf8_encoding
+    @markdown.render("hello".encode('ASCII-8BIT'))
+  end
+end
+
 # Disabled by default
 # (these are the easy ones -- the evil ones are not disclosed)
 class PathologicalInputsTest # < Test::Unit::TestCase
