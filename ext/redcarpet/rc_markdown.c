@@ -128,8 +128,7 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 
 	/* build the Ruby string */
 #ifdef HAVE_RUBY_ENCODING_H
-	rb_encoding *enc = rb_enc_get(text);
-        text = redcarpet_str_new(output_buf->data, output_buf->size, enc);
+        text = redcarpet_str_new(output_buf->data, output_buf->size, rb_enc_get(text));
 #else
         text = redcarpet_str_new(output_buf->data, output_buf->size);
 #endif
