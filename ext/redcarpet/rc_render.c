@@ -44,7 +44,7 @@ static inline VALUE
 buf2str(const struct buf *text)
 {
 	if (!text || !text->size) return Qnil;
-	return redcarpet_str_new(text->data, text->size);
+	return redcarpet_str_new(text->data, text->size, rb_enc_get(text->data));
 }
 
 
@@ -413,7 +413,7 @@ static VALUE rb_redcarpet_smartypants_render(VALUE self, VALUE text)
 	output_buf = bufnew(128);
 
 	sdhtml_smartypants(output_buf, RSTRING_PTR(text), RSTRING_LEN(text));
-	result = redcarpet_str_new(output_buf->data, output_buf->size);
+	result = redcarpet_str_new(output_buf->data, output_buf->size, rb_enc_get(text));
 
 	bufrelease(output_buf);
 	return result;

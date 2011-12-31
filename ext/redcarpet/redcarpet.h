@@ -7,7 +7,7 @@
 
 #ifdef HAVE_RUBY_ENCODING_H
 #	include <ruby/encoding.h>
-#	define redcarpet_str_new(data, size) rb_enc_str_new(data, size, rb_utf8_encoding())
+#	define redcarpet_str_new(data, size, enc) rb_enc_str_new(data, size, enc)
 #else
 #	define redcarpet_str_new(data, size) rb_str_new(data, size)
 #endif
