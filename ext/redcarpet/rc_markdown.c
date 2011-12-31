@@ -127,7 +127,12 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 		markdown);
 
 	/* build the Ruby string */
-	text = redcarpet_str_new(output_buf->data, output_buf->size);
+#ifdef HAVE_RUBY_ENCODING_H
+	rb_encoding *enc = rb_enc_get(text);
+        text = redcarpet_str_new(output_buf->data, output_buf->size, enc);
+#else
+        text = redcarpet_str_new(output_buf->data, output_buf->size);
+#endif
 
 	bufrelease(output_buf);
 
