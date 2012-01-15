@@ -127,7 +127,7 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 		markdown);
 
 	/* build the Ruby string */
-	text = redcarpet_str_new(output_buf->data, output_buf->size);
+	text = redcarpet_str_new(output_buf->data, output_buf->size, rb_enc_get(text));
 
 	bufrelease(output_buf);
 
