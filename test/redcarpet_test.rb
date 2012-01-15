@@ -215,6 +215,12 @@ class MarkdownTest < Test::Unit::TestCase
       output = @markdown.render(input)
       assert_equal input.encoding.name, output.encoding.name
     end
+    
+    def test_should_accept_non_utf8_or_ascii
+      input = "testing \xAB\xCD".force_encoding('ASCII-8BIT')
+      output = @markdown.render(input)
+      assert_equal 'ASCII-8BIT', output.encoding.name
+    end
   end
 
   def test_that_tags_can_have_dashes_and_underscores
