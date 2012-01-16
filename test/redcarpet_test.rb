@@ -322,6 +322,13 @@ class RedcarpetCompatTest < Test::Unit::TestCase
     html = RedcarpetCompat.new("This is_just_a test", :no_intraemphasis).to_html
     html_equal "<p>This is_just_a test</p>", html
   end
+  
+  def test_translate_outdated_extensions
+    # these extensions are no longer used
+    exts = [:gh_blockcode, :no_tables, :smart, :strict]
+    html = RedcarpetCompat.new('"TEST"', *exts).to_html
+    html_equal "<p>&quot;TEST&quot;</p>", html
+  end
 end
 
 # Disabled by default
