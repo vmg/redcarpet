@@ -59,9 +59,10 @@ class RedcarpetCompat
   attr_accessor :text
 
   def initialize(text, *exts)
-    exts_hash = rename_extensions(exts).inject({}) {|h, k| h[k] = true; h }
+    exts_hash, render_hash = *parse_extensions_and_renderer_options(exts)
     @text = text
-    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, exts_hash)
+    renderer = Redcarpet::Render::HTML.new(render_hash)
+    @markdown = Redcarpet::Markdown.new(renderer, exts_hash)
   end
 
   def to_html(*_dummy)
@@ -94,6 +95,9 @@ class RedcarpetCompat
     :strict => nil
   }
   
+  RENDERER_OPTIONS = [:filter_html, :no_images, :no_links, :no_styles, 
+    :safe_links_only, :with_toc_data, :hard_wrap, :xhtml]
+  
   def rename_extensions(exts)
     exts.map do |old_name|
       if new_name = EXTENSION_MAP[old_name]
@@ -102,6 +106,19 @@ class RedcarpetCompat
         old_name
       end
     end.compact
+  end
+  
+  # Returns two hashes, the extensions and renderer options
+  # given the extension list
+  def parse_extensions_and_renderer_options(exts)
+    exts = rename_extensions(exts)
+    exts.partition {|ext| !RENDERER_OPTIONS.include?(ext) }.
+      map {|list| list_to_truthy_hash(list) }
+  end
+  
+  # Turns a list of symbols into a hash of <tt>symbol => true</tt>.
+  def list_to_truthy_hash(list)
+    list.inject({}) {|h, k| h[k] = true; h }
   end
 end
 
