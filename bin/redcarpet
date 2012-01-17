@@ -9,5 +9,8 @@ if ARGV.include?('--help')
   exit 0
 end
 
+root = File.expand_path('../../', __FILE__)
+$:.unshift File.expand_path('lib', root)
+
 require 'redcarpet'
 STDOUT.write(Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(ARGF.read))
