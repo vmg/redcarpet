@@ -89,18 +89,6 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 	return rb_markdown;
 }
 
-static void check_utf8_encoding(VALUE str)
-{
-#ifdef HAVE_RUBY_ENCODING_H
-	rb_encoding *enc = rb_enc_get(str);
-	if (enc != rb_utf8_encoding() && enc != rb_usascii_encoding()) {
-		rb_raise(rb_eTypeError,
-			"Input must be UTF-8 or US-ASCII, %s given", rb_enc_name(enc));
-	}
-#endif
-}
-
-
 static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 {
 	VALUE rb_rndr;
@@ -108,7 +96,6 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 	struct sd_markdown *markdown;
 
 	Check_Type(text, T_STRING);
-	check_utf8_encoding(text);
 
 	rb_rndr = rb_iv_get(self, "@renderer");
 	Data_Get_Struct(self, struct sd_markdown, markdown);
@@ -127,7 +114,7 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 		markdown);
 
 	/* build the Ruby string */
-	text = redcarpet_str_new(output_buf->data, output_buf->size);
+	text = redcarpet_str_new(output_buf->data, output_buf->size, rb_enc_get(text));
 
 	bufrelease(output_buf);
 
