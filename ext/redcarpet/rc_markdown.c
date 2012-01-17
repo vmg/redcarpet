@@ -24,6 +24,8 @@ static void rb_redcarpet_md_flags(VALUE hash, unsigned int *enabled_extensions_p
 {
 	unsigned int extensions = 0;
 
+	Check_Type(hash, T_HASH);
+
 	/**
 	 * Markdown extensions -- all disabled by default
 	 */
