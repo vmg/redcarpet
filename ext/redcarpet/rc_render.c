@@ -40,13 +40,11 @@ VALUE rb_cRenderHTML;
 VALUE rb_cRenderHTML_TOC;
 VALUE rb_mSmartyPants;
 
-static inline VALUE
-buf2str(const struct buf *text)
-{
-	if (!text || !text->size) return Qnil;
-	return redcarpet_str_new(text->data, text->size, rb_utf8_encoding());
-}
-
+#ifdef HAVE_RUBY_ENCODING_H
+#define buf2str(t) ((t) ? redcarpet_str_new((t)->data, (t)->size, opt->active_enc) : Qnil)
+#else
+#define buf2str(t) ((t) ? redcarpet_str_new((t)->data, (t)->size, NULL) : Qnil)
+#endif
 
 static void
 rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque)

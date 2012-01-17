@@ -103,6 +103,14 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 	if (rb_respond_to(rb_rndr, rb_intern("preprocess")))
 		text = rb_funcall(rb_rndr, rb_intern("preprocess"), 1, text);
 
+#ifdef HAVE_RUBY_ENCODING_H
+	{
+		struct rb_redcarpet_rndr *renderer;
+		Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, renderer);
+		renderer->options.active_enc = rb_enc_get(text);
+	}
+#endif
+
 	/* initialize buffers */
 	output_buf = bufnew(128);
 

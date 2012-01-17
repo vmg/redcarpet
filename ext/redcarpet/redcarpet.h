@@ -23,6 +23,9 @@ struct redcarpet_renderopt {
 	struct html_renderopt html;
 	VALUE self;
 	VALUE base_class;
+#ifdef HAVE_RUBY_ENCODING_H
+	rb_encoding *active_enc;
+#endif
 };
 
 struct rb_redcarpet_rndr {
