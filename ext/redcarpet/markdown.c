@@ -2361,6 +2361,7 @@ void
 sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, struct sd_markdown *md)
 {
 #define MARKDOWN_GROW(x) ((x) + ((x) >> 1))
+	static const char UTF8_BOM[] = {0xEF, 0xBB, 0xBF};
 
 	struct buf *text;
 	size_t beg, end;
@@ -2377,6 +2378,12 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	/* first pass: looking for references, copying everything else */
 	beg = 0;
+
+	/* Skip a possible UTF-8 BOM, even though the Unicode standard
+	 * discourages having these in UTF-8 documents */
+	if (doc_size >= 3 && memcmp(document, UTF8_BOM, 3) == 0)
+		beg += 3;
+
 	while (beg < doc_size) /* iterating over lines */
 		if (is_ref(document, beg, doc_size, &end, md->refs))
 			beg = end;
