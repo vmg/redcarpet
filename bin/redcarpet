@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
-# Usage: redcarpet [<file>...]
+# Usage: redcarpet [--<extension>...] [<file>...]
 # Convert one or more Markdown files to HTML and write to standard output. With
 # no <file> or when <file> is '-', read Markdown source text from standard input.
+# With <extension>s, perform additional Markdown processing before writing output.
 if ARGV.include?('--help')
   File.read(__FILE__).split("\n").grep(/^# /).each do |line|
     puts line[2..-1]
@@ -9,8 +10,11 @@ if ARGV.include?('--help')
   exit 0
 end
 
+extensions = {}
+ARGV.delete_if {|arg| if arg =~ /^--/ then extensions[$'.to_sym] = true end }
+
 root = File.expand_path('../../', __FILE__)
 $:.unshift File.expand_path('lib', root)
 
 require 'redcarpet'
-STDOUT.write(Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(ARGF.read))
+STDOUT.write(Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions).render(ARGF.read))
