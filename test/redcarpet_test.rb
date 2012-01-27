@@ -61,6 +61,7 @@ class HTMLRenderTest < Test::Unit::TestCase
       :no_links => Redcarpet::Render::HTML.new(:no_links => true),
       :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
       :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
+      :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
     }
   end
 
@@ -113,6 +114,18 @@ EOE
   def test_that_safelink_flag_works
     rd = render_with(@rndr[:safe_links], "[IRC](irc://chat.freenode.org/#freenode)")
     html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", rd
+  end
+
+  def test_that_hard_wrap_works
+    rd = render_with(@rndr[:hard_wrap], <<EOE)
+Hello world,
+this is just a simple test
+
+With hard wraps
+and other *things*.
+EOE
+    
+    assert rd =~ /<br>/
   end
 end
 
