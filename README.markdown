@@ -102,7 +102,7 @@ Rendering with the `Markdown` object is done through `Markdown#render`.
 Unlike in the RedCloth API, the text to render is passed as an argument
 and not stored inside the `Markdown` instance, to encourage reusability.
 
-    Markdown.render(text)
+    Markdown#render(text)
 
     Render a Markdown document with the attached renderer
 
