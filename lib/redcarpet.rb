@@ -86,7 +86,7 @@ class RedcarpetCompat
     :space_header => :space_after_headers,
     :strikethrough => :strikethrough,
     :tables => :tables,
-    :with_toc_data => :generate_toc,
+    :generate_toc => :with_toc_data,
     :xhtml => :xhtml,
     # old names with no new mapping
     :gh_blockcode => nil,
