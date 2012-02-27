@@ -250,7 +250,10 @@ The following instance methods may be implemented by the renderer:
     # document before or after the rendering process begins
     preprocess(full_document)
     postprocess(full_document)
-    
+
+You can look at
+["How to extend the Redcarpet 2 Markdown library?"](http://dev.af83.com/2012/02/27/howto-extend-the-redcarpet2-markdown-lib.html)
+for some more explanations.
 
 Also, now our Pants are much smarter
 ------------------------------------
