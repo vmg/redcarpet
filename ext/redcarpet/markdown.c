@@ -694,6 +694,8 @@ char_escape(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offs
 			rndr->cb.normal_text(ob, &work, rndr->opaque);
 		}
 		else bufputc(ob, data[1]);
+	} else if (size == 1) {
+		bufputc(ob, data[0]);
 	}
 
 	return 2;
@@ -886,7 +888,8 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 		/* looking for link end: ' " ) */
 		while (i < size) {
 			if (data[i] == '\\') i += 2;
-			else if (data[i] == ')' || data[i] == '\'' || data[i] == '"') break;
+			else if (data[i] == ')') break;
+			else if (i >= 1 && _isspace(data[i-1]) && (data[i] == '\'' || data[i] == '"')) break;
 			else i++;
 		}
 
@@ -1967,10 +1970,13 @@ parse_table_header(
 
 	header_end = i;
 
+	while (header_end > 0 && _isspace(data[header_end - 1]))
+		header_end--;
+
 	if (data[0] == '|')
 		pipes--;
 
-	if (i > 2 && data[i - 1] == '|')
+	if (header_end && data[header_end - 1] == '|')
 		pipes--;
 
 	*columns = pipes + 1;
@@ -2244,8 +2250,8 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 			line_end = title_end;
 			title_end = i; } }
 
-	if (!line_end)
-		return 0; /* garbage after the link */
+	if (!line_end || link_end == link_offset)
+		return 0; /* garbage after the link empty link */
 
 	/* a valid ref has been found, filling-in return structures */
 	if (last)
@@ -2255,6 +2261,8 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 		struct link_ref *ref;
 
 		ref = add_link_ref(refs, data + id_offset, id_end - id_offset);
+		if (!ref)
+			return 0;
 
 		ref->link = bufnew(link_end - link_offset);
 		bufput(ref->link, data + link_offset, link_end - link_offset);

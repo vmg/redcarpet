@@ -509,8 +509,16 @@ toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 
 	bufprintf(ob, "<a href=\"#toc_%d\">", options->toc_data.header_count++);
 	if (text)
-		bufput(ob, text->data, text->size);
+		escape_html(ob, text->data, text->size);
 	BUFPUTSL(ob, "</a>\n");
+}
+
+static int
+toc_link(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque)
+{
+	if (content && content->size) 
+		bufput(ob, content->data, content->size);
+	return 1;
 }
 
 static void
@@ -546,7 +554,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 		rndr_emphasis,
 		NULL,
 		NULL,
-		NULL,
+		toc_link,
 		NULL,
 		rndr_triple_emphasis,
 		rndr_strikethrough,
