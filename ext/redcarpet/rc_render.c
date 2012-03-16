@@ -234,6 +234,14 @@ rndr_doc_footer(struct buf *ob, void *opaque)
 	BLOCK_CALLBACK("doc_footer", 0);
 }
 
+static void
+rndr_link_attributes(struct buf *ob, const struct buf *url, void *opaque)
+{
+	struct redcarpet_renderopt *opt = opaque;
+	if (opt->nofollow)
+		BUFPUTSL(ob, " rel=\"nofollow\"");
+}
+
 static struct sd_callbacks rb_redcarpet_callbacks = {
 	rndr_blockcode,
 	rndr_blockquote,
@@ -382,9 +390,14 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 
 		if (rb_hash_aref(hash, CSTR2SYM("xhtml")) == Qtrue)
 			render_flags |= HTML_USE_XHTML;
+
+		if (rb_hash_aref(hash, CSTR2SYM("nofollow_links")) == Qtrue)
+			rndr->options.nofollow = 1;
 	}
 
 	sdhtml_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html, render_flags);
+	if (rndr->options.nofollow)
+		rndr->options.html.link_attributes = rndr_link_attributes;
 	rb_redcarpet__overload(self, rb_cRenderHTML);
 
 	return Qnil;

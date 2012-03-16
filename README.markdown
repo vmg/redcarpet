@@ -148,6 +148,7 @@ instantiating the renderer:
         :xhtml - output XHTML-conformant tags. This option is always enabled in the
             `Render::XHTML` renderer.
 
+        :nofollow_links - add `rel="nofollow"` to all links
 
     Example:
 
