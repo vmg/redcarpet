@@ -341,6 +341,18 @@ class CustomRenderTest < Test::Unit::TestCase
     html_equal "<p>This is <em class=\"cool\">just</em> a test</p>",
       md.render("This is *just* a test")
   end
+
+  class NilPreprocessRenderer < Redcarpet::Render::HTML
+    def preprocess(fulldoc)
+      nil
+    end
+  end
+
+  def test_preprocess_returning_nil
+    md = Redcarpet::Markdown.new(NilPreprocessRenderer)
+    assert_equal(nil,md.render("Anything"))
+  end
+
 end
 
 class RedcarpetCompatTest < Test::Unit::TestCase

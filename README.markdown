@@ -9,12 +9,9 @@ case since version 2 -- it now has its own API, but retains the old name. Yes,
 that does mean that Redcarpet 2 is not backwards-compatible with the 1.X
 versions.
 
-Redcarpet is powered by the Sundown library, which can be found at
-
-    https://www.github.com/tanoku/sundown
-
-You might want to find out more about Sundown to see what makes this Ruby
-library so awesome.
+Redcarpet is powered by the [Sundown](https://www.github.com/tanoku/sundown)
+library. You might want to find out more about Sundown to see what makes this
+Ruby library so awesome.
 
 This library is written by people
 -------------------------------------------------------
@@ -102,7 +99,7 @@ Rendering with the `Markdown` object is done through `Markdown#render`.
 Unlike in the RedCloth API, the text to render is passed as an argument
 and not stored inside the `Markdown` instance, to encourage reusability.
 
-    Markdown.render(text)
+    Markdown#render(text)
 
     Render a Markdown document with the attached renderer
 
@@ -253,7 +250,10 @@ The following instance methods may be implemented by the renderer:
     # document before or after the rendering process begins
     preprocess(full_document)
     postprocess(full_document)
-    
+
+You can look at
+["How to extend the Redcarpet 2 Markdown library?"](http://dev.af83.com/2012/02/27/howto-extend-the-redcarpet2-markdown-lib.html)
+for some more explanations.
 
 Also, now our Pants are much smarter
 ------------------------------------

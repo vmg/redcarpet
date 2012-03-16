@@ -104,6 +104,8 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 
 	if (rb_respond_to(rb_rndr, rb_intern("preprocess")))
 		text = rb_funcall(rb_rndr, rb_intern("preprocess"), 1, text);
+  if (NIL_P(text))
+    return Qnil;
 
 #ifdef HAVE_RUBY_ENCODING_H
 	{
