@@ -148,6 +148,7 @@ instantiating the renderer:
         :xhtml - output XHTML-conformant tags. This option is always enabled in the
             `Render::XHTML` renderer.
 
+        :link_attributes - hash of extra attributes to add to links
 
     Example:
 
