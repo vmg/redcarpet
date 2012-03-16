@@ -1,7 +1,7 @@
 # encoding: utf-8
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '2.1.0'
+  s.version = '2.1.1'
   s.summary = "Markdown that smells nice"
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
   s.date = '2011-09-14'
