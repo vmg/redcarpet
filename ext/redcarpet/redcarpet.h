@@ -21,6 +21,7 @@ extern void Init_redcarpet_rndr();
 
 struct redcarpet_renderopt {
 	struct html_renderopt html;
+	int nofollow;
 	VALUE self;
 	VALUE base_class;
 #ifdef HAVE_RUBY_ENCODING_H
