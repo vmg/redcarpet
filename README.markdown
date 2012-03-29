@@ -126,32 +126,32 @@ instantiating the renderer:
 
     Render::HTML.new(render_options={})
 
-    Initializes an HTML renderer. The following flags are available:
+Initializes an HTML renderer. The following flags are available:
 
-        :filter_html - do not allow any user-inputted HTML in the output
+    :filter_html - do not allow any user-inputted HTML in the output
 
-        :no_images - do not generate any `<img>` tags
+    :no_images - do not generate any `<img>` tags
 
-        :no_links - do not generate any `<a>` tags
+    :no_links - do not generate any `<a>` tags
 
-        :no_styles - do not generate any `<style>` tags
+    :no_styles - do not generate any `<style>` tags
 
-        :safe_links_only - only generate links for protocols which are considered safe
+    :safe_links_only - only generate links for protocols which are considered safe
 
-        :with_toc_data - add HTML anchors to each header in the output HTML,
-            to allow linking to each section.
+    :with_toc_data - add HTML anchors to each header in the output HTML,
+        to allow linking to each section.
 
-        :hard_wrap - insert HTML `<br>` tags inside on paragraphs where the origin
-            Markdown document had newlines (by default, Markdown ignores these
-            newlines).
+    :hard_wrap - insert HTML `<br>` tags inside on paragraphs where the origin
+        Markdown document had newlines (by default, Markdown ignores these
+        newlines).
 
-        :xhtml - output XHTML-conformant tags. This option is always enabled in the
-            `Render::XHTML` renderer.
+    :xhtml - output XHTML-conformant tags. This option is always enabled in the
+        `Render::XHTML` renderer.
 
 
-    Example:
+Example:
 
-        rndr = Redcarpet::Render::HTML.new(:no_links => true, :hard_wrap => true)
+    rndr = Redcarpet::Render::HTML.new(:no_links => true, :hard_wrap => true)
 
 
 The `HTML` renderer has an alternate version, `Redcarpet::Render::HTML_TOC`,
