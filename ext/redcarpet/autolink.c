@@ -21,6 +21,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_WIN32)
+#define strncasecmp	_strnicmp
+#endif
+
 int
 sd_autolink_issafe(const uint8_t *link, size_t link_len)
 {

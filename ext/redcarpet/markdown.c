@@ -25,6 +25,10 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#if defined(_WIN32)
+#define strncasecmp	_strnicmp
+#endif
+
 #define REF_TABLE_SIZE 8
 
 #define BUFFER_BLOCK 0
@@ -1416,7 +1420,10 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 	while (i < size) {
 		for (end = i + 1; end < size && data[end - 1] != '\n'; end++) /* empty */;
 
-		if (is_empty(data + i, size - i) || (level = is_headerline(data + i, size - i)) != 0)
+		if (is_empty(data + i, size - i))
+			break;
+
+		if ((level = is_headerline(data + i, size - i)) != 0)
 			break;
 
 		if (rndr->ext_flags & MKDEXT_LAX_HTML_BLOCKS) {
@@ -1426,7 +1433,9 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 			}
 		}
 
-		if (is_atxheader(rndr, data + i, size - i) || is_hrule(data + i, size - i)) {
+		if (is_atxheader(rndr, data + i, size - i) ||
+			is_hrule(data + i, size - i) ||
+			prefix_quote(data + i, size - i)) {
 			end = i;
 			break;
 		}
@@ -1758,7 +1767,12 @@ parse_atxheader(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 /* htmlblock_end • checking end of HTML block : </tag>[ \t]*\n[ \t*]\n */
 /*	returns the length on match, 0 otherwise */
 static size_t
-htmlblock_end(const char *tag, size_t tag_len, struct sd_markdown *rndr, uint8_t *data, size_t size)
+htmlblock_end_tag(
+	const char *tag,
+	size_t tag_len,
+	struct sd_markdown *rndr,
+	uint8_t *data,
+	size_t size)
 {
 	size_t i, w;
 
@@ -1787,14 +1801,54 @@ htmlblock_end(const char *tag, size_t tag_len, struct sd_markdown *rndr, uint8_t
 	return i + w;
 }
 
+static size_t
+htmlblock_end(const char *curtag,
+	struct sd_markdown *rndr,
+	uint8_t *data,
+	size_t size,
+	int start_of_line)
+{
+	size_t tag_size = strlen(curtag);
+	size_t i = 1, end_tag;
+	int block_lines = 0;
+
+	while (i < size) {
+		i++;
+		while (i < size && !(data[i - 1] == '<' && data[i] == '/')) {
+			if (data[i] == '\n')
+				block_lines++;
+
+			i++;
+		}
+
+		/* If we are only looking for unindented tags, skip the tag
+		 * if it doesn't follow a newline.
+		 *
+		 * The only exception to this is if the tag is still on the
+		 * initial line; in that case it still counts as a closing
+		 * tag
+		 */
+		if (start_of_line && block_lines > 0 && data[i - 2] != '\n')
+			continue;
+
+		if (i + 2 + tag_size >= size)
+			break;
+
+		end_tag = htmlblock_end_tag(curtag, tag_size, rndr, data + i - 1, size - i + 1);
+		if (end_tag)
+			return i + end_tag - 1;
+	}
+
+	return 0;
+}
+
 
 /* parse_htmlblock • parsing of inline HTML block */
 static size_t
 parse_htmlblock(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size, int do_render)
 {
-	size_t i, j = 0;
+	size_t i, j = 0, tag_end;
 	const char *curtag = NULL;
-	int found;
 	struct buf work = { data, 0, 0, 0 };
 
 	/* identification of the opening tag */
@@ -1855,40 +1909,23 @@ parse_htmlblock(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 
 	/* looking for an unindented matching closing tag */
 	/*	followed by a blank line */
-	i = 1;
-	found = 0;
+	tag_end = htmlblock_end(curtag, rndr, data, size, 1);
 
 	/* if not found, trying a second pass looking for indented match */
 	/* but not if tag is "ins" or "del" (following original Markdown.pl) */
-	if (strcmp(curtag, "ins") != 0 && strcmp(curtag, "del") != 0) {
-		size_t tag_size = strlen(curtag);
-		i = 1;
-		while (i < size) {
-			i++;
-			while (i < size && !(data[i - 1] == '<' && data[i] == '/'))
-				i++;
-
-			if (i + 2 + tag_size >= size)
-				break;
-
-			j = htmlblock_end(curtag, tag_size, rndr, data + i - 1, size - i + 1);
-
-			if (j) {
-				i += j - 1;
-				found = 1;
-				break;
-			}
-		}
+	if (!tag_end && strcmp(curtag, "ins") != 0 && strcmp(curtag, "del") != 0) {
+		tag_end = htmlblock_end(curtag, rndr, data, size, 0);
 	}
 
-	if (!found) return 0;
+	if (!tag_end)
+		return 0;
 
 	/* the end of the block has been found */
-	work.size = i;
+	work.size = tag_end;
 	if (do_render && rndr->cb.blockhtml)
 		rndr->cb.blockhtml(ob, &work, rndr->opaque);
 
-	return i;
+	return tag_end;
 }
 
 static void

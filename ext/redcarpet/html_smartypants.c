@@ -22,6 +22,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_WIN32)
+#define snprintf	_snprintf
+#endif
+
 struct smartypants_data {
 	int in_squote;
 	int in_dquote;
