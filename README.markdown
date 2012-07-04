@@ -16,8 +16,8 @@ Ruby library so awesome.
 This library is written by people
 -------------------------------------------------------
 
-Redcarpet 2 has been rewritten from scratch by Vicent Martí (@tanoku). Why
-are you not following me on Twitter?
+Redcarpet 2 has been rewritten from scratch by Vicent Martí ([@tanoku](https://twitter.com/tanoku)). Why
+are you not [following me on Twitter](https://twitter.com/tanoku)?
 
 Redcarpet would not be possible without the Sundown library and its authors
 (Natacha Porté, Vicent Martí, and its many awesome contributors).
