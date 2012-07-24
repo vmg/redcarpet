@@ -209,6 +209,9 @@ class MarkdownTest < Test::Unit::TestCase
 
     rd = render_with({:no_intra_emphasis => true},"foo_bar_baz")
     html_equal "<p>foo_bar_baz</p>\n", rd
+
+    rd = render_with({:no_intra_emphasis => true},"foo_bar_-_baz")
+    html_equal "<p>foo_bar_-_baz</p>\n", rd
   end
 
   def test_that_autolink_flag_works
