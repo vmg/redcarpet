@@ -9,14 +9,14 @@ case since version 2 -- it now has its own API, but retains the old name. Yes,
 that does mean that Redcarpet 2 is not backwards-compatible with the 1.X
 versions.
 
-Redcarpet is powered by the [Sundown](https://www.github.com/tanoku/sundown)
+Redcarpet is powered by the [Sundown](https://www.github.com/vmg/sundown)
 library. You might want to find out more about Sundown to see what makes this
 Ruby library so awesome.
 
 This library is written by people
 -------------------------------------------------------
 
-Redcarpet 2 has been rewritten from scratch by Vicent Martí (@tanoku). Why
+Redcarpet 2 has been rewritten from scratch by Vicent Martí (@vmg). Why
 are you not following me on Twitter?
 
 Redcarpet would not be possible without the Sundown library and its authors
@@ -32,7 +32,7 @@ extensions, but the parser is standalone and requires no installed libraries.
 
 The Redcarpet source (including Sundown as a submodule) is available at GitHub:
 
-    $ git clone git://github.com/tanoku/redcarpet.git
+    $ git clone git://github.com/vmg/redcarpet.git
 
 And it's like *really* simple to use
 ------------------------------------
