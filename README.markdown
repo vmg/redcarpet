@@ -311,6 +311,10 @@ that's a maintance nightmare and won't work.
 On a related topic: if your Markdown gem has a `lib/markdown.rb` file that
 monkeypatches the Markdown class, you're a terrible human being. Just saying.
 
+Testing
+-------
+Tests run a lot faster without `bundle exec` :)
+
 Boring legal stuff
 ------------------
 
