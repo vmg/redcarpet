@@ -6,7 +6,5 @@ rvm:
   - ruby-head
   - ree
 
-gemfile: Gemfile.ci
-
 notifications:
   email: false
