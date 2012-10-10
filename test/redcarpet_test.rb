@@ -311,6 +311,15 @@ fenced
     assert render_with({:fenced_code_blocks => true}, text) =~ /<code/
   end
 
+  def test_that_fenced_flag_works_without_space
+    text = "foo\nbar\n```\nsome\ncode\n```\nbaz"
+    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true, :lax_html_blocks => true).render(text)
+    assert_include out, "<pre><code>"
+
+    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
+    assert_include out, "<pre><code>"
+  end
+
   def test_that_headers_are_linkable
     markdown = @markdown.render('### Hello [GitHub](http://github.com)')
     html_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>", markdown
