@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
   s.date = '2011-09-14'
   s.email = 'vicent@github.com'
-  s.homepage = 'http://github.com/tanoku/redcarpet'
+  s.homepage = 'http://github.com/vmg/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   # = MANIFEST =
   s.files = %w[
@@ -47,5 +47,6 @@ Gem::Specification.new do |s|
   s.extensions = ["ext/redcarpet/extconf.rb"]
   s.executables = ["redcarpet"]
   s.require_paths = ["lib"]
+  s.add_development_dependency "nokogiri"
   s.add_development_dependency "rake-compiler"
 end

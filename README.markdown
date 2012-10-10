@@ -9,14 +9,14 @@ case since version 2 -- it now has its own API, but retains the old name. Yes,
 that does mean that Redcarpet 2 is not backwards-compatible with the 1.X
 versions.
 
-Redcarpet is powered by the [Sundown](https://www.github.com/tanoku/sundown)
+Redcarpet is powered by the [Sundown](https://www.github.com/vmg/sundown)
 library. You might want to find out more about Sundown to see what makes this
 Ruby library so awesome.
 
 This library is written by people
 -------------------------------------------------------
 
-Redcarpet 2 has been rewritten from scratch by Vicent Martí (@tanoku). Why
+Redcarpet 2 has been rewritten from scratch by Vicent Martí (@vmg). Why
 are you not following me on Twitter?
 
 Redcarpet would not be possible without the Sundown library and its authors
@@ -32,7 +32,7 @@ extensions, but the parser is standalone and requires no installed libraries.
 
 The Redcarpet source (including Sundown as a submodule) is available at GitHub:
 
-    $ git clone git://github.com/tanoku/redcarpet.git
+    $ git clone git://github.com/vmg/redcarpet.git
 
 And it's like *really* simple to use
 ------------------------------------
@@ -78,7 +78,7 @@ settings, and reused between parses.
                     Two `~` characters mark the start of a strikethrough,
                     e.g. `this is ~~good~~ bad`
 
-                :lax_html_blocks - HTML blocks do not require to be surrounded
+                :lax_spacing - HTML blocks do not require to be surrounded
                     by an empty line as in the Markdown standard.
 
                 :space_after_headers - A space is always required between the
@@ -310,6 +310,10 @@ that's a maintance nightmare and won't work.
 
 On a related topic: if your Markdown gem has a `lib/markdown.rb` file that
 monkeypatches the Markdown class, you're a terrible human being. Just saying.
+
+Testing
+-------
+Tests run a lot faster without `bundle exec` :)
 
 Boring legal stuff
 ------------------

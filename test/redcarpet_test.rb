@@ -187,7 +187,7 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_para_before_block_html_should_not_wrap_in_p_tag
-    markdown = render_with({:lax_html_blocks => true},
+    markdown = render_with({:lax_spacing => true},
       "Things to watch out for\n" +
       "<ul>\n<li>Blah</li>\n</ul>\n")
 

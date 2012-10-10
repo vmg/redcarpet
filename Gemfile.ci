@@ -1,3 +1,0 @@
-source "http://rubygems.org"
-gem "nokogiri"
-gem "rake-compiler"

@@ -1,0 +1,20 @@
+PATH
+  remote: .
+  specs:
+    redcarpet (2.1.1)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    nokogiri (1.5.5)
+    rake (0.9.2.2)
+    rake-compiler (0.8.1)
+      rake
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  nokogiri
+  rake-compiler
+  redcarpet!
