@@ -313,11 +313,11 @@ fenced
 
   def test_that_fenced_flag_works_without_space
     text = "foo\nbar\n```\nsome\ncode\n```\nbaz"
-    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true, :lax_html_blocks => true).render(text)
-    assert_include out, "<pre><code>"
+    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true, :lax_spacing => true).render(text)
+    assert out.include?("<pre><code>")
 
     out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
-    assert_include out, "<pre><code>"
+    assert !out.include?("<pre><code>")
   end
 
   def test_that_headers_are_linkable
