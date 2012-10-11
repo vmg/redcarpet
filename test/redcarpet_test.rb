@@ -312,9 +312,15 @@ This is some awesome code
 ~~~
 fenced
 
-    assert render_with({}, text) !~ /<code/
+    # with ~
+    refute_match /<pre><code>/, render_with({}, text)
 
-    assert render_with({:fenced_code_blocks => true}, text) =~ /<code/
+    assert_match /<pre><code>/, render_with({:fenced_code_blocks => true}, text)
+
+    # with `
+    refute_match /<pre><code>/, render_with({}, text.tr("~", "`"))
+
+    assert_match /<pre><code>/, render_with({:fenced_code_blocks => true}, text.tr("~", "`"))
   end
 
   def test_that_fenced_flag_works_without_space
