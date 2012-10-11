@@ -148,6 +148,7 @@ Initializes an HTML renderer. The following flags are available:
     :xhtml - output XHTML-conformant tags. This option is always enabled in the
         `Render::XHTML` renderer.
 
+        :link_attributes - hash of extra attributes to add to links
 
 Example:
 
