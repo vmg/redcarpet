@@ -295,7 +295,7 @@ software accordingly, and force your users to install it. That's the
 only way to have reliable and predictable Markdown output on your program.
 
 Still, if major forces (let's say, tornadoes or other natural disasters) force you
-to keep a Markdown-compatibility later, Redcarpet also supports this:
+to keep a Markdown-compatibility layer, Redcarpet also supports this:
 
     require 'redcarpet/compat'
 
