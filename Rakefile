@@ -3,13 +3,20 @@ require 'rake/clean'
 require 'rake/extensiontask'
 require 'digest/md5'
 
-task :default => :test
+task :default => [:checkout, :test]
 
 # ==========================================================
 # Ruby Extension
 # ==========================================================
 
 Rake::ExtensionTask.new('redcarpet')
+
+task :checkout do |t|
+  unless File.exists?('sundown/src/markdown.h')
+    sh 'git submodule init'
+    sh 'git submodule update'
+  end
+end
 
 # ==========================================================
 # Testing
@@ -108,23 +115,4 @@ task :update_gem do
   File.open(GEMFILE, 'w') { |io| io.write(spec) }
   puts "updated #{GEMFILE}"
 end
-
-desc 'Gather required Sundown sources into extension directory'
-task :gather => 'sundown/src/markdown.h' do |t|
-  files =
-    FileList[
-      'sundown/src/{markdown,buffer,stack,autolink,html_blocks}.h',
-      'sundown/src/{markdown,buffer,stack,autolink}.c',
-      'sundown/html/{html,html_smartypants,houdini_html_e,houdini_href_e}.c',
-      'sundown/html/{html,houdini}.h',
-    ]
-  cp files, 'ext/redcarpet/',
-    :preserve => true,
-    :verbose => true
-end
-
-file 'sundown/src/markdown.h' do |t|
-  abort "The Sundown submodule is required."
-end
-
 
