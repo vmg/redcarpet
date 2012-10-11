@@ -127,6 +127,12 @@ EOE
     
     assert rd =~ /<br>/
   end
+
+  def test_that_link_attributes_work
+    rndr = Redcarpet::Render::HTML.new(:link_attributes => {:rel => 'blank'})
+    md = Redcarpet::Markdown.new(rndr)
+    assert md.render('This is a [simple](http://test.com) test.').include?('rel="blank"')
+  end
 end
 
 class MarkdownTest < Test::Unit::TestCase

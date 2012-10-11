@@ -33,7 +33,6 @@ struct redcarpet_renderopt {
 struct rb_redcarpet_rndr {
 	struct sd_callbacks callbacks;
 	struct redcarpet_renderopt options;
-	struct buf *ob;
 };
 
 #endif
