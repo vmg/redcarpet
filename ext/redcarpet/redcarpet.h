@@ -3,6 +3,7 @@
 
 #define RSTRING_NOT_MODIFIED
 #include "ruby.h"
+#include "st.h"
 #include <stdio.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
@@ -21,6 +22,7 @@ extern void Init_redcarpet_rndr();
 
 struct redcarpet_renderopt {
 	struct html_renderopt html;
+	VALUE link_attributes;
 	VALUE self;
 	VALUE base_class;
 #ifdef HAVE_RUBY_ENCODING_H
@@ -31,6 +33,7 @@ struct redcarpet_renderopt {
 struct rb_redcarpet_rndr {
 	struct sd_callbacks callbacks;
 	struct redcarpet_renderopt options;
+	struct buf *ob;
 };
 
 #endif
