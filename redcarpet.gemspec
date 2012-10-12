@@ -51,4 +51,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.add_development_dependency "nokogiri"
   s.add_development_dependency "rake-compiler"
+  s.add_development_dependency "test-unit"
 end
