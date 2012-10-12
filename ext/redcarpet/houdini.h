@@ -3,6 +3,10 @@
 
 #include "buffer.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HOUDINI_USE_LOCALE
 #	define _isxdigit(c) isxdigit(c)
 #	define _isdigit(c) isdigit(c)
@@ -25,5 +29,9 @@ extern void houdini_unescape_uri(struct buf *ob, const uint8_t *src, size_t size
 extern void houdini_unescape_url(struct buf *ob, const uint8_t *src, size_t size);
 extern void houdini_escape_js(struct buf *ob, const uint8_t *src, size_t size);
 extern void houdini_unescape_js(struct buf *ob, const uint8_t *src, size_t size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

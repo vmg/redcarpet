@@ -23,7 +23,7 @@
 #include <ctype.h>
 
 #if defined(_WIN32)
-#define snprintf	_snprintf
+#define snprintf	_snprintf		
 #endif
 
 struct smartypants_data {

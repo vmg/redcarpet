@@ -21,6 +21,10 @@
 #include "buffer.h"
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct html_renderopt {
 	struct {
 		int header_count;
@@ -64,6 +68,10 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 
 extern void
 sdhtml_smartypants(struct buf *ob, const uint8_t *text, size_t size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
