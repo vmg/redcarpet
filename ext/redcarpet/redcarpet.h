@@ -3,7 +3,7 @@
 
 #define RSTRING_NOT_MODIFIED
 #include "ruby.h"
-#include "st.h"
+#include "ruby/st.h"
 #include <stdio.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
