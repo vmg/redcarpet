@@ -241,7 +241,7 @@ cb_link_attribute(VALUE key, VALUE val, VALUE payload)
 	key = rb_obj_as_string(key);
 	val = rb_obj_as_string(val);
 	bufprintf(ob, " %s=\"%s\"", StringValueCStr(key), StringValueCStr(val));
-	return ST_CONTINUE;
+	return 0;
 }
 
 static void
