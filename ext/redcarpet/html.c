@@ -602,8 +602,8 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 		NULL,
 		NULL,
 		NULL,
-		NULL,
-		NULL,
+		rndr_footnotes,
+		rndr_footnotes_def,
 
 		NULL,
 		rndr_codespan,
@@ -616,7 +616,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 		rndr_triple_emphasis,
 		rndr_strikethrough,
 		rndr_superscript,
-		NULL,
+		rndr_footnote_ref,
 
 		NULL,
 		NULL,
