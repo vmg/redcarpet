@@ -603,7 +603,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 		NULL,
 		NULL,
 		rndr_footnotes,
-		rndr_footnotes_def,
+		rndr_footnote_def,
 
 		NULL,
 		rndr_codespan,
