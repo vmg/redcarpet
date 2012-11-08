@@ -16,6 +16,9 @@ module Redcarpet
         :emphasis, :raw_html, :triple_emphasis,
         :strikethrough, :superscript,
 
+        # footnotes
+        :footnotes, :footnote_def, :footnote_ref,
+
         # low level rendering
         :entity, :normal_text
       ].each do |method|
