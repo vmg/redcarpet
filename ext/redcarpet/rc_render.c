@@ -220,7 +220,7 @@ rndr_superscript(struct buf *ob, const struct buf *text, void *opaque)
 static int
 rndr_footnote_ref(struct buf *ob, unsigned int num, void *opaque)
 {
-	SPAN_CALLBACK("footnote_def", 1, INT2FIX(num));
+	SPAN_CALLBACK("footnote_ref", 1, INT2FIX(num));
 }
 
 /**
