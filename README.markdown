@@ -307,7 +307,7 @@ classical RedCloth API, e.g.
 
 This class renders 100% standards compliant Markdown with 0 extensions. Nada.
 Don't even try to enable extensions with a compatibility layer, because
-that's a maintance nightmare and won't work.
+that's a maintenance nightmare and won't work.
 
 On a related topic: if your Markdown gem has a `lib/markdown.rb` file that
 monkeypatches the Markdown class, you're a terrible human being. Just saying.
