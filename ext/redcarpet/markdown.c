@@ -307,6 +307,13 @@ find_footnote_ref(struct footnote_list *list, uint8_t *name, size_t length)
 }
 
 static void
+free_footnote_ref(struct footnote_ref *ref)
+{
+	bufrelease(ref->contents);
+	free(ref);
+}
+
+static void
 free_footnote_list(struct footnote_list *list, int free_refs)
 {
 	struct footnote_item *item = list->head;
@@ -314,10 +321,8 @@ free_footnote_list(struct footnote_list *list, int free_refs)
 	
 	while (item) {
 		next = item->next;
-		if (free_refs) {
-			bufrelease(item->ref->contents);
-			free(item->ref);
-		}
+		if (free_refs)
+			free_footnote_ref(item->ref);
 		free(item);
 		item = next;
 	}
@@ -2445,7 +2450,7 @@ is_footnote(const uint8_t *data, size_t beg, size_t end, size_t *last, struct fo
 	while (i < end && data[i] == ' ') i++;
 	if (i < end && (data[i] == '\n' || data[i] == '\r')) {
 		i++;
-		if (i < end && data[i] == '\r' && data[i - 1] == '\n') i++;
+		if (i < end && data[i] == '\n' && data[i - 1] == '\r') i++;
 	}
 	while (i < end && data[i] == ' ') i++;
 	if (i >= end || data[i] == '\n' || data[i] == '\r') return 0;
@@ -2457,14 +2462,15 @@ is_footnote(const uint8_t *data, size_t beg, size_t end, size_t *last, struct fo
 	
 	/* process lines similiar to a list item */
 	while (i < end) {
-		i++;
-	
-		while (i < end && data[i - 1] != '\n')
-			i++;
-	
+		while (i < end && data[i] != '\n' && data[i] != '\r') i++;
+		
 		/* process an empty line */
 		if (is_empty(data + start, i - start)) {
 			in_empty = 1;
+			if (i < end && (data[i] == '\n' || data[i] == '\r')) {
+				i++;
+				if (i < end && data[i] == '\n' && data[i - 1] == '\r') i++;
+			}
 			start = i;
 			continue;
 		}
@@ -2488,6 +2494,14 @@ is_footnote(const uint8_t *data, size_t beg, size_t end, size_t *last, struct fo
 	
 		/* adding the line into the content buffer */
 		bufput(contents, data + start + ind, i - start - ind);
+		/* add carriage return */
+		if (i < end) {
+			bufput(contents, "\n", 1);
+			if (i < end && (data[i] == '\n' || data[i] == '\r')) {
+				i++;
+				if (i < end && data[i] == '\n' && data[i - 1] == '\r') i++;
+			}
+		}
 		start = i;
 	}
 	
@@ -2499,8 +2513,10 @@ is_footnote(const uint8_t *data, size_t beg, size_t end, size_t *last, struct fo
 		ref = create_footnote_ref(list, data + id_offset, id_end - id_offset);
 		if (!ref)
 			return 0;
-		if (!add_footnote_ref(list, ref))
+		if (!add_footnote_ref(list, ref)) {
+			free_footnote_ref(ref);
 			return 0;
+		}
 		ref->contents = contents;
 	}
 	
