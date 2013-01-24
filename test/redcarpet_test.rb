@@ -249,7 +249,7 @@ class MarkdownTest < Test::Unit::TestCase
 
   def test_link_syntax_is_not_processed_within_code_blocks
     markdown = @markdown.render("    This is a code block\n    This is a link [[1]] inside\n")
-    html_equal "<pre><code>This is a code block\nThis is a link [[1]] inside\n</code></pre>\n",
+    html_equal "<pre><code class="prettyprint">This is a code block\nThis is a link [[1]] inside\n</code></pre>\n",
       markdown
   end
 
@@ -320,10 +320,10 @@ fenced
   def test_that_fenced_flag_works_without_space
     text = "foo\nbar\n```\nsome\ncode\n```\nbaz"
     out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true, :lax_spacing => true).render(text)
-    assert out.include?("<pre><code>")
+    assert out.include?("<pre><code class=\"prettyprint\">")
 
     out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
-    assert !out.include?("<pre><code>")
+    assert !out.include?("<pre><code class=\"prettyprint\">")
   end
 
   def test_that_headers_are_linkable
@@ -392,13 +392,13 @@ class RedcarpetCompatTest < Test::Unit::TestCase
   def test_compat_api_knows_fenced_code_extension
     text = "```ruby\nx = 'foo'\n```"
     html = RedcarpetCompat.new(text, :fenced_code).to_html
-    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>", html
+    html_equal "<pre><code class=\"prettyprint ruby\">x = 'foo'\n</code></pre>", html
   end
   
   def test_compat_api_ignores_gh_blockcode_extension
     text = "```ruby\nx = 'foo'\n```"
     html = RedcarpetCompat.new(text, :fenced_code, :gh_blockcode).to_html
-    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>", html
+    html_equal "<pre><code class=\"prettyprint ruby\">x = 'foo'\n</code></pre>", html
   end
 
   def test_compat_api_knows_no_intraemphasis_extension
