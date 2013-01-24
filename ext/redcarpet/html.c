@@ -121,10 +121,10 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 	if (ob->size) bufputc(ob, '\n');
 
 	if (lang && lang->size) {
-		size_t i, cls;
-		BUFPUTSL(ob, "<pre><code class=\"");
+		size_t i;
+		BUFPUTSL(ob, "<pre><code class=\"prettyprint");
 
-		for (i = 0, cls = 0; i < lang->size; ++i, ++cls) {
+		for (i = 0; i < lang->size; ++i) {
 			while (i < lang->size && isspace(lang->data[i]))
 				i++;
 
@@ -136,14 +136,14 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 				if (lang->data[org] == '.')
 					org++;
 
-				if (cls) bufputc(ob, ' ');
+				bufputc(ob, ' ');
 				escape_html(ob, lang->data + org, i - org);
 			}
 		}
 
 		BUFPUTSL(ob, "\">");
 	} else
-		BUFPUTSL(ob, "<pre><code>");
+		BUFPUTSL(ob, "<pre><code class=\"prettyprint\">");
 
 	if (text)
 		escape_html(ob, text->data, text->size);
@@ -163,7 +163,7 @@ rndr_blockquote(struct buf *ob, const struct buf *text, void *opaque)
 static int
 rndr_codespan(struct buf *ob, const struct buf *text, void *opaque)
 {
-	BUFPUTSL(ob, "<code>");
+	BUFPUTSL(ob, "<code class=\"prettyprint\">");
 	if (text) escape_html(ob, text->data, text->size);
 	BUFPUTSL(ob, "</code>");
 	return 1;
