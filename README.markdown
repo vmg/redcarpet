@@ -135,6 +135,8 @@ Initializes an HTML renderer. The following flags are available:
     :no_links - do not generate any `<a>` tags
 
     :no_styles - do not generate any `<style>` tags
+    
+    :prettify - add prettyprint classes to `<code>` tags for google-code-prettify
 
     :safe_links_only - only generate links for protocols which are considered safe
 
