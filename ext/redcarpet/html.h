@@ -49,6 +49,7 @@ typedef enum {
 	HTML_HARD_WRAP = (1 << 7),
 	HTML_USE_XHTML = (1 << 8),
 	HTML_ESCAPE = (1 << 9),
+	HTML_PRETTIFY = (1 << 10),
 } html_render_mode;
 
 typedef enum {
