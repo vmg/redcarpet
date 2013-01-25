@@ -148,10 +148,11 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 		}
 
 		BUFPUTSL(ob, "\">");
-	} else if (options->flags & HTML_PRETTIFY)
+	} else if (options->flags & HTML_PRETTIFY) {
 		BUFPUTSL(ob, "<pre><code class=\"prettyprint\">");
-	} else
+	} else {
 		BUFPUTSL(ob, "<pre><code>");
+	}
 
 	if (text)
 		escape_html(ob, text->data, text->size);
