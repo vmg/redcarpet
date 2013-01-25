@@ -77,6 +77,7 @@ class RedcarpetCompat
     :fenced_code => :fenced_code_blocks,
     :filter_html => :filter_html,
     :hard_wrap => :hard_wrap,
+    :prettify => :prettify,
     :lax_htmlblock => :lax_spacing,
     :no_image => :no_images,
     :no_intraemphasis => :no_intra_emphasis,
@@ -96,7 +97,7 @@ class RedcarpetCompat
   }
   
   RENDERER_OPTIONS = [:filter_html, :no_images, :no_links, :no_styles, 
-    :safe_links_only, :with_toc_data, :hard_wrap, :xhtml]
+    :safe_links_only, :with_toc_data, :hard_wrap, :prettify, :xhtml]
   
   def rename_extensions(exts)
     exts.map do |old_name|
