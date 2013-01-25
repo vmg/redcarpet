@@ -123,7 +123,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 	if (lang && lang->size) {
 		size_t i, cls;
 		BUFPUTSL(ob, "<pre><code class=\"");
-		if (render_flags & HTML_PRETTIFY) {
+		if (options->flags & HTML_PRETTIFY) {
 			BUFPUTSL(ob, "prettyprint");
 			cls++;
 		}
@@ -146,7 +146,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 		}
 
 		BUFPUTSL(ob, "\">");
-	} else if (render_flags & HTML_PRETTIFY)
+	} else if (options->flags & HTML_PRETTIFY)
 		BUFPUTSL(ob, "<pre><code class=\"prettyprint\">");
 	} else
 		BUFPUTSL(ob, "<pre><code>");
