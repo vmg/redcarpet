@@ -118,6 +118,8 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 static void
 rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque)
 {
+	struct html_renderopt *options = opaque;
+
 	if (ob->size) bufputc(ob, '\n');
 
 	if (lang && lang->size) {
