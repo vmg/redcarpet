@@ -294,6 +294,18 @@ EOS
     assert render_with({:tables => true}, text) =~ /<table/
   end
 
+  def test_that_tables_work_with_org_table_syntax
+    text = <<EOS
+| aaa | bbbb |
+|-----+------|
+|hello|sailor|
+EOS
+
+    assert render_with({}, text) !~ /<table/
+
+    assert render_with({:tables => true}, text) =~ /<table/
+  end
+
   def test_strikethrough_flag_works
     text = "this is ~some~ striked ~~text~~"
 
