@@ -83,6 +83,25 @@ word_boundary(uint8_t c)
 	return c == 0 || isspace(c) || ispunct(c);
 }
 
+// If 'text' begins with any kind of single quote (e.g. "'" or "&apos;" etc.),
+// returns the length of the sequence of characters that makes up the single-
+// quote.  Otherwise, returns zero.
+static int
+squote_len(const uint8_t *text, size_t size)
+{
+	static char* single_quote_list[] = { "'", "&#39;", "&#x27;", "&apos;", NULL };
+
+	for (char** p = single_quote_list; *p; ++p) {
+		int len = strlen(*p);
+		if (size >= len && memcmp(text, *p, len) == 0) {
+			return len;
+		}
+	}
+
+	return 0;
+}
+
+// Converts " or ' at very beginning or end of a word to left or right quote
 static int
 smartypants_quotes(struct buf *ob, uint8_t previous_char, uint8_t next_char, uint8_t quote, int *is_open)
 {
@@ -100,23 +119,31 @@ smartypants_quotes(struct buf *ob, uint8_t previous_char, uint8_t next_char, uin
 	return 1;
 }
 
+// Converts ' to left or right single quote.
+// Be careful not to assume that text[0] is "'" -- it might not be.  It might be
+// pointing to the semicolon in "&apos;" or something similar.
 static size_t
 smartypants_cb__squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
 	if (size >= 2) {
 		uint8_t t1 = tolower(text[1]);
+		int next_squote_len = squote_len(text+1, size-1);
 
-		if (t1 == '\'') {
-			if (smartypants_quotes(ob, previous_char, size >= 3 ? text[2] : 0, 'd', &smrt->in_dquote))
-				return 1;
+		// convert '' to &ldquo; or &rdquo;
+		if (next_squote_len > 0) {
+			uint8_t next_char = (size > 1+next_squote_len) ? text[1+next_squote_len] : 0;
+			if (smartypants_quotes(ob, previous_char, next_char, 'd', &smrt->in_dquote))
+				return next_squote_len;
 		}
 
+		// Tom's, isn't, I'm, I'd
 		if ((t1 == 's' || t1 == 't' || t1 == 'm' || t1 == 'd') &&
 			(size == 3 || word_boundary(text[2]))) {
 			BUFPUTSL(ob, "&rsquo;");
 			return 0;
 		}
 
+		// you're, you'll, you've
 		if (size >= 3) {
 			uint8_t t2 = tolower(text[2]);
 
@@ -137,6 +164,7 @@ smartypants_cb__squote(struct buf *ob, struct smartypants_data *smrt, uint8_t pr
 	return 0;
 }
 
+// Converts (c), (r), (tm)
 static size_t
 smartypants_cb__parens(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
@@ -164,6 +192,7 @@ smartypants_cb__parens(struct buf *ob, struct smartypants_data *smrt, uint8_t pr
 	return 0;
 }
 
+// Converts "--" to em-dash, etc.
 static size_t
 smartypants_cb__dash(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
@@ -181,12 +210,18 @@ smartypants_cb__dash(struct buf *ob, struct smartypants_data *smrt, uint8_t prev
 	return 0;
 }
 
+// Converts &quot; etc.
 static size_t
 smartypants_cb__amp(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
 	if (size >= 6 && memcmp(text, "&quot;", 6) == 0) {
 		if (smartypants_quotes(ob, previous_char, size >= 7 ? text[6] : 0, 'd', &smrt->in_dquote))
 			return 5;
+	}
+
+	int len = squote_len(text, size);
+	if (len > 0) {
+		return (len-1) + smartypants_cb__squote(ob, smrt, previous_char, text+(len-1), size-(len-1));
 	}
 
 	if (size >= 4 && memcmp(text, "&#0;", 4) == 0)
@@ -196,6 +231,7 @@ smartypants_cb__amp(struct buf *ob, struct smartypants_data *smrt, uint8_t previ
 	return 0;
 }
 
+// Converts "..." to ellipsis
 static size_t
 smartypants_cb__period(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
@@ -213,6 +249,7 @@ smartypants_cb__period(struct buf *ob, struct smartypants_data *smrt, uint8_t pr
 	return 0;
 }
 
+// Converts `` to opening double quote
 static size_t
 smartypants_cb__backtick(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
@@ -224,6 +261,7 @@ smartypants_cb__backtick(struct buf *ob, struct smartypants_data *smrt, uint8_t 
 	return 0;
 }
 
+// Converts 1/2, 1/4, 3/4
 static size_t
 smartypants_cb__number(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
@@ -256,6 +294,7 @@ smartypants_cb__number(struct buf *ob, struct smartypants_data *smrt, uint8_t pr
 	return 0;
 }
 
+// Converts " to left or right double quote
 static size_t
 smartypants_cb__dquote(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
