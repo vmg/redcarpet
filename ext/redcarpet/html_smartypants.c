@@ -86,13 +86,13 @@ word_boundary(uint8_t c)
 // If 'text' begins with any kind of single quote (e.g. "'" or "&apos;" etc.),
 // returns the length of the sequence of characters that makes up the single-
 // quote.  Otherwise, returns zero.
-static int
+static size_t
 squote_len(const uint8_t *text, size_t size)
 {
 	static char* single_quote_list[] = { "'", "&#39;", "&#x27;", "&apos;", NULL };
 
 	for (char** p = single_quote_list; *p; ++p) {
-		int len = strlen(*p);
+		size_t len = strlen(*p);
 		if (size >= len && memcmp(text, *p, len) == 0) {
 			return len;
 		}
@@ -119,11 +119,13 @@ smartypants_quotes(struct buf *ob, uint8_t previous_char, uint8_t next_char, uin
 	return 1;
 }
 
-// Converts ' to left or right single quote.
-// Be careful not to assume that text[0] is "'" -- it might not be.  It might be
-// pointing to the semicolon in "&apos;" or something similar.
+// Converts ' to left or right single quote; but the initial ' might be in
+// different forms, e.g. &apos; or &#39; or &#x27;.
+// 'squote_text' points to the original single quote, and 'squote_size' is its length.
+// 'text' points at the last character of the single-quote, e.g. ' or ;
 static size_t
-smartypants_cb__squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
+smartypants_squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size,
+				   const uint8_t *squote_text, size_t squote_size)
 {
 	if (size >= 2) {
 		uint8_t t1 = tolower(text[1]);
@@ -160,8 +162,15 @@ smartypants_cb__squote(struct buf *ob, struct smartypants_data *smrt, uint8_t pr
 	if (smartypants_quotes(ob, previous_char, size > 0 ? text[1] : 0, 's', &smrt->in_squote))
 		return 0;
 
-	bufputc(ob, text[0]);
+	bufput(ob, squote_text, squote_size);
 	return 0;
+}
+
+// Converts ' to left or right single quote.
+static size_t
+smartypants_cb__squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
+{
+	return smartypants_squote(ob, smrt, previous_char, text, size, text, 1);
 }
 
 // Converts (c), (r), (tm)
@@ -221,7 +230,7 @@ smartypants_cb__amp(struct buf *ob, struct smartypants_data *smrt, uint8_t previ
 
 	int len = squote_len(text, size);
 	if (len > 0) {
-		return (len-1) + smartypants_cb__squote(ob, smrt, previous_char, text+(len-1), size-(len-1));
+		return (len-1) + smartypants_squote(ob, smrt, previous_char, text+(len-1), size-(len-1), text, len);
 	}
 
 	if (size >= 4 && memcmp(text, "&#0;", 4) == 0)
