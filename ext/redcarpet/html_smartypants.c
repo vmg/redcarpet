@@ -90,8 +90,9 @@ static size_t
 squote_len(const uint8_t *text, size_t size)
 {
 	static char* single_quote_list[] = { "'", "&#39;", "&#x27;", "&apos;", NULL };
+	char** p;
 
-	for (char** p = single_quote_list; *p; ++p) {
+	for (p = single_quote_list; *p; ++p) {
 		size_t len = strlen(*p);
 		if (size >= len && memcmp(text, *p, len) == 0) {
 			return len;
