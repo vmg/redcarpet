@@ -116,8 +116,8 @@ Darling, I packed you a couple renderers for lunch
 
 Redcarpet comes with two built-in renderers, `Redcarpet::Render::HTML` and
 `Redcarpet::Render::XHTML`, which output HTML and XHTML, respectively. These
-renderers are actually implemented in C, and hence offer a brilliant
-performance, several degrees of magnitude faster than other Ruby Markdown
+renderers are actually implemented in C and hence offer brilliant
+performance — several degrees of magnitude faster than other Ruby Markdown
 solutions.
 
 All the rendering flags that previously applied only to HTML output have
