@@ -41,8 +41,8 @@ Gem::Specification.new do |s|
     lib/redcarpet/render_strip.rb
     redcarpet.gemspec
     sundown
-    test/redcarpet_test.rb
-  ]
+    test/redcarpet_test.rb 
+  ]  
   # = MANIFEST =
   s.test_files = ["test/redcarpet_test.rb"]
   s.extra_rdoc_files = ["COPYING"]
