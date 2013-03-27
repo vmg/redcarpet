@@ -83,8 +83,7 @@ EOS
 
 <p>&lt;script&gt;BAD&lt;/script&gt;</p>
 
-<p>&lt;img src=&quot;/favicon.ico&quot; /&gt;
-
+<p>&lt;img src=&quot;/favicon.ico&quot; /&gt;</p>
 EOE
 
     markdown = render_with(@rndr[:escape_html], source)
@@ -93,7 +92,7 @@ EOE
 
   def test_that_filter_html_works
     markdown = render_with(@rndr[:no_html], 'Through <em>NO</em> <script>DOUBLE NO</script>')
-    html_equal "<p>Through NO DOUBLE NO</p>", markdown
+    html_equal "<p>Through NO DOUBLE NO</p>\n", markdown
   end
 
   def test_filter_html_doesnt_break_two_space_hard_break
@@ -147,21 +146,21 @@ class MarkdownTest < Test::Unit::TestCase
 
   def test_that_simple_one_liner_goes_to_html
     assert_respond_to @markdown, :render
-    html_equal "<p>Hello World.</p>", @markdown.render("Hello World.")
+    html_equal "<p>Hello World.</p>\n", @markdown.render("Hello World.")
   end
 
   def test_that_inline_markdown_goes_to_html
     markdown = @markdown.render('_Hello World_!')
-    html_equal "<p><em>Hello World</em>!</p>", markdown
+    html_equal "<p><em>Hello World</em>!</p>\n", markdown
   end
 
   def test_that_inline_markdown_starts_and_ends_correctly
     markdown = render_with({:no_intra_emphasis => true}, '_start _ foo_bar bar_baz _ end_ *italic* **bold** <a>_blah_</a>')
 
-    html_equal "<p><em>start _ foo_bar bar_baz _ end</em> <em>italic</em> <strong>bold</strong> <a><em>blah</em></a></p>", markdown
+    html_equal "<p><em>start _ foo_bar bar_baz _ end</em> <em>italic</em> <strong>bold</strong> <a><em>blah</em></a></p>\n", markdown
 
     markdown = @markdown.render("Run 'rake radiant:extensions:rbac_base:migrate'")
-    html_equal "<p>Run 'rake radiant:extensions:rbac_base:migrate'</p>", markdown
+    html_equal "<p>Run 'rake radiant:extensions:rbac_base:migrate'</p>\n", markdown
   end
 
   def test_that_urls_are_not_doubly_escaped
@@ -255,7 +254,7 @@ class MarkdownTest < Test::Unit::TestCase
 
   def test_whitespace_after_urls
     rd = render_with({:autolink => true}, "Japan: http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm (yes, japan)")
-    exp = %{<p>Japan: <a href="http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm">http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm</a> (yes, japan)</p>}
+    exp = %{<p>Japan: <a href="http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm">http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm</a> (yes, japan)</p>\n}
     html_equal exp, rd
   end
 
@@ -275,7 +274,7 @@ class MarkdownTest < Test::Unit::TestCase
   end
 
   def test_infinite_loop_in_header
-    html_equal @markdown.render(<<-header), "<h1>Body</h1>"
+    html_equal "<h1>Body</h1>\n", @markdown.render(<<-header)
 ######
 #Body#
 ######
@@ -340,7 +339,7 @@ fenced
 
   def test_that_headers_are_linkable
     markdown = @markdown.render('### Hello [GitHub](http://github.com)')
-    html_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>", markdown
+    html_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>\n", markdown
   end
 
   def test_autolinking_with_ent_chars
@@ -373,7 +372,7 @@ class CustomRenderTest < Test::Unit::TestCase
 
   def test_simple_overload
     md = Redcarpet::Markdown.new(SimpleRender)
-    html_equal "<p>This is <em class=\"cool\">just</em> a test</p>",
+    html_equal "<p>This is <em class=\"cool\">just</em> a test</p>\n",
       md.render("This is *just* a test")
   end
 
@@ -393,36 +392,36 @@ end
 class RedcarpetCompatTest < Test::Unit::TestCase
   def test_simple_compat_api
     html = RedcarpetCompat.new("This is_just_a test").to_html
-    html_equal "<p>This is<em>just</em>a test</p>", html
+    html_equal "<p>This is<em>just</em>a test</p>\n", html
   end
   
   def test_compat_api_enables_extensions
     html = RedcarpetCompat.new("This is_just_a test", :no_intra_emphasis).to_html
-    html_equal "<p>This is_just_a test</p>", html
+    html_equal "<p>This is_just_a test</p>\n", html
   end
 
   def test_compat_api_knows_fenced_code_extension
     text = "```ruby\nx = 'foo'\n```"
     html = RedcarpetCompat.new(text, :fenced_code).to_html
-    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>", html
+    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>\n", html
   end
   
   def test_compat_api_ignores_gh_blockcode_extension
     text = "```ruby\nx = 'foo'\n```"
     html = RedcarpetCompat.new(text, :fenced_code, :gh_blockcode).to_html
-    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>", html
+    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>\n", html
   end
 
   def test_compat_api_knows_no_intraemphasis_extension
     html = RedcarpetCompat.new("This is_just_a test", :no_intraemphasis).to_html
-    html_equal "<p>This is_just_a test</p>", html
+    html_equal "<p>This is_just_a test</p>\n", html
   end
   
   def test_translate_outdated_extensions
     # these extensions are no longer used
     exts = [:gh_blockcode, :no_tables, :smart, :strict]
     html = RedcarpetCompat.new('"TEST"', *exts).to_html
-    html_equal "<p>&quot;TEST&quot;</p>", html
+    html_equal "<p>&quot;TEST&quot;</p>\n", html
   end
 end
 
