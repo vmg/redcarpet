@@ -337,6 +337,12 @@ fenced
     assert !out.include?("<pre><code>")
   end
 
+  def test_that_prettify_works
+    text = "foo\nbar\n```\nsome\ncode\n```\nbaz"
+    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(:prettify => true), :fenced_code_blocks => true).render(text)
+    assert !out.include?("<pre><code class=\"prettyprint\">")
+  end
+
   def test_that_headers_are_linkable
     markdown = @markdown.render('### Hello [GitHub](http://github.com)')
     html_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>\n", markdown
