@@ -111,7 +111,7 @@ and not stored inside the `Markdown` instance, to encourage reusability.
         #=> "<p>This is <em>bongos</em>, indeed</p>"
 
 
-Darling, I packed you a couple renderers for lunch 
+Darling, I packed you a couple renderers for lunch
 --------------------------------------------------
 
 Redcarpet comes with two built-in renderers, `Redcarpet::Render::HTML` and
@@ -197,7 +197,7 @@ The following instance methods may be implemented by the renderer:
     # will be skipped.
     # If the method for a document element is not implemented,
     # the block will be skipped.
-    # 
+    #
     # Example:
     #
     #   class RenderWithoutCode < Redcarpet::Render::HTML
@@ -281,7 +281,7 @@ Redcarpet::Render::SmartyPants.render("<p>Oh SmartyPants, you're so crazy...</p>
 ~~~~~
 
 SmartyPants works on top of already-rendered HTML, and will ignore replacements
-inside the content of HTML tags and inside specific HTML blocks such as 
+inside the content of HTML tags and inside specific HTML blocks such as
 `<code>` or `<pre>`.
 
 What? You really want to mix Markdown renderers?
@@ -315,6 +315,8 @@ monkeypatches the Markdown class, you're a terrible human being. Just saying.
 Testing
 -------
 Tests run a lot faster without `bundle exec` :)
+[![Build Status](https://travis-ci.org/vmg/redcarpet.png)](https://travis-ci.org/vmg/redcarpet)
+
 
 Boring legal stuff
 ------------------
