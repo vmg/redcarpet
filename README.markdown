@@ -1,41 +1,12 @@
 Redcarpet 2 is written with sugar, spice and everything nice
 ============================================================
 
-Redcarpet is Ruby library for Markdown processing that smells like
-butterflies and popcorn.
+Redcarpet is rubygem for Markdown processing powered by [Sundown](https://www.github.com/vmg/sundown)
 
-Redcarpet used to be a drop-in replacement for Redcloth. This is no longer the
-case since version 2 -- it now has its own API, but retains the old name. Yes,
-that does mean that Redcarpet 2 is not backwards-compatible with the 1.X
-versions.
+`gem install redcarpet`
 
-Redcarpet is powered by the [Sundown](https://www.github.com/vmg/sundown)
-library. You might want to find out more about Sundown to see what makes this
-Ruby library so awesome.
-
-This library is written by people
--------------------------------------------------------
-
-Redcarpet 2 has been rewritten from scratch by Vicent Martí (@vmg). Why
-are you not following me on Twitter?
-
-Redcarpet would not be possible without the Sundown library and its authors
-(Natacha Porté, Vicent Martí, and its many awesome contributors).
-
-You can totally install it as a Gem
------------------------------------
-
-Redcarpet is readily available as a Ruby gem. It will build some native
-extensions, but the parser is standalone and requires no installed libraries.
-
-    $ [sudo] gem install redcarpet
-
-The Redcarpet source (including Sundown as a submodule) is available at GitHub:
-
-    $ git clone git://github.com/vmg/redcarpet.git
-
-And it's like *really* simple to use
-------------------------------------
+Usage
+-----
 
 The core of the Redcarpet library is the `Redcarpet::Markdown` class. Each
 instance of the class is attached to a `Renderer` object; the Markdown class
@@ -111,8 +82,8 @@ and not stored inside the `Markdown` instance, to encourage reusability.
         #=> "<p>This is <em>bongos</em>, indeed</p>"
 
 
-Darling, I packed you a couple renderers for lunch 
---------------------------------------------------
+Renderes
+--------
 
 Redcarpet comes with two built-in renderers, `Redcarpet::Render::HTML` and
 `Redcarpet::Render::XHTML`, which output HTML and XHTML, respectively. These
@@ -164,8 +135,8 @@ to write a custom renderer purely in Ruby, or extending an existing renderer.
 See the following section for more information.
 
 
-And you can even cook your own
-------------------------------
+Custom renderers
+----------------
 
 Custom renderers are created by inheriting from an existing renderer. The
 built-in renderers, `HTML` and `XHTML` may be extended as such:
@@ -256,8 +227,8 @@ You can look at
 ["How to extend the Redcarpet 2 Markdown library?"](http://dev.af83.com/2012/02/27/howto-extend-the-redcarpet2-markdown-lib.html)
 for some more explanations.
 
-Also, now our Pants are much smarter
-------------------------------------
+SmartyPants
+-----------
 
 Redcarpet 2 comes with a standalone [SmartyPants](
 http://daringfireball.net/projects/smartypants/) implementation. It is fully
