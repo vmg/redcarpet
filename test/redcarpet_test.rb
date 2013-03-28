@@ -360,11 +360,12 @@ text
   end
 
   def test_proper_intra_emphasis
-    md = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :no_intra_emphasis => true)
-    assert render_with({:no_intra_emphasis => true}, "http://en.wikipedia.org/wiki/Dave_Allen_(comedian)") !~ /<em>/
-    assert render_with({:no_intra_emphasis => true}, "this fails: hello_world_") !~ /<em>/
-    assert render_with({:no_intra_emphasis => true}, "this also fails: hello_world_#bye") !~ /<em>/
-    assert render_with({:no_intra_emphasis => true}, "this works: hello_my_world") !~ /<em>/
+    options = {:no_intra_emphasis => true}
+    assert render_with(options, "http://en.wikipedia.org/wiki/Dave_Allen_(comedian)") !~ /<em>/
+    assert render_with(options, "this fails: hello_world_") !~ /<em>/
+    assert render_with(options, "this also fails: hello_world_#bye") !~ /<em>/
+    assert render_with(options, "this works: hello_my_world") !~ /<em>/
+    assert_include render_with(options, "this works: _hello_my_world_"), "<em>hello_my_world</em>"
   end
 end
 
