@@ -50,6 +50,11 @@ class SmartyPantsTest < Test::Unit::TestCase
     rd = @pants.render("<p>what'd you say?</p>")
     assert_equal "<p>what&rsquo;d you say?</p>", rd
   end
+
+  def test_that_backticks_are_preserved
+    rd = @pants.render("<p>single `backticks` in HTML should be preserved</p>")
+    assert_equal "<p>single `backticks` in HTML should be preserved</p>", rd
+  end
 end
 
 class HTMLRenderTest < Test::Unit::TestCase

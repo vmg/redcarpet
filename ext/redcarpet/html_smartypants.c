@@ -221,6 +221,7 @@ smartypants_cb__backtick(struct buf *ob, struct smartypants_data *smrt, uint8_t 
 			return 1;
 	}
 
+	bufputc(ob, text[0]);
 	return 0;
 }
 
