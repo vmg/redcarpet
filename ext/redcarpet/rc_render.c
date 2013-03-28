@@ -321,11 +321,17 @@ static const char *rb_redcarpet_method_names[] = {
 
 static const size_t rb_redcarpet_method_count = sizeof(rb_redcarpet_method_names)/sizeof(char *);
 
+static void rb_redcarpet_rbase_mark(struct rb_redcarpet_rndr *rndr)
+{
+	if (rndr->options.link_attributes)
+		rb_gc_mark(rndr->options.link_attributes);
+}
+
 static VALUE rb_redcarpet_rbase_alloc(VALUE klass)
 {
 	struct rb_redcarpet_rndr *rndr = ALLOC(struct rb_redcarpet_rndr);
 	memset(rndr, 0x0, sizeof(struct rb_redcarpet_rndr));
-	return Data_Wrap_Struct(klass, NULL, NULL, rndr);
+	return Data_Wrap_Struct(klass, rb_redcarpet_rbase_mark, NULL, rndr);
 }
 
 static void rb_redcarpet__overload(VALUE self, VALUE base_class)
