@@ -79,7 +79,7 @@ links without protocol, but starting with `www`.
 Two `~` characters mark the start of a strikethrough,
 e.g. `this is ~~good~~ bad`
 
-* `:lax_spacing - HTML blocks do not require to be surrounded by an 
+* `:lax_spacing` - HTML blocks do not require to be surrounded by an 
 empty line as in the Markdown standard.
 
 * `:space_after_headers`: A space is always required between the hash
