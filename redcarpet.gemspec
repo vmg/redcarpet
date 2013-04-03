@@ -12,7 +12,6 @@ Gem::Specification.new do |s|
   s.files = %w[
     COPYING
     Gemfile
-    Gemfile.lock
     README.markdown
     Rakefile
     bin/redcarpet
