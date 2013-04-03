@@ -2,7 +2,7 @@
 #include <string.h>
 
 int
-stack_grow(struct stack *st, size_t new_size)
+redcarpet_stack_grow(struct stack *st, size_t new_size)
 {
 	void **new_st;
 
@@ -26,7 +26,7 @@ stack_grow(struct stack *st, size_t new_size)
 }
 
 void
-stack_free(struct stack *st)
+redcarpet_stack_free(struct stack *st)
 {
 	if (!st)
 		return;
@@ -39,7 +39,7 @@ stack_free(struct stack *st)
 }
 
 int
-stack_init(struct stack *st, size_t initial_size)
+redcarpet_stack_init(struct stack *st, size_t initial_size)
 {
 	st->item = NULL;
 	st->size = 0;
@@ -48,11 +48,11 @@ stack_init(struct stack *st, size_t initial_size)
 	if (!initial_size)
 		initial_size = 8;
 
-	return stack_grow(st, initial_size);
+	return redcarpet_stack_grow(st, initial_size);
 }
 
 void *
-stack_pop(struct stack *st)
+redcarpet_stack_pop(struct stack *st)
 {
 	if (!st->size)
 		return NULL;
@@ -61,9 +61,9 @@ stack_pop(struct stack *st)
 }
 
 int
-stack_push(struct stack *st, void *item)
+redcarpet_stack_push(struct stack *st, void *item)
 {
-	if (stack_grow(st, st->size * 2) < 0)
+	if (redcarpet_stack_grow(st, st->size * 2) < 0)
 		return -1;
 
 	st->item[st->size++] = item;
@@ -71,7 +71,7 @@ stack_push(struct stack *st, void *item)
 }
 
 void *
-stack_top(struct stack *st)
+redcarpet_stack_top(struct stack *st)
 {
 	if (!st->size)
 		return NULL;
