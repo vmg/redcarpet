@@ -1,11 +1,11 @@
 # coding: UTF-8
-rootdir = File.dirname(File.dirname(__FILE__))
-$LOAD_PATH.unshift "#{rootdir}/lib"
+$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 
 if defined? Encoding
   Encoding.default_internal = 'UTF-8'
 end
 
+gem "test-unit", ">=2" # necessary when not using bundle exec
 require 'test/unit'
 require 'redcarpet'
 require 'redcarpet/render_man'
