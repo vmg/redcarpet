@@ -2551,6 +2551,17 @@ sd_version(int *ver_major, int *ver_minor, int *ver_revision)
 	*ver_major = SUNDOWN_VER_MAJOR;
 	*ver_minor = SUNDOWN_VER_MINOR;
 	*ver_revision = SUNDOWN_VER_REVISION;
+
+void
+sd_markdown_copy(struct sd_markdown *self, struct sd_markdown *orig) {
+	memcpy(&self->cb, &orig->cb, sizeof(struct sd_callbacks));
+	self->opaque = orig->opaque;
+	memcpy(self->active_char, orig->active_char, 256);
+	memcpy(&self->work_bufs[0], &orig->work_bufs[0], orig->work_bufs[0].size);
+	memcpy(&self->work_bufs[1], &orig->work_bufs[1], orig->work_bufs[1].size);
+	self->ext_flags = orig->ext_flags;
+	self->max_nesting = orig->max_nesting;
+	self->in_link_body = orig->in_link_body;
 }
 
 /* vim: set filetype=c: */

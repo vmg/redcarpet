@@ -136,12 +136,28 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 	return text;
 }
 
+static VALUE
+rb_redcarpet_md_init_copy(VALUE self, VALUE orig)
+{
+	struct sd_markdown *sdm_self, *sdm_orig;
+	Data_Get_Struct(self, struct sd_markdown, sdm_self);
+	if (TYPE(orig) != T_DATA ||
+	RDATA(orig)->dfree != (RUBY_DATA_FUNC)rb_redcarpet_md__free) {
+	rb_raise(rb_eTypeError, "Redcarpet::Markdown#initialize_copy called with wrong object");
+	}
+	/* assert(sdm_self); // => failed */
+	Data_Get_Struct(orig, struct sd_markdown, sdm_orig);
+	sd_markdown_copy(sdm_self, sdm_orig);
+	return Qnil;
+}
+
 void Init_redcarpet()
 {
     rb_mRedcarpet = rb_define_module("Redcarpet");
 
 	rb_cMarkdown = rb_define_class_under(rb_mRedcarpet, "Markdown", rb_cObject);
     rb_define_singleton_method(rb_cMarkdown, "new", rb_redcarpet_md__new, -1);
+    rb_define_method(rb_cMarkdown, "initialize_copy", rb_redcarpet_md_init_copy, 1);
     rb_define_method(rb_cMarkdown, "render", rb_redcarpet_md_render, 1);
 
 	Init_redcarpet_rndr();
