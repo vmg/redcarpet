@@ -38,6 +38,9 @@ static void rb_redcarpet_md_flags(VALUE hash, unsigned int *enabled_extensions_p
 	if (rb_hash_lookup(hash, CSTR2SYM("fenced_code_blocks")) == Qtrue)
 		extensions |= MKDEXT_FENCED_CODE;
 
+	if (rb_hash_lookup(hash, CSTR2SYM("disable_indented_code_blocks")) == Qtrue)
+		extensions |= MKDEXT_DISABLE_INDENTED_CODE;
+
 	if (rb_hash_lookup(hash, CSTR2SYM("autolink")) == Qtrue)
 		extensions |= MKDEXT_AUTOLINK;
 

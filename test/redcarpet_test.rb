@@ -342,6 +342,20 @@ fenced
     assert !out.include?("<pre><code>")
   end
 
+  def test_that_indented_flag_works
+    text = <<indented
+This is a simple text
+
+    This is some awesome code
+    with shit
+
+And this is again a simple text
+indented
+
+    assert render_with({}, text) =~ /<code/
+    assert render_with({:disable_indented_code_blocks => true}, text) !~ /<code/
+  end
+
   def test_that_headers_are_linkable
     markdown = @markdown.render('### Hello [GitHub](http://github.com)')
     html_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>\n", markdown
