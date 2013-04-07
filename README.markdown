@@ -144,6 +144,8 @@ Markdown document had newlines (by default, Markdown ignores these newlines).
 * `:xhtml`: output XHTML-conformant tags. This option is always enabled in the
 `Render::XHTML` renderer.
 
+* `:prettify`: add prettyprint classes to `<code>` tags for google-code-prettify
+
 * `:link_attributes`: hash of extra attributes to add to links
 
 Example:
@@ -344,4 +346,3 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
