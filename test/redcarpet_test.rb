@@ -263,6 +263,12 @@ class MarkdownTest < Test::Unit::TestCase
     html_equal exp, rd
   end
 
+  def test_multibyte_char_after_mail_addresses
+    rd = render_with({:autolink => true}, "example@example.com\u3042")
+    exp = %{<p><a href=\"mailto:example@example.com\">example@example.com</a>\u3042</p>}
+    html_equal exp, rd
+  end
+
   def test_memory_leak_when_parsing_char_links
     @markdown.render(<<-leaks)
 2. Identify the wild-type cluster and determine all clusters
