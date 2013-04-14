@@ -172,13 +172,13 @@ built-in renderers, `HTML` and `XHTML` may be extended as such:
 
 ~~~~~ ruby
 # create a custom renderer that allows highlighting of code blocks
-class HTMLwithAlbino < Redcarpet::Render::HTML
+class HTMLwithPygments < Redcarpet::Render::HTML
   def block_code(code, language)
-    Albino.safe_colorize(code, language)
+    Pygments.highlight(code, :lexer => language)
   end
 end
 
-markdown = Redcarpet::Markdown.new(HTMLwithAlbino, :fenced_code_blocks => true)
+markdown = Redcarpet::Markdown.new(HTMLwithPygments, :fenced_code_blocks => true)
 ~~~~~
 
 But new renderers can also be created from scratch (see `lib/render_man.rb` for
