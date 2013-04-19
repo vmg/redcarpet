@@ -137,6 +137,14 @@ EOE
     md = Redcarpet::Markdown.new(rndr)
     assert md.render('This is a [simple](http://test.com) test.').include?('rel="blank"')
   end
+
+  def test_that_link_works_with_quotes
+    rd = render_with(Redcarpet::Render::HTML.new, %([This'link"is](http://example.net/)))
+    assert_equal "<p><a href=\"http://example.net/\">This&#39;link&quot;is</a></p>\n", rd
+
+    rd = render_with(@rndr[:escape_html], %([This'link"is](http://example.net/)))
+    assert_equal "<p><a href=\"http://example.net/\">This&#39;link&quot;is</a></p>\n", rd
+  end
 end
 
 class MarkdownTest < Test::Unit::TestCase
