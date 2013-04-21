@@ -128,7 +128,7 @@ this is just a simple test
 With hard wraps
 and other *things*.
 EOE
-    
+
     assert rd =~ /<br>/
   end
 
@@ -238,7 +238,7 @@ class MarkdownTest < Test::Unit::TestCase
       output = @markdown.render(input)
       assert_equal input.encoding.name, output.encoding.name
     end
-    
+
     def test_should_accept_non_utf8_or_ascii
       input = "testing \xAB\xCD".force_encoding('ASCII-8BIT')
       output = @markdown.render(input)
@@ -267,13 +267,13 @@ class MarkdownTest < Test::Unit::TestCase
     @markdown.render(<<-leaks)
 2. Identify the wild-type cluster and determine all clusters
    containing or contained by it:
-   
+
        wildtype <- wildtype.cluster(h)
        wildtype.mask <- logical(nclust)
        wildtype.mask[c(contains(h, wildtype),
                        wildtype,
                        contained.by(h, wildtype))] <- TRUE
-  
+
    This could be more elegant.
     leaks
   end
@@ -316,6 +316,16 @@ EOS
     assert render_with({}, text) !~ /<del/
 
     assert render_with({:strikethrough => true}, text) =~ /<del/
+  end
+
+  def test_underline_flag_works
+    text = "this is *some* text that is _underlined_. ___boom___"
+
+    refute render_with({}, text).include? '<u>underlined</u>'
+
+    output = render_with({:underline => true}, text)
+    assert output.include? '<u>underlined</u>'
+    assert output.include? '<em>some</em>'
   end
 
   def test_that_fenced_flag_works
@@ -404,7 +414,7 @@ class RedcarpetCompatTest < Test::Unit::TestCase
     html = RedcarpetCompat.new("This is_just_a test").to_html
     html_equal "<p>This is<em>just</em>a test</p>\n", html
   end
-  
+
   def test_compat_api_enables_extensions
     html = RedcarpetCompat.new("This is_just_a test", :no_intra_emphasis).to_html
     html_equal "<p>This is_just_a test</p>\n", html
@@ -415,7 +425,7 @@ class RedcarpetCompatTest < Test::Unit::TestCase
     html = RedcarpetCompat.new(text, :fenced_code).to_html
     html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>\n", html
   end
-  
+
   def test_compat_api_ignores_gh_blockcode_extension
     text = "```ruby\nx = 'foo'\n```"
     html = RedcarpetCompat.new(text, :fenced_code, :gh_blockcode).to_html
@@ -426,7 +436,7 @@ class RedcarpetCompatTest < Test::Unit::TestCase
     html = RedcarpetCompat.new("This is_just_a test", :no_intraemphasis).to_html
     html_equal "<p>This is_just_a test</p>\n", html
   end
-  
+
   def test_translate_outdated_extensions
     # these extensions are no longer used
     exts = [:gh_blockcode, :no_tables, :smart, :strict]

@@ -64,6 +64,7 @@ typedef size_t
 (*char_trigger)(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 
 static size_t char_emphasis(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
+static size_t char_underline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_linebreak(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_escape(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
@@ -483,11 +484,12 @@ find_emph_char(uint8_t *data, size_t size, uint8_t c)
 static size_t
 parse_emph1(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size, uint8_t c)
 {
+	int (*render_method)(struct buf *ob, const struct buf *text, void *opaque);
 	size_t i = 0, len;
 	struct buf *work = 0;
 	int r;
 
-	if (!rndr->cb.emphasis) return 0;
+	render_method = (rndr->ext_flags & MKDEXT_UNDERLINE && c == '_') ? rndr->cb.underline : rndr->cb.emphasis;
 
 	/* skipping one symbol if coming from emph3 */
 	if (size > 1 && data[0] == c && data[1] == c) i = 1;
@@ -507,7 +509,7 @@ parse_emph1(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 
 			work = rndr_newbuf(rndr, BUFFER_SPAN);
 			parse_inline(work, rndr, data, i);
-			r = rndr->cb.emphasis(ob, work, rndr->opaque);
+			r = render_method(ob, work, rndr->opaque);
 			rndr_popbuf(rndr, BUFFER_SPAN);
 			return r ? i + 1 : 0;
 		}

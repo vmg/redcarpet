@@ -13,8 +13,9 @@ module Redcarpet
 
         # span-level calls
         :autolink, :codespan, :double_emphasis,
-        :emphasis, :raw_html, :triple_emphasis,
-        :strikethrough, :superscript,
+        :emphasis, :underline, :raw_html,
+        :triple_emphasis, :strikethrough,
+        :superscript,
 
         # low level rendering
         :entity, :normal_text
