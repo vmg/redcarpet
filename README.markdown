@@ -53,8 +53,8 @@ Markdown.new(renderer, extensions = {})
 ~~~~~
 
 
-Here, the `renderer` variable refers to a renderer object, inheriting 
-from `Redcarpet::Render::Base`. If the given object has not been 
+Here, the `renderer` variable refers to a renderer object, inheriting
+from `Redcarpet::Render::Base`. If the given object has not been
 instantiated, the library will do it with default arguments.
 
 You can also specify a hash containing the Markdown extensions which the
@@ -70,7 +70,7 @@ style. Blocks delimited with 3 or more `~` or backtickswill be considered
 as code, without the need to be indented. An optional language name may
 be added at the end of the opening fence for the code block
 
-* `:autolink`: parse links even when they are not enclosed in `<>` 
+* `:autolink`: parse links even when they are not enclosed in `<>`
 characters. Autolinks for the http, https and ftp protocols will be
 automatically detected. Email addresses are also handled, and http
 links without protocol, but starting with `www`.
@@ -79,14 +79,17 @@ links without protocol, but starting with `www`.
 Two `~` characters mark the start of a strikethrough,
 e.g. `this is ~~good~~ bad`
 
-* `:lax_spacing` - HTML blocks do not require to be surrounded by an 
+* `:lax_spacing` - HTML blocks do not require to be surrounded by an
 empty line as in the Markdown standard.
 
 * `:space_after_headers`: A space is always required between the hash
-at the beginning of a header and its name, e.g. `#this is my header` 
+at the beginning of a header and its name, e.g. `#this is my header`
 would not be a valid header.
 
 * `:superscript`: parse superscripts after the `^` character; contiguous superscripts are nested together, and complex values can be enclosed in parenthesis, e.g. `this is the 2^(nd) time`
+
+* `:underline`: parse underscored emphasis as underlines.
+`This is _underlined_ but this is still *italic*`.
 
 Example:
 
@@ -132,7 +135,7 @@ Initializes an HTML renderer. The following flags are available:
 
 * `:no_styles`: do not generate any `<style>` tags
 
-* `:safe_links_only`: only generate links for protocols which are considered 
+* `:safe_links_only`: only generate links for protocols which are considered
 safe
 
 * `:with_toc_data`: add HTML anchors to each header in the output HTML,
@@ -236,6 +239,7 @@ be copied verbatim:
 * triple_emphasis(text)
 * strikethrough(text)
 * superscript(text)
+* underline(text)
 
 ### Low level rendering
 
