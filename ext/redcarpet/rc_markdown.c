@@ -139,6 +139,7 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 	return text;
 }
 
+__attribute__((visibility("default")))
 void Init_redcarpet()
 {
     rb_mRedcarpet = rb_define_module("Redcarpet");
