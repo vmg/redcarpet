@@ -4,6 +4,9 @@
 
 ## Version 2.3.0
 
+* Ensure new lines characters are inserted when using the StripDown
+render. *Robin Dupret*
+
 * Mark all symbols as hidden except the main entry point *Tom Hughes*
 
   This avoids conflicts with other gems that may have some of the
