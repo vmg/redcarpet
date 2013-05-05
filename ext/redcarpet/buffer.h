@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (c) 2008, Natacha Porté
  * Copyright (c) 2011, Vicent Martí
  *
@@ -44,7 +44,7 @@ struct buf {
 	size_t unit;	/* reallocation unit size (0 = read-only buffer) */
 };
 
-/* BUFPUTSL: optimized bufputs of a string litteral */
+/* BUFPUTSL: optimized bufputs of a string literal */
 #define BUFPUTSL(output, literal) \
 	bufput(output, literal, sizeof literal - 1)
 
@@ -86,3 +86,4 @@ void bufprintf(struct buf *, const char *, ...) __attribute__ ((format (printf, 
 #endif
 
 #endif
+
