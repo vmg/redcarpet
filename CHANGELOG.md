@@ -4,6 +4,8 @@
 
 ## Version 2.3.0
 
+* Fix issue [#57](https://github.com/vmg/redcarpet/issues/57) *Mike Morearty*
+
 * Ensure new lines characters are inserted when using the StripDown
 render. *Robin Dupret*
 
