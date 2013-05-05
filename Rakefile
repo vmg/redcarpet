@@ -48,7 +48,7 @@ desc 'Run unit and conformance tests'
 task :test => %w[test:unit test:conformance]
 
 desc 'Run benchmarks'
-task :benchmark => :build do |t|
+task :benchmark => :compile do |t|
   $:.unshift 'lib'
   load 'test/benchmark.rb'
 end
