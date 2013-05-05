@@ -2233,7 +2233,7 @@ parse_block(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 		else if (prefix_quote(txt_data, end))
 			beg += parse_blockquote(ob, rndr, txt_data, end);
 
-		else if (prefix_code(txt_data, end))
+		else if (!(rndr->ext_flags & MKDEXT_DISABLE_INDENTED_CODE) && prefix_code(txt_data, end))
 			beg += parse_blockcode(ob, rndr, txt_data, end);
 
 		else if (prefix_uli(txt_data, end))

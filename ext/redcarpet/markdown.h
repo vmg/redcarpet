@@ -60,6 +60,7 @@ enum mkd_extensions {
 	MKDEXT_SPACE_HEADERS = (1 << 6),
 	MKDEXT_SUPERSCRIPT = (1 << 7),
 	MKDEXT_LAX_SPACING = (1 << 8),
+	MKDEXT_DISABLE_INDENTED_CODE = (1 << 9),
 };
 
 /* sd_callbacks - functions for rendering parsed data */
