@@ -235,7 +235,8 @@ sd_autolink__email(
 			break;
 	}
 
-	if (link_end < 2 || nb != 1 || np == 0)
+	if (link_end < 2 || nb != 1 || np == 0 ||
+		!isalpha(data[link_end - 1]))
 		return 0;
 
 	link_end = autolink_delim(data, link_end, max_rewind, size);
