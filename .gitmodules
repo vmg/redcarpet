@@ -1,3 +1,3 @@
 [submodule "sundown"]
 	path = sundown
-	url = git://github.com/vmg/sundown.git
+	url = git://github.com/bdolman/sundown.git
