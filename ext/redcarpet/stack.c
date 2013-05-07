@@ -4,78 +4,78 @@
 int
 redcarpet_stack_grow(struct stack *st, size_t new_size)
 {
-	void **new_st;
+    void **new_st;
 
-	if (st->asize >= new_size)
-		return 0;
+    if (st->asize >= new_size)
+        return 0;
 
-	new_st = realloc(st->item, new_size * sizeof(void *));
-	if (new_st == NULL)
-		return -1;
+    new_st = realloc(st->item, new_size * sizeof(void *));
+    if (new_st == NULL)
+        return -1;
 
-	memset(new_st + st->asize, 0x0,
-		(new_size - st->asize) * sizeof(void *));
+    memset(new_st + st->asize, 0x0,
+        (new_size - st->asize) * sizeof(void *));
 
-	st->item = new_st;
-	st->asize = new_size;
+    st->item = new_st;
+    st->asize = new_size;
 
-	if (st->size > new_size)
-		st->size = new_size;
+    if (st->size > new_size)
+        st->size = new_size;
 
-	return 0;
+    return 0;
 }
 
 void
 redcarpet_stack_free(struct stack *st)
 {
-	if (!st)
-		return;
+    if (!st)
+        return;
 
-	free(st->item);
+    free(st->item);
 
-	st->item = NULL;
-	st->size = 0;
-	st->asize = 0;
+    st->item = NULL;
+    st->size = 0;
+    st->asize = 0;
 }
 
 int
 redcarpet_stack_init(struct stack *st, size_t initial_size)
 {
-	st->item = NULL;
-	st->size = 0;
-	st->asize = 0;
+    st->item = NULL;
+    st->size = 0;
+    st->asize = 0;
 
-	if (!initial_size)
-		initial_size = 8;
+    if (!initial_size)
+        initial_size = 8;
 
-	return redcarpet_stack_grow(st, initial_size);
+    return redcarpet_stack_grow(st, initial_size);
 }
 
 void *
 redcarpet_stack_pop(struct stack *st)
 {
-	if (!st->size)
-		return NULL;
+    if (!st->size)
+        return NULL;
 
-	return st->item[--st->size];
+    return st->item[--st->size];
 }
 
 int
 redcarpet_stack_push(struct stack *st, void *item)
 {
-	if (redcarpet_stack_grow(st, st->size * 2) < 0)
-		return -1;
+    if (redcarpet_stack_grow(st, st->size * 2) < 0)
+        return -1;
 
-	st->item[st->size++] = item;
-	return 0;
+    st->item[st->size++] = item;
+    return 0;
 }
 
 void *
 redcarpet_stack_top(struct stack *st)
 {
-	if (!st->size)
-		return NULL;
+    if (!st->size)
+        return NULL;
 
-	return st->item[st->size - 1];
+    return st->item[st->size - 1];
 }
 
