@@ -18,22 +18,22 @@
  *
  */
 static const char HTML_ESCAPE_TABLE[] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 1, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 4, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 6, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 4,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 6, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 static const char *HTML_ESCAPES[] = {
@@ -49,36 +49,36 @@ static const char *HTML_ESCAPES[] = {
 void
 houdini_escape_html0(struct buf *ob, const uint8_t *src, size_t size, int secure)
 {
-	size_t i = 0, org, esc = 0;
+    size_t i = 0, org, esc = 0;
 
-	bufgrow(ob, ESCAPE_GROW_FACTOR(size));
+    bufgrow(ob, ESCAPE_GROW_FACTOR(size));
 
-	while (i < size) {
-		org = i;
-		while (i < size && (esc = HTML_ESCAPE_TABLE[src[i]]) == 0)
-			i++;
+    while (i < size) {
+        org = i;
+        while (i < size && (esc = HTML_ESCAPE_TABLE[src[i]]) == 0)
+            i++;
 
-		if (i > org)
-			bufput(ob, src + org, i - org);
+        if (i > org)
+            bufput(ob, src + org, i - org);
 
-		/* escaping */
-		if (i >= size)
-			break;
+        /* escaping */
+        if (i >= size)
+            break;
 
-		/* The forward slash is only escaped in secure mode */
-		if (src[i] == '/' && !secure) {
-			bufputc(ob, '/');
-		} else {
-			bufputs(ob, HTML_ESCAPES[esc]);
-		}
+        /* The forward slash is only escaped in secure mode */
+        if (src[i] == '/' && !secure) {
+            bufputc(ob, '/');
+        } else {
+            bufputs(ob, HTML_ESCAPES[esc]);
+        }
 
-		i++;
-	}
+        i++;
+    }
 }
 
 void
 houdini_escape_html(struct buf *ob, const uint8_t *src, size_t size)
 {
-	houdini_escape_html0(ob, src, size, 1);
+    houdini_escape_html0(ob, src, size, 1);
 }
 

@@ -32,77 +32,77 @@
  *
  */
 static const char HREF_SAFE[] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 
-	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 void
 houdini_escape_href(struct buf *ob, const uint8_t *src, size_t size)
 {
-	static const char hex_chars[] = "0123456789ABCDEF";
-	size_t  i = 0, org;
-	char hex_str[3];
+    static const char hex_chars[] = "0123456789ABCDEF";
+    size_t  i = 0, org;
+    char hex_str[3];
 
-	bufgrow(ob, ESCAPE_GROW_FACTOR(size));
-	hex_str[0] = '%';
+    bufgrow(ob, ESCAPE_GROW_FACTOR(size));
+    hex_str[0] = '%';
 
-	while (i < size) {
-		org = i;
-		while (i < size && HREF_SAFE[src[i]] != 0)
-			i++;
+    while (i < size) {
+        org = i;
+        while (i < size && HREF_SAFE[src[i]] != 0)
+            i++;
 
-		if (i > org)
-			bufput(ob, src + org, i - org);
+        if (i > org)
+            bufput(ob, src + org, i - org);
 
-		/* escaping */
-		if (i >= size)
-			break;
+        /* escaping */
+        if (i >= size)
+            break;
 
-		switch (src[i]) {
-		/* amp appears all the time in URLs, but needs
-		 * HTML-entity escaping to be inside an href */
-		case '&': 
-			BUFPUTSL(ob, "&amp;");
-			break;
+        switch (src[i]) {
+        /* amp appears all the time in URLs, but needs
+         * HTML-entity escaping to be inside an href */
+        case '&': 
+            BUFPUTSL(ob, "&amp;");
+            break;
 
-		/* the single quote is a valid URL character
-		 * according to the standard; it needs HTML
-		 * entity escaping too */
-		case '\'':
-			BUFPUTSL(ob, "&#x27;");
-			break;
-		
-		/* the space can be escaped to %20 or a plus
-		 * sign. we're going with the generic escape
-		 * for now. the plus thing is more commonly seen
-		 * when building GET strings */
+        /* the single quote is a valid URL character
+         * according to the standard; it needs HTML
+         * entity escaping too */
+        case '\'':
+            BUFPUTSL(ob, "&#x27;");
+            break;
+
+        /* the space can be escaped to %20 or a plus
+         * sign. we're going with the generic escape
+         * for now. the plus thing is more commonly seen
+         * when building GET strings */
 #if 0
-		case ' ':
-			bufputc(ob, '+');
-			break;
+        case ' ':
+            bufputc(ob, '+');
+            break;
 #endif
 
-		/* every other character goes with a %XX escaping */
-		default:
-			hex_str[1] = hex_chars[(src[i] >> 4) & 0xF];
-			hex_str[2] = hex_chars[src[i] & 0xF];
-			bufput(ob, hex_str, 3);
-		}
+        /* every other character goes with a %XX escaping */
+        default:
+            hex_str[1] = hex_chars[(src[i] >> 4) & 0xF];
+            hex_str[2] = hex_chars[src[i] & 0xF];
+            bufput(ob, hex_str, 3);
+        }
 
-		i++;
-	}
+        i++;
+    }
 }
