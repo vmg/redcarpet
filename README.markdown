@@ -1,7 +1,7 @@
 Redcarpet 2 is written with sugar, spice and everything nice
 ============================================================
 
-[![Build Status](https://travis-ci.org/vmg/redcarpet.png)](https://travis-ci.org/vmg/redcarpet)
+[![Build Status](https://travis-ci.org/vmg/redcarpet.png?branch=master)](https://travis-ci.org/vmg/redcarpet)
 
 Redcarpet is Ruby library for Markdown processing that smells like
 butterflies and popcorn.
