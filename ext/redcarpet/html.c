@@ -94,9 +94,18 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	if (options->link_attributes) {
 		bufputc(ob, '\"');
 		options->link_attributes(ob, link, opaque);
+
+		if (options->flags & HTML_AUTOLINK_WITH_NOFOLLOW)
+		  BUFPUTSL(ob, "rel=\"nofollow\"");
+
 		bufputc(ob, '>');
 	} else {
-		BUFPUTSL(ob, "\">");
+		BUFPUTSL(ob, "\"");
+
+		if (options->flags & HTML_AUTOLINK_WITH_NOFOLLOW)
+		  BUFPUTSL(ob, "rel=\"nofollow\"");
+
+		BUFPUTSL(ob, ">");
 	}
 
 	/*

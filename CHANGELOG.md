@@ -4,6 +4,8 @@
 
 ## Version 2.3.0
 
+* Add a `:autolink_with_nofollow` option *Robin Dupret*
+
 * Add a `:disable_indented_code_blocks` option *Dmitriy Kiriyenko*
 
 * Fix issue [#57](https://github.com/vmg/redcarpet/issues/57) *Mike Morearty*

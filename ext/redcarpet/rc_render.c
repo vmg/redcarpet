@@ -408,6 +408,10 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 		if (rb_hash_aref(hash, CSTR2SYM("no_styles")) == Qtrue)
 			render_flags |= HTML_SKIP_STYLE;
 
+		/* autolink_with_nofollow */
+		if (rb_hash_aref(hash, CSTR2SYM("autolink_with_nofollow")) == Qtrue)
+			render_flags |= HTML_AUTOLINK_WITH_NOFOLLOW;
+
 		/* safelink */
 		if (rb_hash_aref(hash, CSTR2SYM("safe_links_only")) == Qtrue)
 			render_flags |= HTML_SAFELINK;

@@ -157,6 +157,9 @@ Markdown document had newlines (by default, Markdown ignores these newlines).
 
 * `:link_attributes`: hash of extra attributes to add to links
 
+* `:autolink_with_nofollow`: add a `rel="nofollow"` attribute to all links
+generated with the `:autolink` option
+
 Example:
 
 ~~~~~ ruby

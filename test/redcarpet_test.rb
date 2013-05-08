@@ -96,6 +96,7 @@ class HTMLRenderTest < Test::Unit::TestCase
       :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
       :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
       :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
+      :autolink_with_nofollow => Redcarpet::Render::HTML.new(:autolink_with_nofollow => true),
     }
   end
 
@@ -173,6 +174,15 @@ EOE
 
     rd = render_with(@rndr[:escape_html], %([This'link"is](http://example.net/)))
     assert_equal "<p><a href=\"http://example.net/\">This&#39;link&quot;is</a></p>\n", rd
+  end
+
+  def test_that_nofollow_works
+    render = @rndr[:autolink_with_nofollow]
+    markdown = <<-MARKDOWN
+Hey, let's have a look at https://github.com/
+MARKDOWN
+    html = Redcarpet::Markdown.new(render, :autolink => true).render(markdown)
+    html_equal "<p>Hey, let's have a look at <a href=\"https://github.com/\" rel=\"nofollow\">https://github.com/</a></p>", html
   end
 end
 
