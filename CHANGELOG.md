@@ -1,7 +1,5 @@
 # Changelog
 
-*No changes for now on master*
-
 ## Version 2.3.0
 
 * Add a `:disable_indented_code_blocks` option *Dmitriy Kiriyenko*
