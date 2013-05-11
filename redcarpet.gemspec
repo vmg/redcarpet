@@ -40,10 +40,18 @@ Gem::Specification.new do |s|
     lib/redcarpet/render_strip.rb
     redcarpet.gemspec
     sundown
-    test/redcarpet_test.rb
+    test/test_helper.rb
+    test/custom_render_test.rb
+    test/html_render_test.rb
+    test/markdown_test.rb
+    test/pathological_inputs_test.rb
+    test/redcarpet_compat_test.rb
+    test/smarty_html_test.rb
+    test/smarty_pants_test.rb
+    test/stripdown_render_test.rb
   ]
   # = MANIFEST =
-  s.test_files = ["test/redcarpet_test.rb"]
+  s.test_files = s.files.grep(%r{^test/})
   s.extra_rdoc_files = ["COPYING"]
   s.extensions = ["ext/redcarpet/extconf.rb"]
   s.executables = ["redcarpet"]
