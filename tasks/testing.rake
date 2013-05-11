@@ -1,8 +1,11 @@
 require 'rake/testtask'
 
 Rake::TestTask.new('test:unit') do |t|
-  t.test_files = FileList['test/*_test.rb']
-  t.ruby_opts += ['-rubygems'] if defined? Gem
+  t.libs << 'lib'
+  t.libs << 'test'
+  t.pattern = 'test/*_test.rb'
+  t.verbose = true
+  t.warning = false
 end
 
 task 'test:unit' => :compile
