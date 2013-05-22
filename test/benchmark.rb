@@ -4,7 +4,6 @@ require "benchmark"
 require "stringio"
 
 require 'redcarpet'
-require 'kramdown'
 require 'bluecloth'
 require 'rdiscount'
 
@@ -19,10 +18,6 @@ Benchmark.bm do |bench|
 
   bench.report("BlueCoth") do
     TEST.times { BlueCloth.new(m).to_html }
-  end
-
-  bench.report("RDiscount") do
-    TEST.times { RDiscount.new(m).to_html }
   end
 
   bench.report("Kramdown") do
