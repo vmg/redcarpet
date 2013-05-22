@@ -4,9 +4,8 @@ require "benchmark"
 require "stringio"
 
 require 'redcarpet'
-require 'kramdown'
 require 'bluecloth'
-require 'rdiscount'
+require 'kramdown'
 
 TEST = 10_000
 m = File.read(File.join(File.dirname(__FILE__), "fixture.text"))
@@ -19,10 +18,6 @@ Benchmark.bm do |bench|
 
   bench.report("BlueCoth") do
     TEST.times { BlueCloth.new(m).to_html }
-  end
-
-  bench.report("RDiscount") do
-    TEST.times { RDiscount.new(m).to_html }
   end
 
   bench.report("Kramdown") do
