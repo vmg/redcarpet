@@ -1,5 +1,6 @@
 *.so
 *.bundle
 *.o
+/ext/redcarpet/Makefile
 /tmp
 Gemfile.lock
