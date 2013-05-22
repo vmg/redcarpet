@@ -1,4 +1,5 @@
-/lib/redcarpet.bundle
+*.so
+*.bundle
+*.o
 /tmp
 Gemfile.lock
-/lib/redcarpet.so
