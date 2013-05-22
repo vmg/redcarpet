@@ -1,3 +1,4 @@
+# coding: UTF-8
 require 'test_helper'
 
 class StripDownRender < Test::Unit::TestCase
