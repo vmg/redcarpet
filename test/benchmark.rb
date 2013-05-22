@@ -1,3 +1,4 @@
+# coding: UTF-8
 # Thanks Kramdown for the inspiration!
 require "benchmark"
 require "stringio"

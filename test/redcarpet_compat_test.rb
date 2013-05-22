@@ -1,3 +1,4 @@
+# coding: UTF-8
 require 'test_helper'
 
 class RedcarpetCompatTest < Test::Unit::TestCase
