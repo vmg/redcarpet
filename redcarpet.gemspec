@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/vmg/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
+  s.license = 'MIT'
   # = MANIFEST =
   s.files = %w[
     COPYING
