@@ -63,12 +63,12 @@ parser will identify. The following extensions are accepted:
 * `:no_intra_emphasis`: do not parse emphasis inside of words.
 Strings such as `foo_bar_baz` will not generate `<em>` tags.
 
-* `:tables`: parse tables, PHP-Markdown style
+* `:tables`: parse tables, PHP-Markdown style.
 
 * `:fenced_code_blocks`: parse fenced code blocks, PHP-Markdown
 style. Blocks delimited with 3 or more `~` or backtickswill be considered
 as code, without the need to be indented. An optional language name may
-be added at the end of the opening fence for the code block
+be added at the end of the opening fence for the code block.
 
 * `:autolink`: parse links even when they are not enclosed in `<>`
 characters. Autolinks for the http, https and ftp protocols will be
@@ -83,9 +83,9 @@ with `fenced_code_blocks: true`.
 
 * `:strikethrough`: parse strikethrough, PHP-Markdown style
 Two `~` characters mark the start of a strikethrough,
-e.g. `this is ~~good~~ bad`
+e.g. `this is ~~good~~ bad`.
 
-* `:lax_spacing` - HTML blocks do not require to be surrounded by an
+* `:lax_spacing`: HTML blocks do not require to be surrounded by an
 empty line as in the Markdown standard.
 
 * `:space_after_headers`: A space is always required between the hash
@@ -133,16 +133,16 @@ Render::HTML.new(render_options = {})
 
 Initializes an HTML renderer. The following flags are available:
 
-* `:filter_html`: do not allow any user-inputted HTML in the output
+* `:filter_html`: do not allow any user-inputted HTML in the output.
 
-* `:no_images`: do not generate any `<img>` tags
+* `:no_images`: do not generate any `<img>` tags.
 
-* `:no_links`: do not generate any `<a>` tags
+* `:no_links`: do not generate any `<a>` tags.
 
-* `:no_styles`: do not generate any `<style>` tags
+* `:no_styles`: do not generate any `<style>` tags.
 
 * `:safe_links_only`: only generate links for protocols which are considered
-safe
+safe.
 
 * `:with_toc_data`: add HTML anchors to each header in the output HTML,
 to allow linking to each section.
@@ -153,9 +153,9 @@ Markdown document had newlines (by default, Markdown ignores these newlines).
 * `:xhtml`: output XHTML-conformant tags. This option is always enabled in the
 `Render::XHTML` renderer.
 
-* `:prettify`: add prettyprint classes to `<code>` tags for google-code-prettify
+* `:prettify`: add prettyprint classes to `<code>` tags for google-code-prettify.
 
-* `:link_attributes`: hash of extra attributes to add to links
+* `:link_attributes`: hash of extra attributes to add to links.
 
 Example:
 
@@ -195,13 +195,14 @@ an example implementation of a Manpage renderer)
 
 ~~~~~~ ruby
 class ManPage < Redcarpet::Render::Base
-    # you get the drill -- keep going from here
+  # you get the drill -- keep going from here
 end
 ~~~~~
 
 The following instance methods may be implemented by the renderer:
 
 ### Block-level calls
+
 If the return value of the method is `nil`, the block will be skipped.
 If the method for a document element is not implemented, the block will
 be skipped.
