@@ -112,4 +112,12 @@ HTML
     output = render_with(Redcarpet::Render::HTML.new, markdown)
     assert_equal html, output
   end
+
+  def test_that_parenthesis_are_handled_into_links
+    markdown = "Hey have a look at the [bash man page](man:bash(1))!"
+    html = "<p>Hey have a look at the <a href=\"man:bash(1)\">bash man page</a>!</p>\n"
+    output = render_with(Redcarpet::Render::HTML.new, markdown)
+
+    assert_equal html, output
+  end
 end
