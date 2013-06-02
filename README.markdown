@@ -190,7 +190,7 @@ end
 markdown = Redcarpet::Markdown.new(HTMLwithPygments, :fenced_code_blocks => true)
 ~~~~~
 
-But new renderers can also be created from scratch (see `lib/render_man.rb` for
+But new renderers can also be created from scratch (see `lib/redcarpet/render_man.rb` for
 an example implementation of a Manpage renderer)
 
 ~~~~~~ ruby
