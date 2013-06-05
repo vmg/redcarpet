@@ -97,6 +97,9 @@ would not be a valid header.
 * `:underline`: parse underscored emphasis as underlines.
 `This is _underlined_ but this is still *italic*`.
 
+* `:highlight`: parse highlights.
+`This is ==highlighted==`. It looks like this: `<em class="highlight">highlighted</em>`
+
 Example:
 
 ~~~~~ ruby
@@ -247,6 +250,7 @@ be copied verbatim:
 * strikethrough(text)
 * superscript(text)
 * underline(text)
+* highlight(text)
 
 ### Low level rendering
 
