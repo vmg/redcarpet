@@ -193,10 +193,10 @@ EOS
   def test_highlight_flag_works
     text = "this is ==highlighted=="
 
-    refute render_with({}, text).include? '<em class="highlight">highlighted</em>'
+    refute render_with({}, text).include? '<mark>highlighted</mark>'
 
     output = render_with({:highlight => true}, text)
-    assert output.include? '<em class="highlight">highlighted</em>'
+    assert output.include? '<mark>highlighted</mark>'
   end
 
   def test_that_fenced_flag_works

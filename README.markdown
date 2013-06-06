@@ -98,7 +98,7 @@ would not be a valid header.
 `This is _underlined_ but this is still *italic*`.
 
 * `:highlight`: parse highlights.
-`This is ==highlighted==`. It looks like this: `<em class="highlight">highlighted</em>`
+`This is ==highlighted==`. It looks like this: `<mark>highlighted</mark>`
 
 Example:
 
