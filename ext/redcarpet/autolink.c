@@ -141,7 +141,7 @@ check_domain(uint8_t *data, size_t size, int allow_short)
 		return 0;
 
 	for (i = 1; i < size - 1; ++i) {
-		if (data[i] == '.') np++;
+		if (strchr(".:", data[i]) != NULL) np++;
 		else if (!isalnum(data[i]) && data[i] != '-') break;
 	}
 
