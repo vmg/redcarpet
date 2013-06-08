@@ -40,7 +40,6 @@ Gem::Specification.new do |s|
     lib/redcarpet/render_man.rb
     lib/redcarpet/render_strip.rb
     redcarpet.gemspec
-    sundown
     test/test_helper.rb
     test/custom_render_test.rb
     test/html_render_test.rb
