@@ -1,5 +1,7 @@
 # Changelog
 
+* Fix FTP uris identified as emails *Robin Dupret*
+
 * Add optional highlight support *Sam Soffes*
 
   This is `==highlighted==`.
