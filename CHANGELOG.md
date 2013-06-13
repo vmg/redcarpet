@@ -1,5 +1,7 @@
 # Changelog
 
+* Remove the Sundown submodule *Robin Dupret*
+
 * Fix FTP uris identified as emails *Robin Dupret*
 
 * Add optional highlight support *Sam Soffes*
