@@ -47,5 +47,3 @@ sd_autolink__url(size_t *rewind_p, struct buf *link,
 #endif
 
 #endif
-
-/* vim: set filetype=c: */

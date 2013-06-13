@@ -2568,5 +2568,3 @@ sd_version(int *ver_major, int *ver_minor, int *ver_revision)
 	*ver_minor = SUNDOWN_VER_MINOR;
 	*ver_revision = SUNDOWN_VER_REVISION;
 }
-
-/* vim: set filetype=c: */
