@@ -265,5 +265,9 @@ text
     assert render_with({:no_intra_emphasis => true}, "this fails: hello_world_") !~ /<em>/
     assert render_with({:no_intra_emphasis => true}, "this also fails: hello_world_#bye") !~ /<em>/
     assert render_with({:no_intra_emphasis => true}, "this works: hello_my_world") !~ /<em>/
+
+    markdown = "This is (**bold**) and this_is_not_italic!"
+    html = "<p>This is (<strong>bold</strong>) and this_is_not_italic!</p>\n"
+    assert_equal html, render_with({:no_intra_emphasis => true}, markdown)
   end
 end
