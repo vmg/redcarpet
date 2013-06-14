@@ -1,5 +1,7 @@
 # Changelog
 
+* Make emphasis wrapped inside parenthesis parsed *Robin Dupret*
+
 * Remove the Sundown submodule *Robin Dupret*
 
 * Fix FTP uris identified as emails *Robin Dupret*
