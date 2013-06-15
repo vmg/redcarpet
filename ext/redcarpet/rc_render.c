@@ -134,7 +134,17 @@ rndr_tablecell(struct buf *ob, const struct buf *text, int align, void *opaque)
 	BLOCK_CALLBACK("table_cell", 2, buf2str(text), rb_align);
 }
 
+static void
+rndr_footnotes(struct buf *ob, const struct buf *text, void *opaque)
+{
+	BLOCK_CALLBACK("footnotes", 1, buf2str(text));
+}
 
+static void
+rndr_footnote_def(struct buf *ob, const struct buf *text, unsigned int num, void *opaque)
+{
+	BLOCK_CALLBACK("footnote_def", 2, buf2str(text), INT2FIX(num));
+}
 
 
 /***
@@ -219,6 +229,12 @@ rndr_superscript(struct buf *ob, const struct buf *text, void *opaque)
 	SPAN_CALLBACK("superscript", 1, buf2str(text));
 }
 
+static int
+rndr_footnote_ref(struct buf *ob, unsigned int num, void *opaque)
+{
+	SPAN_CALLBACK("footnote_ref", 1, INT2FIX(num));
+}
+
 /**
  * direct writes
  */
@@ -279,6 +295,8 @@ static struct sd_callbacks rb_redcarpet_callbacks = {
 	rndr_table,
 	rndr_tablerow,
 	rndr_tablecell,
+	rndr_footnotes,
+	rndr_footnote_def,
 
 	rndr_autolink,
 	rndr_codespan,
@@ -293,6 +311,7 @@ static struct sd_callbacks rb_redcarpet_callbacks = {
 	rndr_triple_emphasis,
 	rndr_strikethrough,
 	rndr_superscript,
+	rndr_footnote_ref,
 
 	rndr_entity,
 	rndr_normal_text,
@@ -313,6 +332,8 @@ static const char *rb_redcarpet_method_names[] = {
 	"table",
 	"table_row",
 	"table_cell",
+	"footnotes",
+	"footnote_def",
 
 	"autolink",
 	"codespan",
@@ -327,6 +348,7 @@ static const char *rb_redcarpet_method_names[] = {
 	"triple_emphasis",
 	"strikethrough",
 	"superscript",
+	"footnote_ref",
 
 	"entity",
 	"normal_text",

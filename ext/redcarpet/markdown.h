@@ -61,7 +61,8 @@ enum mkd_extensions {
 	MKDEXT_SUPERSCRIPT = (1 << 7),
 	MKDEXT_LAX_SPACING = (1 << 8),
 	MKDEXT_DISABLE_INDENTED_CODE = (1 << 9),
-	MKDEXT_HIGHLIGHT = (1 << 10)
+	MKDEXT_HIGHLIGHT = (1 << 10),
+	MKDEXT_FOOTNOTES = (1 << 11)
 };
 
 /* sd_callbacks - functions for rendering parsed data */
@@ -78,7 +79,8 @@ struct sd_callbacks {
 	void (*table)(struct buf *ob, const struct buf *header, const struct buf *body, void *opaque);
 	void (*table_row)(struct buf *ob, const struct buf *text, void *opaque);
 	void (*table_cell)(struct buf *ob, const struct buf *text, int flags, void *opaque);
-
+	void (*footnotes)(struct buf *ob, const struct buf *text, void *opaque);
+	void (*footnote_def)(struct buf *ob, const struct buf *text, unsigned int num, void *opaque);
 
 	/* span level callbacks - NULL or return 0 prints the span verbatim */
 	int (*autolink)(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque);
@@ -94,6 +96,7 @@ struct sd_callbacks {
 	int (*triple_emphasis)(struct buf *ob, const struct buf *text, void *opaque);
 	int (*strikethrough)(struct buf *ob, const struct buf *text, void *opaque);
 	int (*superscript)(struct buf *ob, const struct buf *text, void *opaque);
+	int (*footnote_ref)(struct buf *ob, unsigned int num, void *opaque);
 
 	/* low level callbacks - NULL copies input directly into the output */
 	void (*entity)(struct buf *ob, const struct buf *entity, void *opaque);
