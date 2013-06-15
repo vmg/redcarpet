@@ -2461,13 +2461,6 @@ is_footnote(const uint8_t *data, size_t beg, size_t end, size_t *last, struct fo
 	i++;
 	if (i >= end || data[i] != ':') return 0;
 	i++;
-	while (i < end && data[i] == ' ') i++;
-	if (i < end && (data[i] == '\n' || data[i] == '\r')) {
-		i++;
-		if (i < end && data[i] == '\n' && data[i - 1] == '\r') i++;
-	}
-	while (i < end && data[i] == ' ') i++;
-	if (i >= end || data[i] == '\n' || data[i] == '\r') return 0;
 
 	/* getting content buffer */
 	contents = bufnew(64);
@@ -2497,8 +2490,9 @@ is_footnote(const uint8_t *data, size_t beg, size_t end, size_t *last, struct fo
 		/* joining only indented stuff after empty lines;
 		 * note that now we only require 1 space of indentation
 		 * to continue, just like lists */
-		if (in_empty && ind == 0) {
-			break;
+		if (ind == 0) {
+			if (start == id_end + 2 && data[start] == '\t') {}
+			else break;
 		}
 		else if (in_empty) {
 			bufputc(contents, '\n');
