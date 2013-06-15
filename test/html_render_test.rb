@@ -130,4 +130,31 @@ HTML
     assert output.include? 'mailto:foo@bar.com'
     assert output.include? '<a href="http://bar.com">'
   end
+
+  def test_that_footnotes_work
+    markdown = <<-MD
+This is a footnote.[^1]
+
+[^1]: It provides additional information.
+MD
+
+    html = <<HTML
+<p>This is a footnote.<sup id="fnref1"><a href="#fn1" rel="footnote">1</a></sup></p>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>It provides additional information.&nbsp;<a href="#fnref1" rev="footnote">&#8617;</a></p>
+</li>
+
+</ol>
+</div>
+HTML
+
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    output = renderer.render(markdown)
+    assert_equal html, output
+  end
 end
