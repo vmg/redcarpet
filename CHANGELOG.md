@@ -14,6 +14,8 @@
 
 * Ensure nested code spans put in emphasis work correctly *Robin Dupret*
 
+* Add optional footnotes support *Ben Dolman, Adam Florin, microjo, brief*
+  
 ## Version 2.3.0
 
 * Add a `:disable_indented_code_blocks` option *Dmitriy Kiriyenko*

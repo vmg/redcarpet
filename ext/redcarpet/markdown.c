@@ -55,6 +55,29 @@ struct link_ref {
 	struct link_ref *next;
 };
 
+/* footnote_ref: reference to a footnote */
+struct footnote_ref {
+	unsigned int id;
+
+	int is_used;
+	unsigned int num;
+
+	struct buf *contents;
+};
+
+/* footnote_item: an item in a footnote_list */
+struct footnote_item {
+	struct footnote_ref *ref;
+	struct footnote_item *next;
+};
+
+/* footnote_list: linked list of footnote_item */
+struct footnote_list {
+	unsigned int count;
+	struct footnote_item *head;
+	struct footnote_item *tail;
+};
+
 /* char_trigger: function pointer to render active chars */
 /*   returns the number of chars taken care of */
 /*   data is the pointer of the beginning of the span */
@@ -113,6 +136,8 @@ struct sd_markdown {
 	void *opaque;
 
 	struct link_ref *refs[REF_TABLE_SIZE];
+	struct footnote_list footnotes_found;
+	struct footnote_list footnotes_used;
 	uint8_t active_char[256];
 	struct stack work_bufs[2];
 	unsigned int ext_flags;
@@ -234,6 +259,77 @@ free_link_refs(struct link_ref **references)
 		}
 	}
 }
+
+static struct footnote_ref *
+create_footnote_ref(struct footnote_list *list, const uint8_t *name, size_t name_size)
+{
+	struct footnote_ref *ref = calloc(1, sizeof(struct footnote_ref));
+	if (!ref)
+		return NULL;
+
+	ref->id = hash_link_ref(name, name_size);
+
+	return ref;
+}
+
+static int
+add_footnote_ref(struct footnote_list *list, struct footnote_ref *ref)
+{
+	struct footnote_item *item = calloc(1, sizeof(struct footnote_item));
+	if (!item)
+		return 0;
+	item->ref = ref;
+
+	if (list->head == NULL) {
+		list->head = list->tail = item;
+	} else {
+		list->tail->next = item;
+		list->tail = item;
+	}
+	list->count++;
+
+	return 1;
+}
+
+static struct footnote_ref *
+find_footnote_ref(struct footnote_list *list, uint8_t *name, size_t length)
+{
+	unsigned int hash = hash_link_ref(name, length);
+	struct footnote_item *item = NULL;
+
+	item = list->head;
+
+	while (item != NULL) {
+		if (item->ref->id == hash)
+			return item->ref;
+		item = item->next;
+	}
+
+	return NULL;
+}
+
+static void
+free_footnote_ref(struct footnote_ref *ref)
+{
+	bufrelease(ref->contents);
+	free(ref);
+}
+
+static void
+free_footnote_list(struct footnote_list *list, int free_refs)
+{
+	struct footnote_item *item = list->head;
+	struct footnote_item *next;
+
+	while (item) {
+		next = item->next;
+		if (free_refs)
+			free_footnote_ref(item->ref);
+		free(item);
+		item = next;
+	}
+}
+
 
 /*
  * Check whether a char is a Markdown space.
@@ -885,6 +981,34 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 	txt_e = i;
 	i++;
 
+	/* footnote link */
+	if (rndr->ext_flags & MKDEXT_FOOTNOTES && data[1] == '^') {
+		if (txt_e < 3)
+			goto cleanup;
+
+		struct buf id = { 0, 0, 0, 0 };
+		struct footnote_ref *fr;
+
+		id.data = data + 2;
+		id.size = txt_e - 2;
+
+		fr = find_footnote_ref(&rndr->footnotes_found, id.data, id.size);
+
+		/* mark footnote used */
+		if (fr && !fr->is_used) {
+			if(!add_footnote_ref(&rndr->footnotes_used, fr))
+				goto cleanup;
+			fr->is_used = 1;
+			fr->num = rndr->footnotes_used.count;
+		}
+
+		/* render */
+		if (fr && rndr->cb.footnote_ref)
+				ret = rndr->cb.footnote_ref(ob, fr->num, rndr->opaque);
+
+		goto cleanup;
+	}
+
 	/* skip any amount of whitespace or newline */
 	/* (this is much more laxist than original markdown syntax) */
 	while (i < size && _isspace(data[i]))
@@ -1131,7 +1255,7 @@ char_superscript(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 
 /* is_empty • returns the line length when it is empty, 0 otherwise */
 static size_t
-is_empty(uint8_t *data, size_t size)
+is_empty(const uint8_t *data, size_t size)
 {
 	size_t i;
 
@@ -1833,6 +1957,44 @@ parse_atxheader(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 	return skip;
 }
 
+/* parse_footnote_def • parse a single footnote definition */
+static void
+parse_footnote_def(struct buf *ob, struct sd_markdown *rndr, unsigned int num, uint8_t *data, size_t size)
+{
+	struct buf *work = 0;
+	work = rndr_newbuf(rndr, BUFFER_SPAN);
+
+	parse_block(work, rndr, data, size);
+
+	if (rndr->cb.footnote_def)
+	rndr->cb.footnote_def(ob, work, num, rndr->opaque);
+	rndr_popbuf(rndr, BUFFER_SPAN);
+}
+
+/* parse_footnote_list • render the contents of the footnotes */
+static void
+parse_footnote_list(struct buf *ob, struct sd_markdown *rndr, struct footnote_list *footnotes)
+{
+	struct buf *work = 0;
+	struct footnote_item *item;
+	struct footnote_ref *ref;
+
+	if (footnotes->count == 0)
+		return;
+
+	work = rndr_newbuf(rndr, BUFFER_BLOCK);
+
+	item = footnotes->head;
+	while (item) {
+		ref = item->ref;
+		parse_footnote_def(work, rndr, ref->num, ref->contents->data, ref->contents->size);
+		item = item->next;
+	}
+
+	if (rndr->cb.footnotes)
+		rndr->cb.footnotes(ob, work, rndr->opaque);
+	rndr_popbuf(rndr, BUFFER_BLOCK);
+}
 
 /* htmlblock_end • checking end of HTML block : </tag>[ \t]*\n[ \t*]\n */
 /*	returns the length on match, 0 otherwise */
@@ -2264,6 +2426,111 @@ parse_block(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
  * REFERENCE PARSING *
  *********************/
 
+/* is_footnote • returns whether a line is a footnote definition or not */
+static int
+is_footnote(const uint8_t *data, size_t beg, size_t end, size_t *last, struct footnote_list *list)
+{
+	size_t i = 0;
+	struct buf *contents = 0;
+	size_t ind = 0;
+	int in_empty = 0;
+	size_t start = 0;
+
+	size_t id_offset, id_end;
+
+	/* up to 3 optional leading spaces */
+	if (beg + 3 >= end) return 0;
+	if (data[beg] == ' ') { i = 1;
+	if (data[beg + 1] == ' ') { i = 2;
+	if (data[beg + 2] == ' ') { i = 3;
+	if (data[beg + 3] == ' ') return 0; } } }
+	i += beg;
+
+	/* id part: caret followed by anything between brackets */
+	if (data[i] != '[') return 0;
+	i++;
+	if (i >= end || data[i] != '^') return 0;
+	i++;
+	id_offset = i;
+	while (i < end && data[i] != '\n' && data[i] != '\r' && data[i] != ']')
+		i++;
+	if (i >= end || data[i] != ']') return 0;
+	id_end = i;
+
+	/* spacer: colon (space | tab)* newline? (space | tab)* */
+	i++;
+	if (i >= end || data[i] != ':') return 0;
+	i++;
+
+	/* getting content buffer */
+	contents = bufnew(64);
+
+	start = i;
+
+	/* process lines similiar to a list item */
+	while (i < end) {
+		while (i < end && data[i] != '\n' && data[i] != '\r') i++;
+
+		/* process an empty line */
+		if (is_empty(data + start, i - start)) {
+			in_empty = 1;
+			if (i < end && (data[i] == '\n' || data[i] == '\r')) {
+				i++;
+				if (i < end && data[i] == '\n' && data[i - 1] == '\r') i++;
+			}
+			start = i;
+			continue;
+		}
+
+		/* calculating the indentation */
+		ind = 0;
+		while (ind < 4 && start + ind < end && data[start + ind] == ' ')
+			ind++;
+
+		/* joining only indented stuff after empty lines;
+		 * note that now we only require 1 space of indentation
+		 * to continue, just like lists */
+		if (ind == 0) {
+			if (start == id_end + 2 && data[start] == '\t') {}
+			else break;
+		}
+		else if (in_empty) {
+			bufputc(contents, '\n');
+		}
+
+		in_empty = 0;
+
+		/* adding the line into the content buffer */
+		bufput(contents, data + start + ind, i - start - ind);
+		/* add carriage return */
+		if (i < end) {
+			bufput(contents, "\n", 1);
+			if (i < end && (data[i] == '\n' || data[i] == '\r')) {
+				i++;
+				if (i < end && data[i] == '\n' && data[i - 1] == '\r') i++;
+			}
+		}
+		start = i;
+	}
+
+	if (last)
+		*last = start;
+
+	if (list) {
+		struct footnote_ref *ref;
+		ref = create_footnote_ref(list, data + id_offset, id_end - id_offset);
+		if (!ref)
+			return 0;
+		if (!add_footnote_ref(list, ref)) {
+			free_footnote_ref(ref);
+			return 0;
+		}
+		ref->contents = contents;
+	}
+
+	return 1;
+}
+
 /* is_ref • returns whether a line is a reference or not */
 static int
 is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_ref **refs)
@@ -2488,6 +2755,14 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	/* reset the references table */
 	memset(&md->refs, 0x0, REF_TABLE_SIZE * sizeof(void *));
 
+	int footnotes_enabled = md->ext_flags & MKDEXT_FOOTNOTES;
+
+	/* reset the footnotes lists */
+	if (footnotes_enabled) {
+		memset(&md->footnotes_found, 0x0, sizeof(md->footnotes_found));
+		memset(&md->footnotes_used, 0x0, sizeof(md->footnotes_used));
+	}
+
 	/* first pass: looking for references, copying everything else */
 	beg = 0;
 
@@ -2497,7 +2772,9 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 		beg += 3;
 
 	while (beg < doc_size) /* iterating over lines */
-		if (is_ref(document, beg, doc_size, &end, md->refs))
+		if (footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
+			beg = end;
+		else if (is_ref(document, beg, doc_size, &end, md->refs))
 			beg = end;
 		else { /* skipping to the next line */
 			end = beg;
@@ -2533,12 +2810,20 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 		parse_block(ob, md, text->data, text->size);
 	}
 
+	/* footnotes */
+	if (footnotes_enabled)
+		parse_footnote_list(ob, md, &md->footnotes_used);
+
 	if (md->cb.doc_footer)
 		md->cb.doc_footer(ob, md->opaque);
 
 	/* clean-up */
 	bufrelease(text);
 	free_link_refs(md->refs);
+	if (footnotes_enabled) {
+		free_footnote_list(&md->footnotes_found, 1);
+		free_footnote_list(&md->footnotes_used, 0);
+	}
 
 	assert(md->work_bufs[BUFFER_SPAN].size == 0);
 	assert(md->work_bufs[BUFFER_BLOCK].size == 0);
