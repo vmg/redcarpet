@@ -100,6 +100,8 @@ would not be a valid header.
 * `:highlight`: parse highlights.
 `This is ==highlighted==`. It looks like this: `<mark>highlighted</mark>`
 
+* `:footnotes`: parse footnotes, PHP-Markdown style. A footnote works very much like a reference-style link: it consists of a  marker next to the text (e.g. `This is a sentence.[^1]`) and a footnote definition on its own line anywhere within the document (e.g. `[^1]: This is a footnote.`).
+
 Example:
 
 ~~~~~ ruby
