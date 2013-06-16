@@ -14,7 +14,7 @@
 
 * Ensure nested code spans put in emphasis work correctly *Robin Dupret*
 
-* Add optional footnotes support *brief*
+* Add optional footnotes support *Ben Dolman, Adam Florin, microjo, brief*
   
 ## Version 2.3.0
 
