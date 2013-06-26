@@ -130,4 +130,10 @@ HTML
     assert output.include? 'mailto:foo@bar.com'
     assert output.include? '<a href="http://bar.com">'
   end
+
+  def test_that_comments_arent_escaped
+    input = "<!-- This is a nice comment! -->"
+    output = render_with(@rndr[:escape_html], input)
+    assert output.include? input
+  end
 end
