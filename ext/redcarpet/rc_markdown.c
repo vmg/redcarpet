@@ -113,8 +113,8 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 
 	if (rb_respond_to(rb_rndr, rb_intern("preprocess")))
 		text = rb_funcall(rb_rndr, rb_intern("preprocess"), 1, text);
-  if (NIL_P(text))
-    return Qnil;
+	if (NIL_P(text))
+		return Qnil;
 
 #ifdef HAVE_RUBY_ENCODING_H
 	{
@@ -148,11 +148,11 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 __attribute__((visibility("default")))
 void Init_redcarpet()
 {
-    rb_mRedcarpet = rb_define_module("Redcarpet");
+	rb_mRedcarpet = rb_define_module("Redcarpet");
 
 	rb_cMarkdown = rb_define_class_under(rb_mRedcarpet, "Markdown", rb_cObject);
-    rb_define_singleton_method(rb_cMarkdown, "new", rb_redcarpet_md__new, -1);
-    rb_define_method(rb_cMarkdown, "render", rb_redcarpet_md_render, 1);
+	rb_define_singleton_method(rb_cMarkdown, "new", rb_redcarpet_md__new, -1);
+	rb_define_method(rb_cMarkdown, "render", rb_redcarpet_md_render, 1);
 
 	Init_redcarpet_rndr();
 }
