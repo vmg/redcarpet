@@ -88,26 +88,6 @@ class MarkdownTest < Test::Unit::TestCase
     html_equal "<p><a href=\"http://github.com/rtomayko/rdiscount\">http://github.com/rtomayko/rdiscount</a></p>\n", rd
   end
 
-  if "".respond_to?(:encoding)
-    def test_should_return_string_in_same_encoding_as_input
-      input = "Yogācāra"
-      output = @markdown.render(input)
-      assert_equal input.encoding.name, output.encoding.name
-    end
-
-    def test_should_return_string_in_same_encoding_not_in_utf8
-      input = "testing".encode('US-ASCII')
-      output = @markdown.render(input)
-      assert_equal input.encoding.name, output.encoding.name
-    end
-
-    def test_should_accept_non_utf8_or_ascii
-      input = "testing \xAB\xCD".force_encoding('ASCII-8BIT')
-      output = @markdown.render(input)
-      assert_equal 'ASCII-8BIT', output.encoding.name
-    end
-  end
-
   def test_that_tags_can_have_dashes_and_underscores
     rd = @markdown.render("foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b>")
     html_equal "<p>foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b></p>\n", rd
