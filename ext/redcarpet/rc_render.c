@@ -40,11 +40,7 @@ VALUE rb_cRenderHTML;
 VALUE rb_cRenderHTML_TOC;
 VALUE rb_mSmartyPants;
 
-#ifdef HAVE_RUBY_ENCODING_H
-#define buf2str(t) ((t) ? redcarpet_str_new((const char*)(t)->data, (t)->size, opt->active_enc) : Qnil)
-#else
-#define buf2str(t) ((t) ? redcarpet_str_new((const char*)(t)->data, (t)->size, NULL) : Qnil)
-#endif
+#define buf2str(t) ((t) ? rb_enc_str_new((const char*)(t)->data, (t)->size, opt->active_enc) : Qnil)
 
 static void
 rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque)
@@ -464,7 +460,7 @@ static VALUE rb_redcarpet_smartypants_render(VALUE self, VALUE text)
 	output_buf = bufnew(128);
 
 	sdhtml_smartypants(output_buf, (const uint8_t*)RSTRING_PTR(text), RSTRING_LEN(text));
-	result = redcarpet_str_new((const char*)output_buf->data, output_buf->size, rb_enc_get(text));
+	result = rb_enc_str_new((const char*)output_buf->data, output_buf->size, rb_enc_get(text));
 
 	bufrelease(output_buf);
 	return result;

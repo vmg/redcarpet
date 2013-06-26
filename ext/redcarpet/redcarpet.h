@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #include <ruby/encoding.h>
-#define redcarpet_str_new(data, size, enc) rb_enc_str_new(data, size, enc)
 
 #include "markdown.h"
 #include "html.h"
