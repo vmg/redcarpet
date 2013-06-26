@@ -1,5 +1,7 @@
 # Changelog
 
+* Avoid escaping for HTML comments *Robin Dupret*
+
 * Make emphasis wrapped inside parenthesis parsed *Robin Dupret*
 
 * Remove the Sundown submodule *Robin Dupret*
