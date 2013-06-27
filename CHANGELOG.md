@@ -1,5 +1,7 @@
 # Changelog
 
+* Remove support for Ruby 1.8.x *Matt Rogers & Robin Dupret*
+
 * Avoid escaping for HTML comments *Robin Dupret*
 
 * Make emphasis wrapped inside parenthesis parsed *Robin Dupret*
