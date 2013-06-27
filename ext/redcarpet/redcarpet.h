@@ -5,12 +5,7 @@
 #include "ruby.h"
 #include <stdio.h>
 
-#ifdef HAVE_RUBY_ENCODING_H
-#	include <ruby/encoding.h>
-#	define redcarpet_str_new(data, size, enc) rb_enc_str_new(data, size, enc)
-#else
-#	define redcarpet_str_new(data, size, enc) rb_str_new(data, size)
-#endif
+#include <ruby/encoding.h>
 
 #include "markdown.h"
 #include "html.h"
@@ -24,9 +19,7 @@ struct redcarpet_renderopt {
 	VALUE link_attributes;
 	VALUE self;
 	VALUE base_class;
-#ifdef HAVE_RUBY_ENCODING_H
 	rb_encoding *active_enc;
-#endif
 };
 
 struct rb_redcarpet_rndr {
