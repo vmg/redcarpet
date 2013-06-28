@@ -11,7 +11,7 @@ case since version 2 -- it now has its own API, but retains the old name. Yes,
 that does mean that Redcarpet 2 is not backwards-compatible with the 1.X
 versions.
 
-Redcarpet is powered by the [Sundown](https://www.github.com/vmg/sundown)
+Redcarpet is based on the [Sundown](https://www.github.com/vmg/sundown)
 library. You might want to find out more about Sundown to see what makes this
 Ruby library so awesome.
 
@@ -29,10 +29,11 @@ You can totally install it as a Gem
 
 Redcarpet is readily available as a Ruby gem. It will build some native
 extensions, but the parser is standalone and requires no installed libraries.
+Redcarpet requires at least Ruby 1.9.2 on your system.
 
     $ [sudo] gem install redcarpet
 
-The Redcarpet source (including Sundown as a submodule) is available at GitHub:
+The Redcarpet source is available at GitHub:
 
     $ git clone git://github.com/vmg/redcarpet.git
 
@@ -127,11 +128,11 @@ performance — several degrees of magnitude faster than other Ruby Markdown
 solutions.
 
 All the rendering flags that previously applied only to HTML output have
-now been moved to the `Render::HTML` class, and may be enabled when
+now been moved to the `Redcarpet::Render::HTML` class, and may be enabled when
 instantiating the renderer:
 
 ~~~~~ ruby
-Render::HTML.new(render_options = {})
+Redcarpet::Render::HTML.new(render_options = {})
 ~~~~~
 
 Initializes an HTML renderer. The following flags are available:
@@ -293,7 +294,7 @@ The SmartyPants parser can be found in `Redcarpet::Render::SmartyPants`. It has
 been implemented as a module, so it can be used standalone or as a mixin.
 
 When mixed with a Renderer class, it will override the `postprocess` method
-to perform SmartyPants replacements once the rendering is complete
+to perform SmartyPants replacements once the rendering is complete.
 
 ~~~~ ruby
 # Mixin
