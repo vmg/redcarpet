@@ -157,4 +157,30 @@ HTML
     output = renderer.render(markdown)
     assert_equal html, output
   end
+
+  def test_footnotes_enabled_but_missing_marker
+    markdown = <<MD
+Some text without a marker
+
+[^1] And a trailing definition
+MD
+    html = <<HTML
+<p>Some text without a marker</p>
+
+<p>[^1] And a trailing definition</p>
+HTML
+
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    output = renderer.render(markdown)
+    assert_equal html, output
+  end
+
+  def test_footnotes_enabled_but_missing_definition
+    markdown = "Some text with a marker[^1] but no definition."
+    html = "<p>Some text with a marker[^1] but no definition.</p>\n"
+
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    output = renderer.render(markdown)
+    assert_equal html, output
+  end
 end
