@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.0.0
+
 * Remove support for Ruby 1.8.x *Matt Rogers & Robin Dupret*
 
 * Avoid escaping for HTML comments *Robin Dupret*
