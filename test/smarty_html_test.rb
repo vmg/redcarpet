@@ -8,7 +8,7 @@ class SmartyHTMLTest < Test::Unit::TestCase
 
   def test_that_smartyhtml_converts_single_quotes
     markdown = @smarty_markdown.render("They're not for sale.")
-    assert_equal "<p>They&rsquo;re not for sale.</p>\n", markdown
+    assert_equal "<p>They&#39;re not for sale.</p>\n", markdown
   end
 
   def test_that_smartyhtml_converts_double_quotes
