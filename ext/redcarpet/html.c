@@ -260,7 +260,7 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 	if (ob->size)
 		bufputc(ob, '\n');
 
-	if (options->flags & HTML_TOC)
+	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level))
 		bufprintf(ob, "<h%d id=\"toc_%d\">", level, options->toc_data.header_count++);
 	else
 		bufprintf(ob, "<h%d>", level);
@@ -531,33 +531,34 @@ toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 {
 	struct html_renderopt *options = opaque;
 
-	/* set the level offset if this is the first header
-	 * we're parsing for the document */
-	if (options->toc_data.current_level == 0) {
-		options->toc_data.level_offset = level - 1;
-	}
-	level -= options->toc_data.level_offset;
+	if (level <= options->toc_data.nesting_level) {
+		/* set the level offset if this is the first header
+		 * we're parsing for the document */
+		if (options->toc_data.current_level == 0)
+			options->toc_data.level_offset = level - 1;
 
-	if (level > options->toc_data.current_level) {
-		while (level > options->toc_data.current_level) {
-			BUFPUTSL(ob, "<ul>\n<li>\n");
-			options->toc_data.current_level++;
-		}
-	} else if (level < options->toc_data.current_level) {
-		BUFPUTSL(ob, "</li>\n");
-		while (level < options->toc_data.current_level) {
-			BUFPUTSL(ob, "</ul>\n</li>\n");
-			options->toc_data.current_level--;
-		}
-		BUFPUTSL(ob,"<li>\n");
-	} else {
-		BUFPUTSL(ob,"</li>\n<li>\n");
-	}
+		level -= options->toc_data.level_offset;
 
-	bufprintf(ob, "<a href=\"#toc_%d\">", options->toc_data.header_count++);
-	if (text)
-		escape_html(ob, text->data, text->size);
-	BUFPUTSL(ob, "</a>\n");
+		if (level > options->toc_data.current_level) {
+			while (level > options->toc_data.current_level) {
+				BUFPUTSL(ob, "<ul>\n<li>\n");
+				options->toc_data.current_level++;
+			}
+		} else if (level < options->toc_data.current_level) {
+			BUFPUTSL(ob, "</li>\n");
+			while (level < options->toc_data.current_level) {
+				BUFPUTSL(ob, "</ul>\n</li>\n");
+				options->toc_data.current_level--;
+			}
+			BUFPUTSL(ob,"<li>\n");
+		} else {
+			BUFPUTSL(ob,"</li>\n<li>\n");
+		}
+
+		bufprintf(ob, "<a href=\"#toc_%d\">", options->toc_data.header_count++);
+		if (text) escape_html(ob, text->data, text->size);
+		BUFPUTSL(ob, "</a>\n");
+	}
 }
 
 static int
@@ -580,7 +581,7 @@ toc_finalize(struct buf *ob, void *opaque)
 }
 
 void
-sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options)
+sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, int nesting_level)
 {
 	static const struct sd_callbacks cb_default = {
 		NULL,
@@ -618,6 +619,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 
 	memset(options, 0x0, sizeof(struct html_renderopt));
 	options->flags = HTML_TOC;
+	options->toc_data.nesting_level = nesting_level;
 
 	memcpy(callbacks, &cb_default, sizeof(struct sd_callbacks));
 }

@@ -1,5 +1,17 @@
 # Changelog
 
+* Allow to set a maximum rendering level for HTML_TOC
+
+  Allow the user to pass a `nesting_level` option when instantiating a
+  new HTML_TOC render object in order to limit the nesting level in the
+  generated table of content. For example:
+
+  ~~~ruby
+  Redcarpet::Markdown.new(Redcarpet::Render::HTML_TOC.new(nesting_level: 2))
+  ~~~
+
+  *Robin Dupret*
+
 ## Version 3.0.0
 
 * Remove support for Ruby 1.8.x *Matt Rogers & Robin Dupret*
