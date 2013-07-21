@@ -93,7 +93,9 @@ empty line as in the Markdown standard.
 at the beginning of a header and its name, e.g. `#this is my header`
 would not be a valid header.
 
-* `:superscript`: parse superscripts after the `^` character; contiguous superscripts are nested together, and complex values can be enclosed in parenthesis, e.g. `this is the 2^(nd) time`
+* `:superscript`: parse superscripts after the `^` character; contiguous superscripts
+are nested together, and complex values can be enclosed in parenthesis, e.g.
+`this is the 2^(nd) time`.
 
 * `:underline`: parse underscored emphasis as underlines.
 `This is _underlined_ but this is still *italic*`.
@@ -101,7 +103,10 @@ would not be a valid header.
 * `:highlight`: parse highlights.
 `This is ==highlighted==`. It looks like this: `<mark>highlighted</mark>`
 
-* `:footnotes`: parse footnotes, PHP-Markdown style. A footnote works very much like a reference-style link: it consists of a  marker next to the text (e.g. `This is a sentence.[^1]`) and a footnote definition on its own line anywhere within the document (e.g. `[^1]: This is a footnote.`).
+* `:footnotes`: parse footnotes, PHP-Markdown style. A footnote works very much
+like a reference-style link: it consists of a  marker next to the text (e.g.
+`This is a sentence.[^1]`) and a footnote definition on its own line anywhere
+within the document (e.g. `[^1]: This is a footnote.`).
 
 Example:
 
