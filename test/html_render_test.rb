@@ -136,4 +136,57 @@ HTML
     output = render_with(@rndr[:escape_html], input)
     assert output.include? input
   end
+
+  def test_that_footnotes_work
+    markdown = <<-MD
+This is a footnote.[^1]
+
+[^1]: It provides additional information.
+MD
+
+    html = <<HTML
+<p>This is a footnote.<sup id="fnref1"><a href="#fn1" rel="footnote">1</a></sup></p>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>It provides additional information.&nbsp;<a href="#fnref1" rev="footnote">&#8617;</a></p>
+</li>
+
+</ol>
+</div>
+HTML
+
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    output = renderer.render(markdown)
+    assert_equal html, output
+  end
+
+  def test_footnotes_enabled_but_missing_marker
+    markdown = <<MD
+Some text without a marker
+
+[^1] And a trailing definition
+MD
+    html = <<HTML
+<p>Some text without a marker</p>
+
+<p>[^1] And a trailing definition</p>
+HTML
+
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    output = renderer.render(markdown)
+    assert_equal html, output
+  end
+
+  def test_footnotes_enabled_but_missing_definition
+    markdown = "Some text with a marker[^1] but no definition."
+    html = "<p>Some text with a marker[^1] but no definition.</p>\n"
+
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    output = renderer.render(markdown)
+    assert_equal html, output
+  end
 end
