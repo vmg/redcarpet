@@ -235,6 +235,8 @@ end
 * block_code(code, language)
 * block_quote(quote)
 * block_html(raw_html)
+* footnotes(content)
+* footnote_def(content, number)
 * header(text, header_level)
 * hrule()
 * list(contents, list_type)
@@ -263,6 +265,7 @@ be copied verbatim:
 * superscript(text)
 * underline(text)
 * highlight(text)
+* footnote_ref(number)
 
 ### Low level rendering
 
