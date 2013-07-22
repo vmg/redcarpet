@@ -29,7 +29,7 @@ You can totally install it as a Gem
 
 Redcarpet is readily available as a Ruby gem. It will build some native
 extensions, but the parser is standalone and requires no installed libraries.
-Prior to Redcarpet 3.0, the minimum required Ruby version is 1.9.2.
+Starting with Redcarpet 3.0, the minimum required Ruby version is 1.9.2.
 
     $ [sudo] gem install redcarpet
 
