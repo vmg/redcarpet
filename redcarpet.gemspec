@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.homepage = 'http://github.com/vmg/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
+  s.required_ruby_version = '>= 1.9.2'
   # = MANIFEST =
   s.files = %w[
     COPYING
