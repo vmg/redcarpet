@@ -44,6 +44,7 @@ Gem::Specification.new do |s|
     test/test_helper.rb
     test/custom_render_test.rb
     test/html_render_test.rb
+    test/html_toc_render_test.rb
     test/markdown_test.rb
     test/pathological_inputs_test.rb
     test/redcarpet_compat_test.rb
