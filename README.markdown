@@ -71,7 +71,7 @@ Strings such as `foo_bar_baz` will not generate `<em>` tags.
 * `:tables`: parse tables, PHP-Markdown style.
 
 * `:fenced_code_blocks`: parse fenced code blocks, PHP-Markdown
-style. Blocks delimited with 3 or more `~` or backtickswill be considered
+style. Blocks delimited with 3 or more `~` or backticks will be considered
 as code, without the need to be indented. An optional language name may
 be added at the end of the opening fence for the code block.
 
