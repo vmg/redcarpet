@@ -484,15 +484,15 @@ rndr_tablecell(struct buf *ob, const struct buf *text, int flags, void *opaque)
 
 	switch (flags & MKD_TABLE_ALIGNMASK) {
 	case MKD_TABLE_ALIGN_CENTER:
-		BUFPUTSL(ob, " align=\"center\">");
+		BUFPUTSL(ob, " style=\"text-align: center\">");
 		break;
 
 	case MKD_TABLE_ALIGN_L:
-		BUFPUTSL(ob, " align=\"left\">");
+		BUFPUTSL(ob, " style=\"text-align: left\">");
 		break;
 
 	case MKD_TABLE_ALIGN_R:
-		BUFPUTSL(ob, " align=\"right\">");
+		BUFPUTSL(ob, " style=\"text-align: right\">");
 		break;
 
 	default:
