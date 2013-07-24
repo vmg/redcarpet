@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef UPSKIRT_HTML_H
-#define UPSKIRT_HTML_H
+#ifndef HTML_H__
+#define HTML_H__
 
 #include "markdown.h"
 #include "buffer.h"
