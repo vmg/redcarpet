@@ -16,8 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef UPSKIRT_MARKDOWN_H
-#define UPSKIRT_MARKDOWN_H
+#ifndef MARKDOWN_H__
+#define MARKDOWN_H__
 
 #include "buffer.h"
 #include "autolink.h"
@@ -25,11 +25,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define SUNDOWN_VERSION "1.16.0"
-#define SUNDOWN_VER_MAJOR 1
-#define SUNDOWN_VER_MINOR 16
-#define SUNDOWN_VER_REVISION 0
 
 /********************
  * TYPE DEFINITIONS *
@@ -133,9 +128,6 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 extern void
 sd_markdown_free(struct sd_markdown *md);
-
-extern void
-sd_version(int *major, int *minor, int *revision);
 
 #ifdef __cplusplus
 }
