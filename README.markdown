@@ -112,6 +112,9 @@ like a reference-style link: it consists of a  marker next to the text (e.g.
 `This is a sentence.[^1]`) and a footnote definition on its own line anywhere
 within the document (e.g. `[^1]: This is a footnote.`).
 
+* `:no_underscore_emphasis`: do not parse underscore as emphasis.
+`This is _rendered_as_is_`.
+
 Example:
 
 ~~~~~ ruby
