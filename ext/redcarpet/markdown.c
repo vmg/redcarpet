@@ -2698,7 +2698,8 @@ sd_markdown_new(
 
 	if (md->cb.emphasis || md->cb.double_emphasis || md->cb.triple_emphasis) {
 		md->active_char['*'] = MD_CHAR_EMPHASIS;
-		md->active_char['_'] = MD_CHAR_EMPHASIS;
+		if (! (extensions & MKDEXT_NO_UNDERSCORE_EMPHASIS))
+			md->active_char['_'] = MD_CHAR_EMPHASIS;
 		if (extensions & MKDEXT_STRIKETHROUGH)
 			md->active_char['~'] = MD_CHAR_EMPHASIS;
 		if (extensions & MKDEXT_HIGHLIGHT)

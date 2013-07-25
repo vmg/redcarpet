@@ -189,4 +189,54 @@ HTML
     output = renderer.render(markdown)
     assert_equal html, output
   end
+
+  def test_no_underscore_emphasis_enabled_asterisk
+    markdown = <<-MD
+This should be **`a bold codespan`**
+However, this should be *`an emphasised codespan`*
+
+* **`ABC`** or **`DEF`**
+* Foo bar
+MD
+
+    html = <<HTML
+<p>This should be <strong><code>a bold codespan</code></strong>
+However, this should be <em><code>an emphasised codespan</code></em></p>
+
+<ul>
+<li><strong><code>ABC</code></strong> or <strong><code>DEF</code></strong></li>
+<li>Foo bar</li>
+</ul>
+HTML
+
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :no_underscore_emphasis => true)
+    output = renderer.render(markdown)
+    assert_equal html, output
+  end
+
+  def test_no_underscore_emphasis_enabled_underscore
+    markdown = <<-MD
+This should be __`a codespan`__
+Also, this should be _`a codespan`_
+
+* __`ABC`__ or __`DEF`__
+* Foo bar
+* Foo_bar_
+MD
+
+    html = <<HTML
+<p>This should be __<code>a codespan</code>__
+Also, this should be _<code>a codespan</code>_</p>
+
+<ul>
+<li>__<code>ABC</code>__ or __<code>DEF</code>__</li>
+<li>Foo bar</li>
+<li>Foo_bar_</li>
+</ul>
+HTML
+
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :no_underscore_emphasis => true)
+    output = renderer.render(markdown)
+    assert_equal html, output
+  end
 end
