@@ -930,7 +930,7 @@ char_autolink_url(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_
 
 	link = rndr_newbuf(rndr, BUFFER_SPAN);
 
-	if ((link_len = sd_autolink__url(&rewind, link, data, offset, size, 0)) > 0) {
+	if ((link_len = sd_autolink__url(&rewind, link, data, offset, size, SD_AUTOLINK_SHORT_DOMAINS)) > 0) {
 		ob->size -= rewind;
 		rndr->cb.autolink(ob, link, MKDA_NORMAL, rndr->opaque);
 	}
