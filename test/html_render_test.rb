@@ -189,4 +189,14 @@ HTML
     output = renderer.render(markdown)
     assert_equal html, output
   end
+  
+  def test_autolink_short_domains
+    markdown = "Example of uri ftp://auto/short/domains. Email auto@l.n and link http://a/u/t/o/s/h/o/r/t"
+    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true)
+    output = renderer.render(markdown)
+
+    assert output.include? '<a href="ftp://auto/short/domains">ftp://auto/short/domains</a>'
+    assert output.include? 'mailto:auto@l.n'
+    assert output.include? '<a href="http://a/u/t/o/s/h/o/r/t">http://a/u/t/o/s/h/o/r/t</a>'
+  end
 end
