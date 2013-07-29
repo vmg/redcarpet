@@ -120,7 +120,7 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 
 	if (buf->size >= buf->asize && bufgrow(buf, buf->size + 1) < 0)
 		return;
-	
+
 	va_start(ap, fmt);
 	n = _buf_vsnprintf((char *)buf->data + buf->size, buf->asize - buf->size, fmt, ap);
 	va_end(ap);
@@ -194,32 +194,3 @@ bufrelease(struct buf *buf)
 	free(buf->data);
 	free(buf);
 }
-
-
-/* bufreset: frees internal data of the buffer */
-void
-bufreset(struct buf *buf)
-{
-	if (!buf)
-		return;
-
-	free(buf->data);
-	buf->data = NULL;
-	buf->size = buf->asize = 0;
-}
-
-/* bufslurp: removes a given number of bytes from the head of the array */
-void
-bufslurp(struct buf *buf, size_t len)
-{
-	assert(buf && buf->unit);
-
-	if (len >= buf->size) {
-		buf->size = 0;
-		return;
-	}
-
-	buf->size -= len;
-	memmove(buf->data, buf->data + len, buf->size);
-}
-
