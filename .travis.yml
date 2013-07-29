@@ -1,3 +1,7 @@
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install tidy
+
 rvm:
   - 1.9.2
   - 1.9.3
