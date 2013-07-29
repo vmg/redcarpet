@@ -24,14 +24,10 @@
 14. You will get some feedback and may need to push additional commits
     with more fixes to the same branch; this will update your pull request
     automatically.
-15. [Squash your commits into a single one][rebase]
-    and [force a push to the same branch][force_push].
 
 [branch]: http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches
 [bundler]: http://bundler.io
-[force_push]: https://help.github.com/articles/dealing-with-non-fast-forward-errors
 [fork]: https://help.github.com/articles/fork-a-repo
 [pr]: https://help.github.com/articles/using-pull-requests
-[rebase]: https://help.github.com/articles/interactive-rebase
 [rvm]: https://rvm.io
 [travis_yml]: https://github.com/vmg/redcarpet/blob/master/.travis.yml
