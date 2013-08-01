@@ -199,4 +199,13 @@ HTML
     assert output.include? 'mailto:auto@l.n'
     assert output.include? '<a href="http://a/u/t/o/s/h/o/r/t">http://a/u/t/o/s/h/o/r/t</a>'
   end
+
+  def test_toc_heading_id
+    renderer = Redcarpet::Render::HTML.new(:with_toc_data => true)
+    parser = Redcarpet::Markdown.new(renderer)
+    markdown = "# First level heading"
+    output = parser.render(markdown).strip
+
+    assert_match /<h1 id="first-level-heading">/, output
+  end
 end

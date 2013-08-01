@@ -17,7 +17,7 @@
 
 #include "markdown.h"
 #include "html.h"
-
+#include "ruby.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -260,8 +260,14 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 	if (ob->size)
 		bufputc(ob, '\n');
 
-	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level))
-		bufprintf(ob, "<h%d id=\"toc_%d\">", level, options->toc_data.header_count++);
+	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level)) {
+		VALUE str = rb_str_new2(bufcstr(text));
+		VALUE pattern = rb_str_new2(" ");
+		VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, pattern, rb_str_new2("-"));
+		heading = rb_funcall(heading, rb_intern("downcase"), 0);
+		bufprintf(ob, "<h%d id=\"%s\">", level, StringValueCStr(heading));
+		options->toc_data.header_count++;
+	}
 	else
 		bufprintf(ob, "<h%d>", level);
 
