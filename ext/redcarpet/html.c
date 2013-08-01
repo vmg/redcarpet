@@ -262,8 +262,8 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 
 	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level)) {
 		VALUE str = rb_str_new2(bufcstr(text));
-		VALUE pattern = rb_str_new2(" ");
-		VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, pattern, rb_str_new2("-"));
+        VALUE regex = rb_reg_new(" +", 2 /* length */, 0);
+		VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, regex, rb_str_new2("-"));
 		heading = rb_funcall(heading, rb_intern("downcase"), 0);
 		bufprintf(ob, "<h%d id=\"%s\">", level, StringValueCStr(heading));
 		options->toc_data.header_count++;
