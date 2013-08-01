@@ -202,8 +202,9 @@ HTML
   end
 
   def test_toc_heading_id
-    markdown = "# First level heading"
+    markdown = "# First level  heading\n## Second level heading"
     output = render_with(@rndr[:toc_data], markdown)
     assert_match /<h1 id="first-level-heading">/, output
+    assert_match /<h2 id="second-level-heading">/, output
   end
 end
