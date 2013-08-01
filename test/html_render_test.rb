@@ -11,6 +11,7 @@ class HTMLRenderTest < Test::Unit::TestCase
       :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
       :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
       :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
+      :toc_data => Redcarpet::Render::HTML.new(:with_toc_data => true)
     }
   end
 
@@ -201,11 +202,8 @@ HTML
   end
 
   def test_toc_heading_id
-    renderer = Redcarpet::Render::HTML.new(:with_toc_data => true)
-    parser = Redcarpet::Markdown.new(renderer)
     markdown = "# First level heading"
-    output = parser.render(markdown).strip
-
+    output = render_with(@rndr[:toc_data], markdown)
     assert_match /<h1 id="first-level-heading">/, output
   end
 end
