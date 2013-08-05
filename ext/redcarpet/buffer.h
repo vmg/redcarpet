@@ -55,7 +55,7 @@ int bufgrow(struct buf *, size_t);
 struct buf *bufnew(size_t) __attribute__ ((malloc));
 
 /* bufnullterm: NUL-termination of the string array (making a C-string) */
-const char *bufcstr(struct buf *);
+const char *bufcstr(const struct buf *);
 
 /* bufprefix: compare the beginning of a buffer with a string */
 int bufprefix(const struct buf *buf, const char *prefix);
