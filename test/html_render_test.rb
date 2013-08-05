@@ -11,6 +11,7 @@ class HTMLRenderTest < Test::Unit::TestCase
       :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
       :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
       :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
+      :toc_data => Redcarpet::Render::HTML.new(:with_toc_data => true)
     }
   end
 
@@ -198,5 +199,12 @@ HTML
     assert output.include? '<a href="ftp://auto/short/domains">ftp://auto/short/domains</a>'
     assert output.include? 'mailto:auto@l.n'
     assert output.include? '<a href="http://a/u/t/o/s/h/o/r/t">http://a/u/t/o/s/h/o/r/t</a>'
+  end
+
+  def test_toc_heading_id
+    markdown = "# First level  heading\n## Second level heading"
+    output = render_with(@rndr[:toc_data], markdown)
+    assert_match /<h1 id="first-level-heading">/, output
+    assert_match /<h2 id="second-level-heading">/, output
   end
 end

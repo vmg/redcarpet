@@ -94,7 +94,7 @@ bufnew(size_t unit)
 
 /* bufnullterm: NULL-termination of the string array */
 const char *
-bufcstr(struct buf *buf)
+bufcstr(const struct buf *buf)
 {
 	assert(buf && buf->unit);
 

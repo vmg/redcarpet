@@ -1,5 +1,12 @@
 # Changelog
 
+* Enable GitHub style anchors for headers
+
+  Passing the `with_toc_data` option to a `HTML` render object now
+  generates GitHub style anchors.
+
+  *Matt Rogers*
+
 * Allow to set a maximum rendering level for HTML_TOC
 
   Allow the user to pass a `nesting_level` option when instantiating a
@@ -33,7 +40,7 @@
 * Ensure nested code spans put in emphasis work correctly *Robin Dupret*
 
 * Add optional footnotes support *Ben Dolman, Adam Florin, microjo, brief*
-  
+
 ## Version 2.3.0
 
 * Add a `:disable_indented_code_blocks` option *Dmitriy Kiriyenko*
