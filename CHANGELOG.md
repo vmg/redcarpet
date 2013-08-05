@@ -1,5 +1,11 @@
 # Changelog
 
+* Add optional footnotes support
+
+  Add PHP-Markdown style footnotes through the `:footnotes` option.
+
+  *Ben Dolman, Adam Florin, microjo, brief*
+
 * Enable GitHub style anchors for headers
 
   Passing the `with_toc_data` option to a `HTML` render object now
@@ -38,8 +44,6 @@
 * Ensure nested parenthesis are handled into links *Robin Dupret*
 
 * Ensure nested code spans put in emphasis work correctly *Robin Dupret*
-
-* Add optional footnotes support *Ben Dolman, Adam Florin, microjo, brief*
 
 ## Version 2.3.0
 
