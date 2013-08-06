@@ -252,6 +252,16 @@ rndr_linebreak(struct buf *ob, void *opaque)
 	return 1;
 }
 
+char *header_id(const struct buf *text)
+{
+	VALUE str = rb_str_new2(bufcstr(text));
+	VALUE regex = rb_reg_new(" +", 2 /* length */, 0);
+	VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, regex, rb_str_new2("-"));
+	heading = rb_funcall(heading, rb_intern("downcase"), 0);
+
+	return StringValueCStr(heading);
+}
+
 static void
 rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 {
@@ -260,14 +270,8 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 	if (ob->size)
 		bufputc(ob, '\n');
 
-	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level)) {
-		VALUE str = rb_str_new2(bufcstr(text));
-        VALUE regex = rb_reg_new(" +", 2 /* length */, 0);
-		VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, regex, rb_str_new2("-"));
-		heading = rb_funcall(heading, rb_intern("downcase"), 0);
-		bufprintf(ob, "<h%d id=\"%s\">", level, StringValueCStr(heading));
-		options->toc_data.header_count++;
-	}
+	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level))
+		bufprintf(ob, "<h%d id=\"%s\">", level, header_id(text));
 	else
 		bufprintf(ob, "<h%d>", level);
 
@@ -615,7 +619,7 @@ toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 			BUFPUTSL(ob,"</li>\n<li>\n");
 		}
 
-		bufprintf(ob, "<a href=\"#toc_%d\">", options->toc_data.header_count++);
+		bufprintf(ob, "<a href=\"#%s\">", header_id(text));
 		if (text) escape_html(ob, text->data, text->size);
 		BUFPUTSL(ob, "</a>\n");
 	}
