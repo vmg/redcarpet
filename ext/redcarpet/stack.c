@@ -51,15 +51,6 @@ redcarpet_stack_init(struct stack *st, size_t initial_size)
 	return redcarpet_stack_grow(st, initial_size);
 }
 
-void *
-redcarpet_stack_pop(struct stack *st)
-{
-	if (!st->size)
-		return NULL;
-
-	return st->item[--st->size];
-}
-
 int
 redcarpet_stack_push(struct stack *st, void *item)
 {
@@ -69,13 +60,3 @@ redcarpet_stack_push(struct stack *st, void *item)
 	st->item[st->size++] = item;
 	return 0;
 }
-
-void *
-redcarpet_stack_top(struct stack *st)
-{
-	if (!st->size)
-		return NULL;
-
-	return st->item[st->size - 1];
-}
-
