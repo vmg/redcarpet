@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2008, Natacha Porté
  * Copyright (c) 2011, Vicent Martí
  *
@@ -71,12 +71,6 @@ void bufputc(struct buf *, int);
 
 /* bufrelease: decrease the reference count and free the buffer if needed */
 void bufrelease(struct buf *);
-
-/* bufreset: frees internal data of the buffer */
-void bufreset(struct buf *);
-
-/* bufslurp: removes a given number of bytes from the head of the array */
-void bufslurp(struct buf *, size_t);
 
 /* bufprintf: formatted printing to a buffer */
 void bufprintf(struct buf *, const char *, ...) __attribute__ ((format (printf, 2, 3)));

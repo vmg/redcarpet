@@ -19,9 +19,6 @@ int redcarpet_stack_init(struct stack *, size_t);
 
 int redcarpet_stack_push(struct stack *, void *);
 
-void *redcarpet_stack_pop(struct stack *);
-void *redcarpet_stack_top(struct stack *);
-
 #ifdef __cplusplus
 }
 #endif
