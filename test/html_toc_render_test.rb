@@ -28,4 +28,14 @@ class HTMLTOCRenderTest < Test::Unit::TestCase
     assert_equal 4, output.split("<li>").length
     assert !output.include?("A sub-sub title")
   end
+
+  def test_toc_heading_id
+    renderer = Redcarpet::Markdown.new(@render)
+    output = renderer.render(@markdown)
+
+    assert_match /a-title/, output
+    assert_match /a-subtitle/, output
+    assert_match /another-one/, output
+    assert_match /a-sub-sub-title/, output
+  end
 end
