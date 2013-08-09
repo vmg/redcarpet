@@ -43,14 +43,14 @@ my $tests_failed = 0;
 
 foreach my $testfile (glob "$test_dir/*.text") {
 	my $testname = $testfile;
-	$testname =~ s{.*/(.+)\.text$}{$1}i; 
+	$testname =~ s{.*/(.+)\.text$}{$1}i;
 	print "$testname ... ";
 
 	# Look for a corresponding .html file for each .text file:
 	my $resultfile = $testfile;
 	$resultfile =~ s{\.text$}{\.html}i;
 	unless (-f $resultfile) {die "'$resultfile' does not exist.\n";}
-	
+
 	# open(TEST, $testfile)     || die("Can't open testfile: $!");
 	open(RESULT, $resultfile) || die("Can't open resultfile: $!");
 	undef $/;
@@ -87,6 +87,11 @@ my $time_end = new Benchmark;
 my $time_diff = timediff($time_end, $time_start);
 print "Benchmark: ", timestr($time_diff), "\n";
 
+if ($tests_failed ne 0) {
+	exit 1;
+} else {
+	exit 0;
+}
 
 __END__
 
@@ -147,8 +152,8 @@ off.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2004 John Gruber  
-<http://daringfireball.net/>   
+Copyright (c) 2004 John Gruber
+<http://daringfireball.net/>
 All rights reserved.
 
 This is free software; you may redistribute it and/or modify it under
