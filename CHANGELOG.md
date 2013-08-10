@@ -1,5 +1,10 @@
 # Changelog
 
+* Update the conformance test suite to provide better feedback to CI
+  systems.
+
+  *Robin Dupret*
+
 * Add optional footnotes support
 
   Add PHP-Markdown style footnotes through the `:footnotes` option.
