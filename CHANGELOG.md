@@ -1,5 +1,11 @@
 # Changelog
 
+* Revert the unescaping behavior on comments
+
+  This behavior doesn't follow the conformance suite.
+
+  *Robin Dupret*
+
 * Update the conformance test suite to provide better feedback to CI
   systems.
 
