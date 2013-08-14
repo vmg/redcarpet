@@ -66,15 +66,10 @@ houdini_escape_html0(struct buf *ob, const uint8_t *src, size_t size, int secure
 			break;
 
 		/* The forward slash is only escaped in secure mode */
-		if (src[i] == '/' && !secure) {
+		if (src[i] == '/' && !secure)
 			bufputc(ob, '/');
-		} else {
-			/* The left and right tags (< and >) aren't escaped in comments */
-			if ((src[i] == '<' && src[i + 1] == '!') || (src[i] == '>' && src[i - 1] == '-'))
-				bufputc(ob, src[i]);
-			else
-				bufputs(ob, HTML_ESCAPES[esc]);
-		}
+		else
+			bufputs(ob, HTML_ESCAPES[esc]);
 
 		i++;
 	}
