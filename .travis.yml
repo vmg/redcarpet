@@ -9,6 +9,11 @@ rvm:
   - 1.9.3
   - 2.0.0
   - rbx-19mode
+  - ruby-head
 
 notifications:
   email: false
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
