@@ -1,5 +1,10 @@
 # Changelog
 
+* Ensure inline markup in titles is correctly stripped when generating
+  headers' anchor.
+
+  *Robin Dupret*
+
 * Revert the unescaping behavior on comments
 
   This behavior doesn't follow the conformance suite.
