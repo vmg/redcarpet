@@ -49,12 +49,12 @@ instance of the class is attached to a `Renderer` object; the Markdown class
 performs parsing of a document and uses the attached renderer to generate
 output.
 
-The `Markdown` object is encouraged to be instantiated once with the required
-settings, and reused between parses.
+The `Redcarpet::Markdown` object is encouraged to be instantiated once with the
+required settings, and reused between parses.
 
 ~~~~~ ruby
 # Initializes a Markdown parser
-Markdown.new(renderer, extensions = {})
+Redcarpet::Markdown.new(renderer, extensions = {})
 ~~~~~
 
 
@@ -182,6 +182,10 @@ renderer = Redcarpet::Render::HTML.new(:no_links => true, :hard_wrap => true)
 The `HTML` renderer has an alternate version, `Redcarpet::Render::HTML_TOC`,
 which will output a table of contents in HTML based on the headers of the
 Markdown document.
+
+When instantiating this render object, you can optionally pass a `nesting_level`
+option which takes an integer and allows you to make it render only headers
+until a specific level.
 
 Furthermore, the abstract base class `Redcarpet::Render::Base` can be used
 to write a custom renderer purely in Ruby, or extending an existing renderer.
