@@ -255,8 +255,11 @@ rndr_linebreak(struct buf *ob, void *opaque)
 char *header_id(const struct buf *text)
 {
 	VALUE str = rb_str_new2(bufcstr(text));
-	VALUE regex = rb_reg_new(" +", 2 /* length */, 0);
-	VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, regex, rb_str_new2("-"));
+	VALUE space_regex = rb_reg_new(" +", 2 /* length */, 0);
+	VALUE tags_regex = rb_reg_new("<\\/?[^>]*>", 10, 0);
+
+	VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, space_regex, rb_str_new2("-"));
+	heading = rb_funcall(heading, rb_intern("gsub"), 2, tags_regex, rb_str_new2(""));
 	heading = rb_funcall(heading, rb_intern("downcase"), 0);
 
 	return StringValueCStr(heading);
