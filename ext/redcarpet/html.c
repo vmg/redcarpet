@@ -245,6 +245,19 @@ rndr_highlight(struct buf *ob, const struct buf *text, void *opaque)
 }
 
 static int
+rndr_quote(struct buf *ob, const struct buf *text, void *opaque)
+{
+	if (!text || !text->size)
+		return 0;
+
+	BUFPUTSL(ob, "<q>");
+	bufput(ob, text->data, text->size);
+	BUFPUTSL(ob, "</q>");
+
+	return 1;
+}
+
+static int
 rndr_linebreak(struct buf *ob, void *opaque)
 {
 	struct html_renderopt *options = opaque;
@@ -671,6 +684,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 		rndr_emphasis,
 		rndr_underline,
 		rndr_highlight,
+        rndr_quote,
 		NULL,
 		NULL,
 		toc_link,
@@ -718,6 +732,7 @@ sdhtml_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, 
 		rndr_emphasis,
 		rndr_underline,
 		rndr_highlight,
+        rndr_quote,
 		rndr_image,
 		rndr_linebreak,
 		rndr_link,

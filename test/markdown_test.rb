@@ -179,6 +179,15 @@ EOS
     assert output.include? '<mark>highlighted</mark>'
   end
 
+  def test_quote_flag_works
+    text = 'this is "quote"'
+
+    refute render_with({}, text).include? '<q>quote</q>'
+
+    output = render_with({:quote => true}, text)
+    assert output.include? '<q>quote</q>'
+  end
+
   def test_that_fenced_flag_works
     text = <<fenced
 This is a simple test

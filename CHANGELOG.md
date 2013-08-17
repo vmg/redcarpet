@@ -41,6 +41,10 @@
 
   *Robin Dupret*
 
+* Add optional quote support *Anatol Broder*
+
+  This is a `"quote"`.
+
 ## Version 3.0.0
 
 * Remove support for Ruby 1.8.x *Matt Rogers & Robin Dupret*

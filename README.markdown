@@ -107,6 +107,9 @@ are nested together, and complex values can be enclosed in parenthesis, e.g.
 * `:highlight`: parse highlights.
 `This is ==highlighted==`. It looks like this: `<mark>highlighted</mark>`
 
+* `:quote`: parse quotes.
+`This is a "quote"`. It looks like this: `<q>quote</q>`
+
 * `:footnotes`: parse footnotes, PHP-Markdown style. A footnote works very much
 like a reference-style link: it consists of a  marker next to the text (e.g.
 `This is a sentence.[^1]`) and a footnote definition on its own line anywhere
@@ -269,6 +272,7 @@ be copied verbatim:
 * superscript(text)
 * underline(text)
 * highlight(text)
+* quote(text)
 * footnote_ref(number)
 
 ### Low level rendering

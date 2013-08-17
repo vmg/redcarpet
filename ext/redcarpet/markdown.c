@@ -89,6 +89,7 @@ typedef size_t
 static size_t char_emphasis(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_underline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_highlight(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
+static size_t char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_linebreak(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_escape(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
@@ -638,6 +639,8 @@ parse_emph2(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 				r = rndr->cb.strikethrough(ob, work, rndr->opaque);
 			else if (c == '=')
 				r = rndr->cb.highlight(ob, work, rndr->opaque);
+			else if (c == '"')
+				r = rndr->cb.quote(ob, work, rndr->opaque);
 			else
 				r = rndr->cb.double_emphasis(ob, work, rndr->opaque);
 
@@ -2703,6 +2706,8 @@ sd_markdown_new(
 			md->active_char['~'] = MD_CHAR_EMPHASIS;
 		if (extensions & MKDEXT_HIGHLIGHT)
 			md->active_char['='] = MD_CHAR_EMPHASIS;
+		if (extensions & MKDEXT_QUOTE)
+			md->active_char['"'] = MD_CHAR_EMPHASIS;
 	}
 
 	if (md->cb.codespan)
