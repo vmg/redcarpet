@@ -26,6 +26,11 @@ class SmartyHTMLTest < Test::Unit::TestCase
     assert_equal "<p>triple hyphen &mdash; mdash</p>\n", rd
   end
 
+  def test_that_smartyhtml_ignores_double_hyphen_in_code
+    rd = @smarty_markdown.render("double hyphen in `--option`")
+    assert_equal "<p>double hyphen in <code>--option</code></p>\n", rd
+  end
+
   def test_that_smartyhtml_ignores_pre
     rd = @smarty_markdown.render("    It's a test of \"pre\"\n")
     expected = "It&#39;s a test of &quot;pre&quot;"
