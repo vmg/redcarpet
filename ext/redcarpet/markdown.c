@@ -114,6 +114,7 @@ enum markdown_char_t {
 	MD_CHAR_AUTOLINK_EMAIL,
 	MD_CHAR_AUTOLINK_WWW,
 	MD_CHAR_SUPERSCRIPT,
+	MD_CHAR_QUOTE
 };
 
 static char_trigger markdown_char_ptrs[] = {
