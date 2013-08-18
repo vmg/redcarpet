@@ -2707,8 +2707,6 @@ sd_markdown_new(
 			md->active_char['~'] = MD_CHAR_EMPHASIS;
 		if (extensions & MKDEXT_HIGHLIGHT)
 			md->active_char['='] = MD_CHAR_EMPHASIS;
-		if (extensions & MKDEXT_QUOTE)
-			md->active_char['"'] = MD_CHAR_EMPHASIS;
 	}
 
 	if (md->cb.codespan)
@@ -2732,6 +2730,9 @@ sd_markdown_new(
 
 	if (extensions & MKDEXT_SUPERSCRIPT)
 		md->active_char['^'] = MD_CHAR_SUPERSCRIPT;
+
+	if (extensions & MKDEXT_QUOTE)
+		md->active_char['"'] = MD_CHAR_QUOTE;
 
 	/* Extension data */
 	md->ext_flags = extensions;
