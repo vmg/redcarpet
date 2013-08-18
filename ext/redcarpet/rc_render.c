@@ -344,7 +344,7 @@ static const char *rb_redcarpet_method_names[] = {
 	"emphasis",
 	"underline",
 	"highlight",
-    "quote",
+	"quote",
 	"image",
 	"linebreak",
 	"link",
