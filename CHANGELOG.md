@@ -1,5 +1,12 @@
 # Changelog
 
+* Add optional quote support through the `:quote` option. Render
+  quotations marks to `q` HTML tag.
+
+  This is a `"quote"`.
+
+  *Anatol Broder*
+
 * Ensure inline markup in titles is correctly stripped when generating
   headers' anchor.
 

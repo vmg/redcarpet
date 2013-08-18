@@ -184,6 +184,12 @@ rndr_highlight(struct buf *ob, const struct buf *text, void *opaque)
 }
 
 static int
+rndr_quote(struct buf *ob, const struct buf *text, void *opaque)
+{
+	SPAN_CALLBACK("quote", 1, buf2str(text));
+}
+
+static int
 rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *alt, void *opaque)
 {
 	SPAN_CALLBACK("image", 3, buf2str(link), buf2str(title), buf2str(alt));
@@ -300,6 +306,7 @@ static struct sd_callbacks rb_redcarpet_callbacks = {
 	rndr_emphasis,
 	rndr_underline,
 	rndr_highlight,
+	rndr_quote,
 	rndr_image,
 	rndr_linebreak,
 	rndr_link,
@@ -337,6 +344,7 @@ static const char *rb_redcarpet_method_names[] = {
 	"emphasis",
 	"underline",
 	"highlight",
+	"quote",
 	"image",
 	"linebreak",
 	"link",
