@@ -89,6 +89,7 @@ typedef size_t
 static size_t char_emphasis(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_underline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_highlight(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
+static size_t char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_linebreak(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_escape(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
@@ -113,6 +114,7 @@ enum markdown_char_t {
 	MD_CHAR_AUTOLINK_EMAIL,
 	MD_CHAR_AUTOLINK_WWW,
 	MD_CHAR_SUPERSCRIPT,
+	MD_CHAR_QUOTE
 };
 
 static char_trigger markdown_char_ptrs[] = {
@@ -128,6 +130,7 @@ static char_trigger markdown_char_ptrs[] = {
 	&char_autolink_email,
 	&char_autolink_www,
 	&char_superscript,
+	&char_quote
 };
 
 /* render • structure containing one particular render */
@@ -781,6 +784,48 @@ char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 			end = 0;
 	} else {
 		if (!rndr->cb.codespan(ob, 0, rndr->opaque))
+			end = 0;
+	}
+
+	return end;
+}
+
+/* char_quote • '"' parsing a quote */
+static size_t
+char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
+{    
+	size_t end, nq = 0, i, f_begin, f_end;
+
+	/* counting the number of quotes in the delimiter */
+	while (nq < size && data[nq] == '"')
+		nq++;
+
+	/* finding the next delimiter */
+	i = 0;
+	for (end = nq; end < size && i < nq; end++) {
+		if (data[end] == '"') i++;
+		else i = 0;
+	}
+
+	if (i < nq && end >= size)
+		return 0; /* no matching delimiter */
+
+	/* trimming outside whitespaces */
+	f_begin = nq;
+	while (f_begin < end && data[f_begin] == ' ')
+		f_begin++;
+
+	f_end = end - nq;
+	while (f_end > nq && data[f_end-1] == ' ')
+		f_end--;
+
+	/* real quote */
+	if (f_begin < f_end) {
+		struct buf work = { data + f_begin, f_end - f_begin, 0, 0 };
+		if (!rndr->cb.quote(ob, &work, rndr->opaque))
+			end = 0;
+	} else {
+		if (!rndr->cb.quote(ob, 0, rndr->opaque))
 			end = 0;
 	}
 
@@ -2726,6 +2771,9 @@ sd_markdown_new(
 
 	if (extensions & MKDEXT_SUPERSCRIPT)
 		md->active_char['^'] = MD_CHAR_SUPERSCRIPT;
+
+	if (extensions & MKDEXT_QUOTE)
+		md->active_char['"'] = MD_CHAR_QUOTE;
 
 	/* Extension data */
 	md->ext_flags = extensions;
