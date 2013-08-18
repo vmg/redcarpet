@@ -641,8 +641,6 @@ parse_emph2(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 				r = rndr->cb.strikethrough(ob, work, rndr->opaque);
 			else if (c == '=')
 				r = rndr->cb.highlight(ob, work, rndr->opaque);
-			else if (c == '"')
-				r = rndr->cb.quote(ob, work, rndr->opaque);
 			else
 				r = rndr->cb.double_emphasis(ob, work, rndr->opaque);
 
