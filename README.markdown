@@ -1,4 +1,4 @@
-Redcarpet 2 is written with sugar, spice and everything nice
+Redcarpet is written with sugar, spice and everything nice
 ============================================================
 
 [![Build Status](https://travis-ci.org/vmg/redcarpet.png?branch=master)](https://travis-ci.org/vmg/redcarpet)
@@ -6,30 +6,21 @@ Redcarpet 2 is written with sugar, spice and everything nice
 Redcarpet is Ruby library for Markdown processing that smells like
 butterflies and popcorn.
 
-Redcarpet used to be a drop-in replacement for Redcloth. This is no longer the
-case since version 2 -- it now has its own API, but retains the old name. Yes,
-that does mean that Redcarpet 2 is not backwards-compatible with the 1.X
-versions.
-
-Redcarpet is based on the [Sundown](https://www.github.com/vmg/sundown)
-library. You might want to find out more about Sundown to see what makes this
-Ruby library so awesome.
-
 This library is written by people
 ---------------------------------
 
-Redcarpet 2 has been rewritten from scratch by Vicent Martí (@vmg). Why
-are you not following me on Twitter?
+Redcarpet was written by [Vicent Martí](https://github.com/vmg). It is maintained by
+[Robin Dupret](https://github.com/robin850) and [Matt Rogers](https://github.com/mattr-).
 
-Redcarpet would not be possible without the Sundown library and its authors
-(Natacha Porté, Vicent Martí, and its many awesome contributors).
+Redcarpet would not be possible without the [Sundown](https://www.github.com/vmg/sundown)
+library and its authors (Natacha Porté, Vicent Martí, and its many awesome contributors).
 
 You can totally install it as a Gem
 -----------------------------------
 
 Redcarpet is readily available as a Ruby gem. It will build some native
 extensions, but the parser is standalone and requires no installed libraries.
-Starting with Redcarpet 3.0, the minimum required Ruby version is 1.9.2.
+Starting with Redcarpet 3.0, the minimum required Ruby version is 1.9.2 (or Rubinius 2.0).
 
     $ [sudo] gem install redcarpet
 
@@ -335,13 +326,18 @@ inside the content of HTML tags and inside specific HTML blocks such as
 What? You really want to mix Markdown renderers?
 ------------------------------------------------
 
-What a terrible idea! Markdown is already ill-specified enough; if you create
-software that is renderer-independent, the results will be completely unreliable!
+Redcarpet used to be a drop-in replacement for Redcloth. This is no longer the
+case since version 2 -- it now has its own API, but retains the old name. Yes,
+that does mean that Redcarpet is not backwards-compatible with the 1.X
+versions.
 
 Each renderer has its own API and its own set of extensions: you should choose one
 (it doesn't have to be Redcarpet, though that would be great!), write your
 software accordingly, and force your users to install it. That's the
 only way to have reliable and predictable Markdown output on your program.
+
+Markdown is already ill-specified enough; if you create software that is
+renderer-independent, the results will be completely unreliable!
 
 Still, if major forces (let's say, tornadoes or other natural disasters) force you
 to keep a Markdown-compatibility layer, Redcarpet also supports this:
@@ -371,7 +367,7 @@ Tests run a lot faster without `bundle exec` :)
 Boring legal stuff
 ------------------
 
-Copyright (c) 2011, Vicent Martí
+Copyright (c) 2011-2013, Vicent Martí
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
