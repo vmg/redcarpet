@@ -47,6 +47,8 @@
   ~~~
 
   *Robin Dupret*
+  
+* Add `-v`/`--version` and `-h` flags to commandline redcarpet *Lukas Stabe*
 
 ## Version 3.0.0
 
