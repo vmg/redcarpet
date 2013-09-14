@@ -4,17 +4,22 @@
 # no <file> or when <file> is '-', read Markdown source text from standard input.
 # With <extension>s, perform additional Markdown processing before writing output.
 # With --smarty, use the SmartyHTML renderer
-if ARGV.include?('--help')
+if ARGV.include?('--help') or ARGV.include?('-h')
   File.read(__FILE__).split("\n").grep(/^# /).each do |line|
     puts line[2..-1]
   end
   exit 0
 end
 
+require 'redcarpet'
+
+if ARGV.include?('--version') or ARGV.include?('-v')
+  puts "Redcarpet #{Redcarpet::VERSION}"
+  exit 0
+end
+
 root = File.expand_path('../../', __FILE__)
 $:.unshift File.expand_path('lib', root)
-
-require 'redcarpet'
 
 render_extensions = {}
 parse_extensions = {}
