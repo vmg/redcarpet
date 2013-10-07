@@ -212,12 +212,6 @@ fenced
     assert !out.include?("<pre><code>")
   end
 
-  def test_that_prettify_works
-    text = "foo\nbar\n```\nsome\ncode\n```\nbaz"
-    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(:prettify => true), :fenced_code_blocks => true).render(text)
-    assert !out.include?("<pre><code class=\"prettyprint\">")
-  end
-
   def test_that_indented_flag_works
     text = <<indented
 This is a simple text
