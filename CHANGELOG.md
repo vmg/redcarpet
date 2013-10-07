@@ -1,5 +1,13 @@
 # Changelog
 
+* Fix code blocks' classes when using Google code prettify
+
+  When using the the `:prettify` option and specifying the
+  language name, the generated code block's class had a missing
+  space.
+
+  *Simonini*
+
 * Add `-v`/`--version` and `-h` flags to commandline redcarpet
   
   *Lukas Stabe*
