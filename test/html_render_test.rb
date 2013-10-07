@@ -204,10 +204,20 @@ HTML
   end
 
   def test_that_prettify_works
-    text = "foo\nbar\n```\nsome\ncode\n```\nbaz"
+    text = <<-Markdown
+Foo
+
+~~~ruby
+some
+code
+~~~
+
+Bar
+Markdown
+
     renderer = Redcarpet::Markdown.new(@rndr[:prettify], fenced_code_blocks: true)
     output = renderer.render(text)
 
-    assert output.include?("<code class=\"prettyprint\">")
+    assert output.include?("<code class=\"prettyprint ruby\">")
   end
 end
