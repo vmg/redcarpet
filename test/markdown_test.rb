@@ -67,6 +67,26 @@ class MarkdownTest < Test::Unit::TestCase
       "<ul>\n<li>Blah</li>\n</ul>\n", markdown
   end
 
+  # https://github.com/vmg/redcarpet/issues/111
+  def test_p_with_less_than_4space_indent_should_not_be_part_of_last_list_item
+    text = <<MARKDOWN
+  * a
+  * b
+  * c
+
+  This paragraph is not part of the list.
+MARKDOWN
+    expected = <<HTML
+<ul>
+<li>a</li>
+<li>b</li>
+<li>c</li>
+</ul>
+<p>This paragraph is not part of the list.</p>
+HTML
+    html_equal expected, @markdown.render(text)
+  end
+
   # http://github.com/rtomayko/rdiscount/issues/#issue/13
   def test_headings_with_trailing_space
     text = "The Ant-Sugar Tales \n"         +
