@@ -1893,10 +1893,8 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 			if (!sublist)
 				sublist = work->size;
 		}
-		/* joining only indented stuff after empty lines;
-		 * note that now we only require 1 space of indentation
-		 * to continue a list */
-		else if (in_empty && pre == 0) {
+		/* joining only indented stuff after empty lines */
+		else if (in_empty && i < 4 && data[beg] != '\t') {
 			*flags |= MKD_LI_END;
 			break;
 		}
