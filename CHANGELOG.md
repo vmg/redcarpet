@@ -1,5 +1,12 @@
 # Changelog
 
+
+* Revert lax indent of less than 4 characters after list items;
+  follow the standard to detect when new paragraph is outside last item.
+  Fixes [issue #111](https://github.com/vmg/redcarpet/issues/111).
+
+  * Eric Bréchemier *
+
 * Fix code blocks' classes when using Google code prettify
 
   When using the the `:prettify` option and specifying the
@@ -9,7 +16,7 @@
   *Simonini*
 
 * Add `-v`/`--version` and `-h` flags to commandline redcarpet
-  
+
   *Lukas Stabe*
 
 * Add optional quote support through the `:quote` option. Render
