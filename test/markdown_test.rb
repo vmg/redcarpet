@@ -82,6 +82,7 @@ MARKDOWN
 <li>b</li>
 <li>c</li>
 </ul>
+
 <p>This paragraph is not part of the list.</p>
 HTML
     html_equal expected, @markdown.render(text)
