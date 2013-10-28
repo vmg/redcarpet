@@ -1,5 +1,10 @@
 # Changelog
 
+* Feed the gemspec into ExtensionTask so that we can pre-compile.
+  ie. `rake native gem`
+
+  *Todd Edwards*
+
 
 * Revert lax indent of less than 4 characters after list items;
   follow the standard to detect when new paragraph is outside last item.
