@@ -10,7 +10,7 @@
   follow the standard to detect when new paragraph is outside last item.
   Fixes [issue #111](https://github.com/vmg/redcarpet/issues/111).
 
-  * Eric Bréchemier *
+  *Eric Bréchemier*
 
 * Fix code blocks' classes when using Google code prettify
 
