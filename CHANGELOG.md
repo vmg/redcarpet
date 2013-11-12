@@ -1,5 +1,13 @@
 # Changelog
 
+* Make ordered lists preceded by paragraph parsed with `:lax_spacing`
+
+  Previously, enabling the `:lax_spacing` option, if a paragraph was
+  followed by an ordered list it was previously unparsed and was part
+  of the paragraph but this is no more the case.
+
+  *Robin Dupret*
+
 * Feed the gemspec into ExtensionTask so that we can pre-compile.
   ie. `rake native gem`
 

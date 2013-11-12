@@ -274,4 +274,12 @@ text
     html = "<p>This is (<strong>bold</strong>) and this_is_not_italic!</p>\n"
     assert_equal html, render_with({:no_intra_emphasis => true}, markdown)
   end
+
+  def test_ordered_lists_with_lax_spacing
+    markdown = "Foo:\n1. Foo\n2. Bar"
+    output = render_with({lax_spacing: true}, markdown)
+
+    assert_match /<ol>/, output
+    assert_match /<li>Foo<\/li>/, output
+  end
 end

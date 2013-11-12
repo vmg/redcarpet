@@ -793,7 +793,7 @@ char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 /* char_quote • '"' parsing a quote */
 static size_t
 char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
-{    
+{
 	size_t end, nq = 0, i, f_begin, f_end;
 
 	/* counting the number of quotes in the delimiter */
@@ -1644,7 +1644,7 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 		 * let's check to see if there's some kind of block starting
 		 * here
 		 */
-		if ((rndr->ext_flags & MKDEXT_LAX_SPACING) && !isalnum(data[i])) {
+		if ((rndr->ext_flags & MKDEXT_LAX_SPACING) && !isalpha(data[i])) {
 			if (prefix_oli(data + i, size - i) ||
 				prefix_uli(data + i, size - i)) {
 				end = i;
