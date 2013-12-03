@@ -23,6 +23,23 @@ $:.unshift File.expand_path('lib', root)
 
 render_extensions = {}
 parse_extensions = {}
+
+# Custom renderers
+begin
+  require 'pygments'
+  class HTMLwithPygments < Redcarpet::Render::HTML
+    def block_code(code, language)
+      Pygments.highlight(code, :lexer => language)
+    end
+  end
+  pygments_available = true
+rescue LoadError
+  class HTMLwithPygments < Redcarpet::Render::HTML
+  end
+  pygments_available = false
+end
+
+# Default renderer
 renderer = Redcarpet::Render::HTML
 
 ARGV.delete_if do |arg|
@@ -34,6 +51,13 @@ ARGV.delete_if do |arg|
     parse_extensions[arg.to_sym] = true
   elsif arg == '--smarty'
     renderer = Redcarpet::Render::SmartyHTML
+  elsif arg == '--pygments'
+    if pygments_available
+      renderer = HTMLwithPygments
+    else
+      puts "Pygments.rb must be installed."
+      sys.exit(1)
+    end
   else
     false
   end
