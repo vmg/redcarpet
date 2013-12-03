@@ -1,5 +1,11 @@
 # Changelog
 
+* Add a --pygments command line option
+
+  Make it possible to enable syntax highlighting via the command line.
+
+  *Ana Nelson*
+
 * Make ordered lists preceded by paragraph parsed with `:lax_spacing`
 
   Previously, enabling the `:lax_spacing` option, if a paragraph was
