@@ -8,9 +8,8 @@ rvm:
   - 1.9.2
   - 1.9.3
   - 2.0.0
-  - rbx-19mode
+  - rbx-2
   - ruby-head
 
 notifications:
   email: false
-
