@@ -26,8 +26,8 @@ $:.unshift File.expand_path('lib', root)
 render_extensions = {}
 parse_extensions = {}
 
-# Default renderer
-renderer = Redcarpet::Render::HTML
+default_renderer = Redcarpet::Render::HTML
+renderer = default_renderer
 
 ARGV.delete_if do |arg|
   if arg =~ /^--render-([\w-]+)$/
@@ -38,6 +38,11 @@ ARGV.delete_if do |arg|
     parse_extensions[arg.to_sym] = true
   elsif arg =~ /^--([\w-]+)$/
     arg = $1.gsub('-', '_')
+
+    if renderer != default_renderer
+        raise "You can only specify one custom renderer."
+    end
+
     case arg
     when "smarty"
         renderer = Redcarpet::Render::SmartyHTML
