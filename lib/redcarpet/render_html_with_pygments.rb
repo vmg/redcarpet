@@ -11,7 +11,7 @@ module Redcarpet
       def block_code(code, language)
         # TODO Move this to init or setup block.
         if not PYGMENTS_AVAILABLE
-          raise "Pygments.rb must be installed."
+          raise "Pygments.rb must be installed and in your bundle to use the --pygments option."
         end
         Pygments.highlight(code, :lexer => language)
       end
