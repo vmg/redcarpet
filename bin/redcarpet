@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
-# Usage: redcarpet [--parse-<extension>...] [--render-<extension>...] [--smarty] [<file>...]
+# Usage: redcarpet [--parse-<extension>...] [--render-<extension>...] [--pygments] [--smarty] [<file>...]
 # Convert one or more Markdown files to HTML and write to standard output. With
 # no <file> or when <file> is '-', read Markdown source text from standard input.
 # With <extension>s, perform additional Markdown processing before writing output.
 # With --smarty, use the SmartyHTML renderer
+# With --pygments, use the HTMLwithPygments renderer (Pygments.rb must be installed)
 if ARGV.include?('--help') or ARGV.include?('-h')
   File.read(__FILE__).split("\n").grep(/^# /).each do |line|
     puts line[2..-1]
@@ -12,6 +13,7 @@ if ARGV.include?('--help') or ARGV.include?('-h')
 end
 
 require 'redcarpet'
+require 'redcarpet/render_html_with_pygments'
 
 if ARGV.include?('--version') or ARGV.include?('-v')
   puts "Redcarpet #{Redcarpet::VERSION}"
@@ -23,7 +25,9 @@ $:.unshift File.expand_path('lib', root)
 
 render_extensions = {}
 parse_extensions = {}
-renderer = Redcarpet::Render::HTML
+
+default_renderer = Redcarpet::Render::HTML
+renderer = default_renderer
 
 ARGV.delete_if do |arg|
   if arg =~ /^--render-([\w-]+)$/
@@ -32,8 +36,21 @@ ARGV.delete_if do |arg|
   elsif arg =~ /^--parse-([\w-]+)$/
     arg = $1.gsub('-', '_')
     parse_extensions[arg.to_sym] = true
-  elsif arg == '--smarty'
-    renderer = Redcarpet::Render::SmartyHTML
+  elsif arg =~ /^--([\w-]+)$/
+    arg = $1.gsub('-', '_')
+
+    if renderer != default_renderer
+        raise "You can only specify one custom renderer."
+    end
+
+    case arg
+    when "smarty"
+        renderer = Redcarpet::Render::SmartyHTML
+    when "pygments"
+        renderer = Redcarpet::Render::HTMLwithPygments
+    else
+        raise "Unsupported renderer or invalid option '--#{arg}'"
+    end
   else
     false
   end

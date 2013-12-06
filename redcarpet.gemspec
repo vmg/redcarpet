@@ -40,6 +40,7 @@ Gem::Specification.new do |s|
     lib/redcarpet/compat.rb
     lib/redcarpet/render_man.rb
     lib/redcarpet/render_strip.rb
+    lib/redcarpet/render_html_with_pygments.rb
     redcarpet.gemspec
     test/test_helper.rb
     test/custom_render_test.rb
