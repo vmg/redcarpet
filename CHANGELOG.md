@@ -3,8 +3,8 @@
 * Make ordered lists preceded by paragraph parsed with `:lax_spacing`
 
   Previously, enabling the `:lax_spacing` option, if a paragraph was
-  followed by an ordered list it was previously unparsed and was part
-  of the paragraph but this is no more the case.
+  followed by an ordered list it was unparsed and was part of the 
+  paragraph but this is no more the case.
 
   *Robin Dupret*
 
@@ -14,8 +14,9 @@
   *Todd Edwards*
 
 
-* Revert lax indent of less than 4 characters after list items;
-  follow the standard to detect when new paragraph is outside last item.
+* Revert lax indent of less than 4 characters after list items
+
+  Follow the standard to detect when new paragraph is outside last item.
   Fixes [issue #111](https://github.com/vmg/redcarpet/issues/111).
 
   *Eric Bréchemier*
