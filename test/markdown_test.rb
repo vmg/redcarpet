@@ -282,4 +282,9 @@ text
     assert_match /<ol>/, output
     assert_match /<li>Foo<\/li>/, output
   end
+
+  def test_references_with_tabs_after_colon
+    markdown = @markdown.render("[Link][id]\n[id]:\t\t\thttp://google.es")
+    html_equal '<p><a href="http://google.es">Link</a></p>', markdown
+  end
 end
