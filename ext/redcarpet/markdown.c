@@ -2606,11 +2606,11 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 	i++;
 	if (i >= end || data[i] != ':') return 0;
 	i++;
-	while (i < end && data[i] == ' ') i++;
+	while (i < end && strchr("\t ", data[i])) i++;
 	if (i < end && (data[i] == '\n' || data[i] == '\r')) {
 		i++;
 		if (i < end && data[i] == '\r' && data[i - 1] == '\n') i++; }
-	while (i < end && data[i] == ' ') i++;
+	while (i < end && strchr("\t ", data[i])) i++;
 	if (i >= end) return 0;
 
 	/* link: whitespace-free sequence, optionally between angle brackets */
@@ -2626,7 +2626,7 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 	else link_end = i;
 
 	/* optional spacer: (space | tab)* (newline | '\'' | '"' | '(' ) */
-	while (i < end && data[i] == ' ') i++;
+	while (i < end && strchr("\t ", data[i])) i++;
 	if (i < end && data[i] != '\n' && data[i] != '\r'
 			&& data[i] != '\'' && data[i] != '"' && data[i] != '(')
 		return 0;
@@ -2639,7 +2639,7 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 	/* optional (space|tab)* spacer after a newline */
 	if (line_end) {
 		i = line_end + 1;
-		while (i < end && data[i] == ' ') i++; }
+		while (i < end && strchr("\t ", data[i])) i++; }
 
 	/* optional title: any non-newline sequence enclosed in '"()
 					alone on its line */

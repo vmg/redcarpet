@@ -1,5 +1,11 @@
 # Changelog
 
+* Allow using tabs between a reference's colon and its link
+
+  Fix issue [#337](https://github.com/vmg/redcarpet/issues/337)
+
+  *Juan Guerrero*
+
 * Make ordered lists preceded by paragraph parsed with `:lax_spacing`
 
   Previously, enabling the `:lax_spacing` option, if a paragraph was
