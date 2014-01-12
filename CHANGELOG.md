@@ -31,7 +31,6 @@
 
   *Todd Edwards*
 
-
 * Revert lax indent of less than 4 characters after list items
 
   Follow the standard to detect when new paragraph is outside last item.
@@ -66,11 +65,6 @@
 * Revert the unescaping behavior on comments
 
   This behavior doesn't follow the conformance suite.
-
-  *Robin Dupret*
-
-* Update the conformance test suite to provide better feedback to CI
-  systems.
 
   *Robin Dupret*
 
