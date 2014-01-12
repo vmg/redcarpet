@@ -3,8 +3,8 @@ require 'test_helper'
 
 class HTMLTOCRenderTest < Test::Unit::TestCase
   class CustomTocRender < Redcarpet::Render::HTML_TOC
-    def header(text, level, id)
-      "<h#{level} id=\"foo-bar-#{id}\">#{text}</h1>"
+    def header(text, level, anchor)
+      "<h#{level} id=\"foo-bar-#{anchor}\">#{text}</h1>"
     end
   end
 

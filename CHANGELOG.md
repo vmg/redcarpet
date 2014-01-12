@@ -1,6 +1,6 @@
 # Changelog
 
-* Yield the humanized id of the headers
+* Yield the anchor of the headers
 
   Using the `header` callback, it's now possible to get access to the
   humanized generated id to easily keep tracking of the tree of headers

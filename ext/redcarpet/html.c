@@ -265,7 +265,7 @@ rndr_linebreak(struct buf *ob, void *opaque)
 	return 1;
 }
 
-char *header_id(const struct buf *text)
+char *header_anchor(const struct buf *text)
 {
 	VALUE str = rb_str_new2(bufcstr(text));
 	VALUE space_regex = rb_reg_new(" +", 2 /* length */, 0);
