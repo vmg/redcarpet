@@ -2,14 +2,19 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get -qq install tidy
 
-install: bundle install --without=benchmark
+install: travis_retry bundle install --without=benchmark
 
 rvm:
   - 1.9.2
   - 1.9.3
   - 2.0.0
-  - rbx-2
+  - 2.1.0
+  - rbx
   - ruby-head
+
+matrix:
+  allow_failures:
+    - rvm: rbx
 
 notifications:
   email: false
