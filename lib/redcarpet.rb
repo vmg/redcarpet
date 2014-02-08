@@ -1,7 +1,7 @@
 require 'redcarpet.so'
 
 module Redcarpet
-  VERSION = '3.0.0'
+  VERSION = '3.1.0'
 
   class Markdown
     attr_reader :renderer
@@ -68,9 +68,9 @@ class RedcarpetCompat
   def to_html(*_dummy)
     @markdown.render(@text)
   end
-  
+
   private
-  
+
   EXTENSION_MAP = {
     # old name => new name
     :autolink => :autolink,
@@ -95,10 +95,10 @@ class RedcarpetCompat
     :smart => nil,
     :strict => nil
   }
-  
-  RENDERER_OPTIONS = [:filter_html, :no_images, :no_links, :no_styles, 
+
+  RENDERER_OPTIONS = [:filter_html, :no_images, :no_links, :no_styles,
     :safe_links_only, :with_toc_data, :hard_wrap, :prettify, :xhtml]
-  
+
   def rename_extensions(exts)
     exts.map do |old_name|
       if new_name = EXTENSION_MAP[old_name]
@@ -108,7 +108,7 @@ class RedcarpetCompat
       end
     end.compact
   end
-  
+
   # Returns two hashes, the extensions and renderer options
   # given the extension list
   def parse_extensions_and_renderer_options(exts)
@@ -116,7 +116,7 @@ class RedcarpetCompat
     exts.partition {|ext| !RENDERER_OPTIONS.include?(ext) }.
       map {|list| list_to_truthy_hash(list) }
   end
-  
+
   # Turns a list of symbols into a hash of <tt>symbol => true</tt>.
   def list_to_truthy_hash(list)
     list.inject({}) {|h, k| h[k] = true; h }

@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.1.0
+
 * Yield the anchor of the headers
 
   Using the `header` callback, it's now possible to get access to the
