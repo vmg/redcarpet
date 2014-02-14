@@ -42,4 +42,21 @@ class SmartyHTMLTest < Test::Unit::TestCase
     expected = "It&#39;s a test of &quot;code&quot;"
     assert rd.include?(expected), "\"#{rd}\" should contain \"#{expected}\""
   end
+
+  def test_that_smartyhtml_converts_middot_to_nbsp
+    rd = @smarty_markdown.render("I·stick")
+    assert_equal "<p>I&#160;stick</p>\n", rd
+  end
+
+  def test_that_smartyhtml_converts_middots_to_one_nbsp
+    rd = @smarty_markdown.render("I··stick once")
+    assert_equal "<p>I&#160;stick once</p>\n", rd
+  end
+
+  def test_that_smartyhtml_ignores_middot_in_code
+    rd = @smarty_markdown.render("`middot · nbsp`")
+    expected = "middot · nbsp"
+    assert rd.include?(expected), "\"#{rd}\" should contain \"#{expected}\""
+  end
+
 end
