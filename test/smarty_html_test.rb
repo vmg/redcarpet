@@ -44,21 +44,21 @@ class SmartyHTMLTest < Test::Unit::TestCase
   end
 
   def test_that_smartyhtml_converts_middot_to_nbsp
-    rd = @smarty_markdown.render("I·stick")
+    rd = @smarty_markdown.render("I·stick").strip
     expected = "I&#160;stick"
-    assert rd.include?(expected), "\"#{rd}\" should contain \"#{expected}\""
+    assert rd.include?(expected), "'#{rd}\' should contain '#{expected}'"
   end
 
   def test_that_smartyhtml_converts_middots_to_one_nbsp
-    rd = @smarty_markdown.render("I··stick once")
+    rd = @smarty_markdown.render("I··stick once").strip
     expected = "I&#160;stick once"
-    assert rd.include?(expected), "\"#{rd}\" should contain \"#{expected}\""
+    assert rd.include?(expected), "'#{rd}\' should contain '#{expected}'"
   end
 
   def test_that_smartyhtml_ignores_middot_in_code
-    rd = @smarty_markdown.render("`middot · nbsp`")
+    rd = @smarty_markdown.render("`middot · nbsp`").strip
     expected = "middot · nbsp"
-    assert rd.include?(expected), "\"#{rd}\" should contain \"#{expected}\""
+    assert rd.include?(expected), "'#{rd}\' should contain '#{expected}'"
   end
 
 end
