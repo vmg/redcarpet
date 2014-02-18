@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 3.1.1
+
+* Fix a segfault when parsing text with headers.
+
 ## Version 3.1.0
 
 * Yield the anchor of the headers
