@@ -104,6 +104,9 @@ struct sd_callbacks {
 	void (*doc_footer)(struct buf *ob, void *opaque);
 };
 
+/* header methods used internally in Redcarpet */
+char* header_anchor(const struct buf *text);
+
 struct sd_markdown;
 
 /*********
