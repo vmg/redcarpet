@@ -12,9 +12,5 @@ rvm:
   - rbx
   - ruby-head
 
-matrix:
-  allow_failures:
-    - rvm: rbx
-
 notifications:
   email: false
