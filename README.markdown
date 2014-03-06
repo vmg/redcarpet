@@ -31,6 +31,24 @@ If you need to use it with Ruby 1.8.7, you will need to stick with 2.3.0:
 The Redcarpet source is available at GitHub:
 
     $ git clone git://github.com/vmg/redcarpet.git
+    
+    
+Get started quickly
+-------------------
+
+~~~~~ ruby
+markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true)
+~~~~~
+
+Rendering with the `Markdown` object is done through `Markdown#render`.
+Unlike in the RedCloth API, the text to render is passed as an argument
+and not stored inside the `Markdown` instance, to encourage reusability.
+Example:
+
+~~~~~ ruby
+markdown.render("This is *bongos*, indeed.")
+# => "<p>This is <em>bongos</em>, indeed</p>"
+~~~~~
 
 And it's like *really* simple to use
 ------------------------------------
@@ -105,23 +123,6 @@ are nested together, and complex values can be enclosed in parenthesis, e.g.
 like a reference-style link: it consists of a  marker next to the text (e.g.
 `This is a sentence.[^1]`) and a footnote definition on its own line anywhere
 within the document (e.g. `[^1]: This is a footnote.`).
-
-Example:
-
-~~~~~ ruby
-markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true)
-~~~~~
-
-Rendering with the `Markdown` object is done through `Markdown#render`.
-Unlike in the RedCloth API, the text to render is passed as an argument
-and not stored inside the `Markdown` instance, to encourage reusability.
-Example:
-
-~~~~~ ruby
-markdown.render("This is *bongos*, indeed.")
-# => "<p>This is <em>bongos</em>, indeed</p>"
-~~~~~
-
 
 Darling, I packed you a couple renderers for lunch
 --------------------------------------------------
