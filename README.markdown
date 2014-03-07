@@ -15,7 +15,7 @@ Redcarpet was written by [Vicent Martí](https://github.com/vmg). It is maintain
 Redcarpet would not be possible without the [Sundown](https://www.github.com/vmg/sundown)
 library and its authors (Natacha Porté, Vicent Martí, and its many awesome contributors).
 
-You can totally install it as a Gem
+You can install it as a Gem
 -----------------------------------
 
 Redcarpet is readily available as a Ruby gem. It will build some native
@@ -32,7 +32,7 @@ The Redcarpet source is available at GitHub:
 
     $ git clone git://github.com/vmg/redcarpet.git
 
-And it's like *really* simple to use
+And it's *really* simple to use
 ------------------------------------
 
 The core of the Redcarpet library is the `Redcarpet::Markdown` class. Each
@@ -123,7 +123,7 @@ markdown.render("This is *bongos*, indeed.")
 ~~~~~
 
 
-Darling, I packed you a couple renderers for lunch
+Use the default renderers
 --------------------------------------------------
 
 Redcarpet comes with two built-in renderers, `Redcarpet::Render::HTML` and
@@ -186,7 +186,7 @@ to write a custom renderer purely in Ruby, or extending an existing renderer.
 See the following section for more information.
 
 
-And you can even cook your own
+Or build your own renderer
 ------------------------------
 
 Custom renderers are created by inheriting from an existing renderer. The
@@ -364,7 +364,7 @@ Testing
 -------
 Tests run a lot faster without `bundle exec` :)
 
-Boring legal stuff
+Legal stuff
 ------------------
 
 Copyright (c) 2011-2013, Vicent Martí
