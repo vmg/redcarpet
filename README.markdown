@@ -266,6 +266,11 @@ be copied verbatim:
 * quote(text)
 * footnote_ref(number)
 
+**Note**: When overriding a renderer's method, be sure to return a HTML
+element with a level that match the level of that method (e.g. return a block
+element when overriding a block-level callback). Otherwise, the output may
+be unexpected.
+
 ### Low level rendering
 
 * entity(text)
