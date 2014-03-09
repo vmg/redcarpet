@@ -23,9 +23,20 @@ Hello world! Please visit [this site](https://github.com/).
 
     class Foo
     end
+
+Look at this ![picture](http://example.org/picture.png)
+And this: ![](http://example.org/image.jpg)
 Markdown
+    plaintext = <<-Plaintext
+Foo bar
+Hello world! Please visit this site.
+class Foo
+end
+Look at this picture http://example.org/picture.png
+And this: http://example.org/image.jpg
+Plaintext
 
     html = @markdown.render(markdown)
-    html_equal "Foo bar\nHello world! Please visit this site.\nclass Foo\nend\n", html
+    html_equal plaintext, html
   end
 end
