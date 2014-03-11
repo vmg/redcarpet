@@ -1,5 +1,7 @@
 # Changelog
 
+* The StripDown renderer handles image tags now.
+
 ## Version 3.1.1
 
 * Fix a segfault when parsing text with headers.

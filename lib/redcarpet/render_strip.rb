@@ -31,6 +31,11 @@ module Redcarpet
         content
       end
 
+      def image(link, title, content)
+        content &&= content + " "
+        "#{content}#{link}"
+      end
+
       def paragraph(text)
         text + "\n"
       end
