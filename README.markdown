@@ -31,24 +31,7 @@ If you need to use it with Ruby 1.8.7, you will need to stick with 2.3.0:
 The Redcarpet source is available at GitHub:
 
     $ git clone git://github.com/vmg/redcarpet.git
-    
-    
-Get started quickly
--------------------
 
-~~~~~ ruby
-markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true)
-~~~~~
-
-Rendering with the `Markdown` object is done through `Markdown#render`.
-Unlike in the RedCloth API, the text to render is passed as an argument
-and not stored inside the `Markdown` instance, to encourage reusability.
-Example:
-
-~~~~~ ruby
-markdown.render("This is *bongos*, indeed.")
-# => "<p>This is <em>bongos</em>, indeed</p>"
-~~~~~
 
 And it's like *really* simple to use
 ------------------------------------
@@ -63,13 +46,22 @@ required settings, and reused between parses.
 
 ~~~~~ ruby
 # Initializes a Markdown parser
-Redcarpet::Markdown.new(renderer, extensions = {})
+markdown = Redcarpet::Markdown.new(renderer, extensions = {})
 ~~~~~
-
 
 Here, the `renderer` variable refers to a renderer object, inheriting
 from `Redcarpet::Render::Base`. If the given object has not been
 instantiated, the library will do it with default arguments.
+
+Rendering with the `Markdown` object is done through `Markdown#render`.
+Unlike in the RedCloth API, the text to render is passed as an argument
+and not stored inside the `Markdown` instance, to encourage reusability.
+Example:
+
+~~~~~ ruby
+markdown.render("This is *bongos*, indeed.")
+# => "<p>This is <em>bongos</em>, indeed</p>"
+~~~~~
 
 You can also specify a hash containing the Markdown extensions which the
 parser will identify. The following extensions are accepted:
@@ -124,6 +116,12 @@ like a reference-style link: it consists of a  marker next to the text (e.g.
 `This is a sentence.[^1]`) and a footnote definition on its own line anywhere
 within the document (e.g. `[^1]: This is a footnote.`).
 
+Example:
+
+~~~ruby
+markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true, tables: true)
+ ~~~~~
+
 Darling, I packed you a couple renderers for lunch
 --------------------------------------------------
 
@@ -170,7 +168,7 @@ Markdown document had newlines (by default, Markdown ignores these newlines).
 Example:
 
 ~~~~~ ruby
-renderer = Redcarpet::Render::HTML.new(:no_links => true, :hard_wrap => true)
+renderer = Redcarpet::Render::HTML.new(no_links: true, hard_wrap: true)
 ~~~~~
 
 
@@ -197,11 +195,11 @@ built-in renderers, `HTML` and `XHTML` may be extended as such:
 # create a custom renderer that allows highlighting of code blocks
 class HTMLwithPygments < Redcarpet::Render::HTML
   def block_code(code, language)
-    Pygments.highlight(code, :lexer => language)
+    Pygments.highlight(code, lexer: language)
   end
 end
 
-markdown = Redcarpet::Markdown.new(HTMLwithPygments, :fenced_code_blocks => true)
+markdown = Redcarpet::Markdown.new(HTMLwithPygments, fenced_code_blocks: true)
 ~~~~~
 
 But new renderers can also be created from scratch (see `lib/redcarpet/render_man.rb` for
