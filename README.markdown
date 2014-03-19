@@ -60,7 +60,7 @@ Example:
 
 ~~~~~ ruby
 markdown.render("This is *bongos*, indeed.")
-# => "<p>This is <em>bongos</em>, indeed</p>"
+# => "<p>This is <em>bongos</em>, indeed.</p>"
 ~~~~~
 
 You can also specify a hash containing the Markdown extensions which the
