@@ -16,7 +16,7 @@ Benchmark.bm do |bench|
     TEST.times { Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(m) }
   end
 
-  bench.report("BlueCoth") do
+  bench.report("BlueCloth") do
     TEST.times { BlueCloth.new(m).to_html }
   end
 
