@@ -1,5 +1,11 @@
 # Changelog
 
+* Avoid making `:no_intra_emphasis` only match spaces. This allows
+  using emphasizes inside quotes when the option is enabled for
+  instance.
+
+  *Jason Webb* and *BJ Homer*
+
 * The StripDown renderer handles image tags now.
 
 ## Version 3.1.1
