@@ -333,6 +333,14 @@ free_footnote_list(struct footnote_list *list, int free_refs)
 	}
 }
 
+/*
+ Wrap isalnum so that characters outside of the ASCII range don't count.
+ */
+static inline int
+_isalnum(int c)
+{
+	return isalnum(c) && c < 0x7f;
+}
 
 /*
  * Check whether a char is a Markdown space.
@@ -364,7 +372,7 @@ is_mail_autolink(uint8_t *data, size_t size)
 
 	/* address is assumed to be: [-@._a-zA-Z0-9]+ with exactly one '@' */
 	for (i = 0; i < size; ++i) {
-		if (isalnum(data[i]))
+		if (_isalnum(data[i]))
 			continue;
 
 		switch (data[i]) {
@@ -400,14 +408,14 @@ tag_length(uint8_t *data, size_t size, enum mkd_autolink *autolink)
 	if (data[0] != '<') return 0;
 	i = (data[1] == '/') ? 2 : 1;
 
-	if (!isalnum(data[i]))
+	if (!_isalnum(data[i]))
 		return 0;
 
 	/* scheme test */
 	*autolink = MKDA_NOT_AUTOLINK;
 
 	/* try to find the beginning of an URI */
-	while (i < size && (isalnum(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-'))
+	while (i < size && (_isalnum(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-'))
 		i++;
 
 	if (i > 1 && data[i] == '@') {
@@ -600,7 +608,7 @@ parse_emph1(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 		if (data[i] == c && !_isspace(data[i - 1])) {
 
 			if (rndr->ext_flags & MKDEXT_NO_INTRA_EMPHASIS) {
-				if (i + i < size && isalnum(data[i + 1]))
+				if (i + i < size && _isalnum(data[i + 1]))
 					continue;
 			}
 
@@ -702,7 +710,7 @@ char_emphasis(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 	size_t ret;
 
 	if (rndr->ext_flags & MKDEXT_NO_INTRA_EMPHASIS) {
-		if (offset > 0 && isalnum(data[-1]))
+		if (offset > 0 && _isalnum(data[-1]))
 			return 0;
 	}
 
@@ -868,7 +876,7 @@ char_entity(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offs
 	if (end < size && data[end] == '#')
 		end++;
 
-	while (end < size && isalnum(data[end]))
+	while (end < size && _isalnum(data[end]))
 		end++;
 
 	if (end < size && data[end] == ';')

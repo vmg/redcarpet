@@ -1,5 +1,10 @@
 # Changelog
 
+* Enable emphasis inside of sentences in multi-byte languages when
+  `:no_intra_emphasis` is set.
+
+  *Chun-wei Kuo*
+
 * Avoid making `:no_intra_emphasis` only match spaces. This allows
   using emphasizes inside quotes when the option is enabled for
   instance.
