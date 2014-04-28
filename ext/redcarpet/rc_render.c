@@ -61,9 +61,9 @@ rndr_raw_block(struct buf *ob, const struct buf *text, void *opaque)
 }
 
 static void
-rndr_header(struct buf *ob, const struct buf *text, int level, char *anchor, void *opaque)
+rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 {
-	BLOCK_CALLBACK("header", 3, buf2str(text), INT2FIX(level), rb_str_new2(anchor));
+	BLOCK_CALLBACK("header", 2, buf2str(text), INT2FIX(level));
 }
 
 static void

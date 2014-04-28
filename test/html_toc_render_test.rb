@@ -2,12 +2,6 @@
 require 'test_helper'
 
 class HTMLTOCRenderTest < Test::Unit::TestCase
-  class CustomTocRender < Redcarpet::Render::HTML_TOC
-    def header(text, level, anchor)
-      "<h#{level} id=\"foo-bar-#{anchor}\">#{text}</h1>"
-    end
-  end
-
   def setup
     @render = Redcarpet::Render::HTML_TOC
     @markdown = "# A title \n## A __nice__ subtitle\n## Another one \n### A sub-sub-title"
@@ -43,13 +37,5 @@ class HTMLTOCRenderTest < Test::Unit::TestCase
     assert_match /a-nice-subtitle/, output
     assert_match /another-one/, output
     assert_match /a-sub-sub-title/, output
-  end
-
-  def test_header_callback
-    renderer = Redcarpet::Markdown.new(CustomTocRender)
-    output = renderer.render(@markdown)
-
-    assert_match /A title/, output
-    assert_match /foo-bar-a-title/, output
   end
 end
