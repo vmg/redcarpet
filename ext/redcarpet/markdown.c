@@ -1712,7 +1712,7 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 		parse_inline(header_work, rndr, work.data, work.size);
 
 		if (rndr->cb.header)
-			rndr->cb.header(ob, header_work, (int)level, header_anchor(header_work), rndr->opaque);
+			rndr->cb.header(ob, header_work, (int)level, rndr->opaque);
 
 		rndr_popbuf(rndr, BUFFER_SPAN);
 	}
@@ -1992,7 +1992,7 @@ parse_atxheader(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 		parse_inline(work, rndr, data + i, end - i);
 
 		if (rndr->cb.header)
-			rndr->cb.header(ob, work, (int)level, header_anchor(work), rndr->opaque);
+			rndr->cb.header(ob, work, (int)level, rndr->opaque);
 
 		rndr_popbuf(rndr, BUFFER_SPAN);
 	}

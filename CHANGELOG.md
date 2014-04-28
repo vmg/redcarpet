@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 3.1.2
+
+* Remove the yielding of anchors in the `header` callback. This was
+  a breaking change between 3.0 and 3.1 as the method's arity changed.
+
 ## Version 3.1.1
 
 * Fix a segfault when parsing text with headers.
