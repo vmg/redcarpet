@@ -31,7 +31,7 @@ sd_autolink_issafe(const uint8_t *link, size_t link_len)
 {
 	static const size_t valid_uris_count = 5;
 	static const char *valid_uris[] = {
-		"/", "http://", "https://", "ftp://", "mailto:"
+		"#", "/", "http://", "https://", "ftp://", "mailto:"
 	};
 
 	size_t i;
