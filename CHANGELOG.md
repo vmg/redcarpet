@@ -1,5 +1,9 @@
 # Changelog
 
+* Allow in-page links (e.g. `[headline](#headline)`) when `:safe_links_only` is set.
+
+  *jomo*
+
 * Enable emphasis inside of sentences in multi-byte languages when
   `:no_intra_emphasis` is set.
 
