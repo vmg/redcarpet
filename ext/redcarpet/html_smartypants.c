@@ -139,6 +139,12 @@ smartypants_squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previo
 				return next_squote_len;
 		}
 
+		// trailing single quotes: students', tryin'
+		if (word_boundary(t1)) {
+			BUFPUTSL(ob, "&rsquo;");
+			return 0;
+		}
+ 
 		// Tom's, isn't, I'm, I'd
 		if ((t1 == 's' || t1 == 't' || t1 == 'm' || t1 == 'd') &&
 			(size == 3 || word_boundary(text[2]))) {
