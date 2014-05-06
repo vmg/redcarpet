@@ -40,4 +40,9 @@ class SmartyPantsTest < Test::Unit::TestCase
     rd = @pants.render("<p>single `backticks` in HTML should be preserved</p>")
     assert_equal "<p>single `backticks` in HTML should be preserved</p>", rd
   end
+  
+  def test_that_smart_converts_trailing_single_quotes_to_curly_quotes
+    rd = @pants.render("<p>Hopin' that this bug gets some fixin'.</p>")
+    assert_equal "<p>Hopin&rsquo; that this bug gets some fixin&rsquo;.</p>", rd
+  end
 end
