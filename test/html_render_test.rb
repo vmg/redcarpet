@@ -220,4 +220,13 @@ Markdown
 
     assert output.include?("<code class=\"prettyprint ruby\">")
   end
+
+  def test_safe_links_only_with_anchors
+    markdown = "An [anchor link](#anchor) on a page."
+
+    renderer = Redcarpet::Markdown.new(@rndr[:safe_links])
+    output = renderer.render(markdown)
+
+    assert_match %r{<a href="#anchor">anchor link</a>}, output
+  end
 end
