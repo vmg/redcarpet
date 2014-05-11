@@ -1,5 +1,10 @@
 # Changelog
 
+* Convert trailing single quotes to curly quotes. For example,
+  `Road Trippin'` now converts to `Road Trippin’`.
+
+  *Kevin Chen*
+
 * Enable emphasis inside of sentences in multi-byte languages when
   `:no_intra_emphasis` is set.
 
@@ -12,11 +17,6 @@
   *Jason Webb* and *BJ Homer*
 
 * The StripDown renderer handles image tags now.
-
-* Convert trailing single quotes to curly quotes. For example,
-  `Road Trippin'` now converts to `Road Trippin’`.
-
-  *Kevin Chen*
 
 ## Version 3.1.2
 
