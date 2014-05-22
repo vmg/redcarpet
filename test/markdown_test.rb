@@ -290,6 +290,6 @@ text
 
   def test_references_with_tabs_after_colon
     markdown = @markdown.render("[Link][id]\n[id]:\t\t\thttp://google.es")
-    html_equal '<p><a href="http://google.es">Link</a></p>', markdown
+    html_equal "<p><a href=\"http://google.es\">Link</a></p>\n", markdown
   end
 end
