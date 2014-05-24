@@ -1,5 +1,10 @@
 # Changelog
 
+* Convert trailing single quotes to curly quotes. For example,
+  `Road Trippin'` now converts to `Road Trippin’`.
+
+  *Kevin Chen*
+
 * Allow in-page links (e.g. `[headline](#headline)`) when `:safe_links_only` is set.
 
   *jomo*
