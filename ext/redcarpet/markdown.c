@@ -509,13 +509,13 @@ find_emph_char(uint8_t *data, size_t size, uint8_t c)
 		if (i == size)
 			return 0;
 
-		if (data[i] == c)
-			return i;
-
 		/* not counting escaped chars */
 		if (i && data[i - 1] == '\\') {
 			i++; continue;
 		}
+
+		if (data[i] == c)
+			return i;
 
 		if (data[i] == '`') {
 			size_t span_nb = 0, bt;
