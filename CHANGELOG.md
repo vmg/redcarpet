@@ -1,5 +1,9 @@
 # Changelog
 
+* Fix emphasis character escape sequence detection while mid-emphasis
+
+  *jcheatham*
+
 * Allow in-page links (e.g. `[headline](#headline)`) when `:safe_links_only` is set.
 
   *jomo*
