@@ -285,6 +285,12 @@ text
     html_equal "<p><strong>foo*</strong> <em>dd_dd</em></p>\n", markdown
   end
 
+  def test_char_escaping_when_highlighting
+    markdown = "==attribute\\==="
+    output = render_with({highlight: true}, markdown)
+    html_equal "<p><mark>attribute=</mark></p>\n", output
+  end
+
   def test_ordered_lists_with_lax_spacing
     markdown = "Foo:\n1. Foo\n2. Bar"
     output = render_with({lax_spacing: true}, markdown)
