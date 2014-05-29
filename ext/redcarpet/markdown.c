@@ -509,13 +509,13 @@ find_emph_char(uint8_t *data, size_t size, uint8_t c)
 		if (i == size)
 			return 0;
 
-		if (data[i] == c)
-			return i;
-
 		/* not counting escaped chars */
 		if (i && data[i - 1] == '\\') {
 			i++; continue;
 		}
+
+		if (data[i] == c)
+			return i;
 
 		if (data[i] == '`') {
 			size_t span_nb = 0, bt;
@@ -845,7 +845,7 @@ char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offse
 static size_t
 char_escape(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
 {
-	static const char *escape_chars = "\\`*_{}[]()#+-.!:|&<>^~";
+	static const char *escape_chars = "\\`*_{}[]()#+-.!:|&<>^~=";
 	struct buf work = { 0, 0, 0, 0 };
 
 	if (size > 1) {

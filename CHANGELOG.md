@@ -1,5 +1,9 @@
 # Changelog
 
+* Fix emphasis character escape sequence detection while mid-emphasis.
+
+  *jcheatham*
+
 * Convert trailing single quotes to curly quotes. For example,
   `Road Trippin'` now converts to `Road Trippin’`.
 
