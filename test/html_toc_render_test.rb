@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class HTMLTOCRenderTest < Test::Unit::TestCase
+class HTMLTOCRenderTest < Redcarpet::TestCase
   def setup
     @render = Redcarpet::Render::HTML_TOC
     @markdown = "# A title \n## A __nice__ subtitle\n## Another one \n### A sub-sub-title"
@@ -14,8 +14,8 @@ class HTMLTOCRenderTest < Test::Unit::TestCase
     assert output.start_with?("<ul>")
     assert output.end_with?("</ul>")
 
-    assert_equal 4, output.split("<ul>").length
-    assert_equal 5, output.split("<li>").length
+    assert_equal 3, output.scan("<ul>").length
+    assert_equal 4, output.scan("<li>").length
   end
 
   def test_granular_toc_render
@@ -25,7 +25,7 @@ class HTMLTOCRenderTest < Test::Unit::TestCase
     assert output.start_with?("<ul>")
     assert output.end_with?("</ul>")
 
-    assert_equal 4, output.split("<li>").length
+    assert_equal 3, output.scan("<li>").length
     assert !output.include?("A sub-sub title")
   end
 

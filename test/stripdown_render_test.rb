@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class StripDownRender < Test::Unit::TestCase
+class StripDownRender < Redcarpet::TestCase
 
   def setup
     @markdown = Redcarpet::Markdown.new(Redcarpet::Render::StripDown)

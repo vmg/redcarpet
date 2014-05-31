@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class RedcarpetCompatTest < Test::Unit::TestCase
+class RedcarpetCompatTest < Redcarpet::TestCase
   def test_simple_compat_api
     html = RedcarpetCompat.new("This is_just_a test").to_html
     html_equal "<p>This is<em>just</em>a test</p>\n", html

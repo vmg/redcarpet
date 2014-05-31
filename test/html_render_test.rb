@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class HTMLRenderTest < Test::Unit::TestCase
+class HTMLRenderTest < Redcarpet::TestCase
   def setup
     @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
     @rndr = {
