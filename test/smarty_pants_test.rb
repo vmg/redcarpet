@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class SmartyPantsTest < Test::Unit::TestCase
+class SmartyPantsTest < Redcarpet::TestCase
   def setup
     @pants = Redcarpet::Render::SmartyPants
   end

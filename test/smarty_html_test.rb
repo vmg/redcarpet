@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class SmartyHTMLTest < Test::Unit::TestCase
+class SmartyHTMLTest < Redcarpet::TestCase
   def setup
     @smarty_markdown = Redcarpet::Markdown.new(Redcarpet::Render::SmartyHTML)
   end
