@@ -8,7 +8,7 @@ require 'bluecloth'
 require 'kramdown'
 
 TEST = 10_000
-m = File.read(File.join(File.dirname(__FILE__), "fixture.text"))
+m = File.read(File.join(File.dirname(__FILE__), "fixtures/benchmark.md"))
 
 # Let's bench!
 Benchmark.bm do |bench|
