@@ -1,5 +1,9 @@
 # Changelog
 
+* A hyphen and an equal should not be converted to heading.
+
+  *namusyaka*
+
 * Fix emphasis character escape sequence detection while mid-emphasis.
 
   *jcheatham*
