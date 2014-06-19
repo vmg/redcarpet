@@ -1,26 +1,24 @@
 # coding: UTF-8
 # Thanks Kramdown for the inspiration!
-require "benchmark"
-require "stringio"
+require 'benchmark/ips'
 
 require 'redcarpet'
 require 'bluecloth'
 require 'kramdown'
 
-TEST = 10_000
-m = File.read(File.join(File.dirname(__FILE__), "fixture.text"))
+markdown = File.read(File.join(File.dirname(__FILE__), "fixtures/benchmark.md"))
 
 # Let's bench!
-Benchmark.bm do |bench|
+Benchmark.ips do |bench|
   bench.report("Redcarpet") do
-    TEST.times { Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(m) }
+    Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(markdown)
   end
 
   bench.report("BlueCloth") do
-    TEST.times { BlueCloth.new(m).to_html }
+    BlueCloth.new(markdown).to_html
   end
 
   bench.report("Kramdown") do
-    TEST.times { Kramdown::Document.new(m).to_html }
+    Kramdown::Document.new(markdown).to_html
   end
 end
