@@ -149,6 +149,11 @@ HTML
     header
   end
 
+  def test_a_hyphen_and_a_equal_should_not_be_converted_to_heading
+    html_equal "<p>-</p>\n", @markdown.render("-")
+    html_equal "<p>=</p>\n", @markdown.render("=")
+  end
+
   def test_that_tables_flag_works
     text = <<EOS
  aaa | bbbb

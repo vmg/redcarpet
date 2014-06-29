@@ -38,4 +38,12 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert_match /another-one/, output
     assert_match /a-sub-sub-title/, output
   end
+
+  def test_toc_heading_with_hyphen_and_equal
+    renderer = Redcarpet::Markdown.new(@render)
+    output = renderer.render("# Hello World\n\n-\n\n=")
+
+    assert_equal 1, output.scan("<li>").length
+    assert !output.include?('<a href=\"#\"></a>')
+  end
 end
