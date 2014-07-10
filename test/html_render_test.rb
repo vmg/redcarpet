@@ -229,4 +229,12 @@ Markdown
 
     assert_match %r{<a href="#anchor">anchor link</a>}, output
   end
+
+  def test_autolink_with_link_attributes
+    render = Redcarpet::Render::HTML.new(link_attributes: {rel: "nofollow"})
+    parser = Redcarpet::Markdown.new(render, autolink: true)
+
+    output = parser.render("https://github.com/")
+    assert_match %r{rel="nofollow"}, output
+  end
 end
