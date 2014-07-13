@@ -78,8 +78,8 @@ be added at the end of the opening fence for the code block.
 
 * `:autolink`: parse links even when they are not enclosed in `<>`
 characters. Autolinks for the http, https and ftp protocols will be
-automatically detected. Email addresses are also handled, and http
-links without protocol, but starting with `www`.
+automatically detected. Email addresses, anchors and http links without
+protocol, but starting with `www` are also handled.
 
 * `:disable_indented_code_blocks`: do not parse usual markdown
 code blocks. Markdown converts text with four spaces at
@@ -220,8 +220,9 @@ The following instance methods may be implemented by the renderer:
 ### Block-level calls
 
 If the return value of the method is `nil`, the block will be skipped.
-If the method for a document element is not implemented, the block will
-be skipped.
+Therefore, make sure that your renderer has at least a `paragraph` method
+implemented. If the method for a document element is not implemented, the
+block will be skipped.
 
 Example:
 
@@ -270,9 +271,9 @@ be copied verbatim:
 * footnote_ref(number)
 
 **Note**: When overriding a renderer's method, be sure to return a HTML
-element with a level that match the level of that method (e.g. return a block
-element when overriding a block-level callback). Otherwise, the output may
-be unexpected.
+element with a level that matches the level of that method (e.g. return a
+block element when overriding a block-level callback). Otherwise, the output
+may be unexpected.
 
 ### Low level rendering
 
