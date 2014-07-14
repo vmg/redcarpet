@@ -78,8 +78,8 @@ be added at the end of the opening fence for the code block.
 
 * `:autolink`: parse links even when they are not enclosed in `<>`
 characters. Autolinks for the http, https and ftp protocols will be
-automatically detected. Email addresses, anchors and http links without
-protocol, but starting with `www` are also handled.
+automatically detected. Email addresses and http links without protocol,
+but starting with `www` are also handled.
 
 * `:disable_indented_code_blocks`: do not parse usual markdown
 code blocks. Markdown converts text with four spaces at
