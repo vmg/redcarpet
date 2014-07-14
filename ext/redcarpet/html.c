@@ -265,7 +265,7 @@ rndr_linebreak(struct buf *ob, void *opaque)
 	return 1;
 }
 
-char *header_id(const struct buf *text)
+char *header_anchor(struct buf *text)
 {
 	VALUE str = rb_str_new2(bufcstr(text));
 	VALUE space_regex = rb_reg_new(" +", 2 /* length */, 0);
@@ -287,7 +287,7 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 		bufputc(ob, '\n');
 
 	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level))
-		bufprintf(ob, "<h%d id=\"%s\">", level, header_id(text));
+		bufprintf(ob, "<h%d id=\"%s\">", level, header_anchor(text));
 	else
 		bufprintf(ob, "<h%d>", level);
 
@@ -635,7 +635,7 @@ toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 			BUFPUTSL(ob,"</li>\n<li>\n");
 		}
 
-		bufprintf(ob, "<a href=\"#%s\">", header_id(text));
+		bufprintf(ob, "<a href=\"#%s\">", header_anchor(text));
 		if (text) escape_html(ob, text->data, text->size);
 		BUFPUTSL(ob, "</a>\n");
 	}

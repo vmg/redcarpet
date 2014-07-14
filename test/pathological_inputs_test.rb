@@ -3,7 +3,7 @@ require 'test_helper'
 
 # Disabled by default
 # (these are the easy ones -- the evil ones are not disclosed)
-class PathologicalInputsTest # < Test::Unit::TestCase
+class PathologicalInputsTest # < Redcarpet::TestCase
   def setup
     @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   end

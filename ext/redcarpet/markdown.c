@@ -333,6 +333,14 @@ free_footnote_list(struct footnote_list *list, int free_refs)
 	}
 }
 
+/*
+ Wrap isalnum so that characters outside of the ASCII range don't count.
+ */
+static inline int
+_isalnum(int c)
+{
+	return isalnum(c) && c < 0x7f;
+}
 
 /*
  * Check whether a char is a Markdown space.
@@ -364,7 +372,7 @@ is_mail_autolink(uint8_t *data, size_t size)
 
 	/* address is assumed to be: [-@._a-zA-Z0-9]+ with exactly one '@' */
 	for (i = 0; i < size; ++i) {
-		if (isalnum(data[i]))
+		if (_isalnum(data[i]))
 			continue;
 
 		switch (data[i]) {
@@ -400,14 +408,14 @@ tag_length(uint8_t *data, size_t size, enum mkd_autolink *autolink)
 	if (data[0] != '<') return 0;
 	i = (data[1] == '/') ? 2 : 1;
 
-	if (!isalnum(data[i]))
+	if (!_isalnum(data[i]))
 		return 0;
 
 	/* scheme test */
 	*autolink = MKDA_NOT_AUTOLINK;
 
 	/* try to find the beginning of an URI */
-	while (i < size && (isalnum(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-'))
+	while (i < size && (_isalnum(data[i]) || data[i] == '.' || data[i] == '+' || data[i] == '-'))
 		i++;
 
 	if (i > 1 && data[i] == '@') {
@@ -501,13 +509,13 @@ find_emph_char(uint8_t *data, size_t size, uint8_t c)
 		if (i == size)
 			return 0;
 
-		if (data[i] == c)
-			return i;
-
 		/* not counting escaped chars */
 		if (i && data[i - 1] == '\\') {
 			i++; continue;
 		}
+
+		if (data[i] == c)
+			return i;
 
 		if (data[i] == '`') {
 			size_t span_nb = 0, bt;
@@ -600,7 +608,7 @@ parse_emph1(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 		if (data[i] == c && !_isspace(data[i - 1])) {
 
 			if (rndr->ext_flags & MKDEXT_NO_INTRA_EMPHASIS) {
-				if (i + i < size && isalnum(data[i + 1]))
+				if (i + i < size && _isalnum(data[i + 1]))
 					continue;
 			}
 
@@ -702,7 +710,7 @@ char_emphasis(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 	size_t ret;
 
 	if (rndr->ext_flags & MKDEXT_NO_INTRA_EMPHASIS) {
-		if (offset > 0 && !_isspace(data[-1]) && data[-1] != '>' && data[-1] != '(')
+		if (offset > 0 && _isalnum(data[-1]))
 			return 0;
 	}
 
@@ -837,7 +845,7 @@ char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offse
 static size_t
 char_escape(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
 {
-	static const char *escape_chars = "\\`*_{}[]()#+-.!:|&<>^~";
+	static const char *escape_chars = "\\`*_{}[]()#+-.!:|&<>^~=";
 	struct buf work = { 0, 0, 0, 0 };
 
 	if (size > 1) {
@@ -868,7 +876,7 @@ char_entity(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offs
 	if (end < size && data[end] == '#')
 		end++;
 
-	while (end < size && isalnum(data[end]))
+	while (end < size && _isalnum(data[end]))
 		end++;
 
 	if (end < size && data[end] == ';')
@@ -1616,7 +1624,7 @@ static size_t
 parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size)
 {
 	size_t i = 0, end = 0;
-	int level = 0;
+	int level = 0, last_is_empty = 1;
 	struct buf work = { data, 0, 0, 0 };
 
 	while (i < size) {
@@ -1625,8 +1633,10 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 		if (is_empty(data + i, size - i))
 			break;
 
-		if ((level = is_headerline(data + i, size - i)) != 0)
+		if (!last_is_empty && (level = is_headerline(data + i, size - i)) != 0)
 			break;
+
+		last_is_empty = 0;
 
 		if (is_atxheader(rndr, data + i, size - i) ||
 			is_hrule(data + i, size - i) ||
@@ -2606,11 +2616,11 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 	i++;
 	if (i >= end || data[i] != ':') return 0;
 	i++;
-	while (i < end && data[i] == ' ') i++;
+	while (i < end && strchr("\t ", data[i])) i++;
 	if (i < end && (data[i] == '\n' || data[i] == '\r')) {
 		i++;
 		if (i < end && data[i] == '\r' && data[i - 1] == '\n') i++; }
-	while (i < end && data[i] == ' ') i++;
+	while (i < end && strchr("\t ", data[i])) i++;
 	if (i >= end) return 0;
 
 	/* link: whitespace-free sequence, optionally between angle brackets */
@@ -2626,7 +2636,7 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 	else link_end = i;
 
 	/* optional spacer: (space | tab)* (newline | '\'' | '"' | '(' ) */
-	while (i < end && data[i] == ' ') i++;
+	while (i < end && strchr("\t ", data[i])) i++;
 	if (i < end && data[i] != '\n' && data[i] != '\r'
 			&& data[i] != '\'' && data[i] != '"' && data[i] != '(')
 		return 0;
@@ -2639,7 +2649,7 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 	/* optional (space|tab)* spacer after a newline */
 	if (line_end) {
 		i = line_end + 1;
-		while (i < end && data[i] == ' ') i++; }
+		while (i < end && strchr("\t ", data[i])) i++; }
 
 	/* optional title: any non-newline sequence enclosed in '"()
 					alone on its line */

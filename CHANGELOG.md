@@ -1,9 +1,72 @@
 # Changelog
 
+* The RedCloth API compatibility layer is now deprecated.
+
+  *Robin Dupret*
+
+* A hyphen and an equal should not be converted to heading.
+
+  *namusyaka*
+
+* Fix emphasis character escape sequence detection while mid-emphasis.
+
+  *jcheatham*
+
+* Convert trailing single quotes to curly quotes. For example,
+  `Road Trippin'` now converts to `Road Trippin’`.
+
+  *Kevin Chen*
+
+* Allow in-page links (e.g. `[headline](#headline)`) when `:safe_links_only` is set.
+
+  *jomo*
+
+* Enable emphasis inside of sentences in multi-byte languages when
+  `:no_intra_emphasis` is set.
+
+  *Chun-wei Kuo*
+
+* Avoid making `:no_intra_emphasis` only match spaces. This allows
+  using emphasizes inside quotes when the option is enabled for
+  instance.
+
+  *Jason Webb* and *BJ Homer*
+
+* The StripDown renderer handles image tags now.
+
+## Version 3.1.2
+
+* Remove the yielding of anchors in the `header` callback. This was
+  a breaking change between 3.0 and 3.1 as the method's arity changed.
+
+## Version 3.1.1
+
+* Fix a segfault when parsing text with headers.
+
+## Version 3.1.0
+
+* Yield the anchor of the headers
+
+  Using the `header` callback, it's now possible to get access to the
+  humanized generated id to easily keep tracking of the tree of headers
+  or simply handle the duplicate values easily.
+
+  Since the `HTML_TOC` and `HTML` objects both have this callback, it's
+  advisable to define a module and mix it in these objects to avoid
+  code duplication.
+
+  *Robin Dupret*
+
+* Allow using tabs between a reference's colon and its link
+
+  Fix issue [#337](https://github.com/vmg/redcarpet/issues/337)
+
+  *Juan Guerrero*
+
 * Make ordered lists preceded by paragraph parsed with `:lax_spacing`
 
   Previously, enabling the `:lax_spacing` option, if a paragraph was
-  followed by an ordered list it was unparsed and was part of the 
+  followed by an ordered list it was unparsed and was part of the
   paragraph but this is no more the case.
 
   *Robin Dupret*
@@ -12,7 +75,6 @@
   ie. `rake native gem`
 
   *Todd Edwards*
-
 
 * Revert lax indent of less than 4 characters after list items
 
@@ -48,11 +110,6 @@
 * Revert the unescaping behavior on comments
 
   This behavior doesn't follow the conformance suite.
-
-  *Robin Dupret*
-
-* Update the conformance test suite to provide better feedback to CI
-  systems.
 
   *Robin Dupret*
 

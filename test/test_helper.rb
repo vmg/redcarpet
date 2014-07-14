@@ -9,8 +9,11 @@ require 'nokogiri'
 require 'redcarpet'
 require 'redcarpet/render_strip'
 require 'redcarpet/render_man'
+require 'redcarpet/compat'
 
-def html_equal(html_a, html_b)
-  assert_equal Nokogiri::HTML::DocumentFragment.parse(html_a).to_html,
-    Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
+class Redcarpet::TestCase < Test::Unit::TestCase
+  def html_equal(html_a, html_b)
+    assert_equal Nokogiri::HTML::DocumentFragment.parse(html_a).to_html,
+      Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
+  end
 end

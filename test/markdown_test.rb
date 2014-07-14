@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class MarkdownTest < Test::Unit::TestCase
+class MarkdownTest < Redcarpet::TestCase
 
   def setup
     @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
@@ -149,6 +149,11 @@ HTML
     header
   end
 
+  def test_a_hyphen_and_a_equal_should_not_be_converted_to_heading
+    html_equal "<p>-</p>\n", @markdown.render("-")
+    html_equal "<p>=</p>\n", @markdown.render("=")
+  end
+
   def test_that_tables_flag_works
     text = <<EOS
  aaa | bbbb
@@ -269,10 +274,26 @@ text
     assert render_with({:no_intra_emphasis => true}, "this fails: hello_world_") !~ /<em>/
     assert render_with({:no_intra_emphasis => true}, "this also fails: hello_world_#bye") !~ /<em>/
     assert render_with({:no_intra_emphasis => true}, "this works: hello_my_world") !~ /<em>/
+    assert render_with({:no_intra_emphasis => true}, "句中**粗體**測試") =~ /<strong>/
 
     markdown = "This is (**bold**) and this_is_not_italic!"
     html = "<p>This is (<strong>bold</strong>) and this_is_not_italic!</p>\n"
     assert_equal html, render_with({:no_intra_emphasis => true}, markdown)
+
+    markdown = "This is \"**bold**\""
+    html = "<p>This is &quot;<strong>bold</strong>&quot;</p>\n"
+    assert_equal html, render_with({:no_intra_emphasis => true}, markdown)
+  end
+
+  def test_emphasis_escaping
+    markdown = @markdown.render("**foo\\*** _dd\\_dd_")
+    html_equal "<p><strong>foo*</strong> <em>dd_dd</em></p>\n", markdown
+  end
+
+  def test_char_escaping_when_highlighting
+    markdown = "==attribute\\==="
+    output = render_with({highlight: true}, markdown)
+    html_equal "<p><mark>attribute=</mark></p>\n", output
   end
 
   def test_ordered_lists_with_lax_spacing
@@ -281,5 +302,10 @@ text
 
     assert_match /<ol>/, output
     assert_match /<li>Foo<\/li>/, output
+  end
+
+  def test_references_with_tabs_after_colon
+    markdown = @markdown.render("[Link][id]\n[id]:\t\t\thttp://google.es")
+    html_equal "<p><a href=\"http://google.es\">Link</a></p>\n", markdown
   end
 end

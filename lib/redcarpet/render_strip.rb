@@ -1,4 +1,3 @@
-
 module Redcarpet
   module Render
     # Markdown-stripping renderer. Turns Markdown into plaintext
@@ -30,6 +29,11 @@ module Redcarpet
       # Other methods where the text content is in another argument
       def link(link, title, content)
         content
+      end
+
+      def image(link, title, content)
+        content &&= content + " "
+        "#{content}#{link}"
       end
 
       def paragraph(text)

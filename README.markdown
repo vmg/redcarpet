@@ -1,7 +1,7 @@
 Redcarpet is written with sugar, spice and everything nice
 ============================================================
 
-[![Build Status](https://travis-ci.org/vmg/redcarpet.png?branch=master)](https://travis-ci.org/vmg/redcarpet)
+[![Build Status](https://travis-ci.org/vmg/redcarpet.svg?branch=master)](https://travis-ci.org/vmg/redcarpet)
 
 Redcarpet is Ruby library for Markdown processing that smells like
 butterflies and popcorn.
@@ -32,6 +32,7 @@ The Redcarpet source is available at GitHub:
 
     $ git clone git://github.com/vmg/redcarpet.git
 
+
 And it's like *really* simple to use
 ------------------------------------
 
@@ -45,13 +46,22 @@ required settings, and reused between parses.
 
 ~~~~~ ruby
 # Initializes a Markdown parser
-Redcarpet::Markdown.new(renderer, extensions = {})
+markdown = Redcarpet::Markdown.new(renderer, extensions = {})
 ~~~~~
-
 
 Here, the `renderer` variable refers to a renderer object, inheriting
 from `Redcarpet::Render::Base`. If the given object has not been
 instantiated, the library will do it with default arguments.
+
+Rendering with the `Markdown` object is done through `Markdown#render`.
+Unlike in the RedCloth API, the text to render is passed as an argument
+and not stored inside the `Markdown` instance, to encourage reusability.
+Example:
+
+~~~~~ ruby
+markdown.render("This is *bongos*, indeed.")
+# => "<p>This is <em>bongos</em>, indeed.</p>"
+~~~~~
 
 You can also specify a hash containing the Markdown extensions which the
 parser will identify. The following extensions are accepted:
@@ -68,8 +78,8 @@ be added at the end of the opening fence for the code block.
 
 * `:autolink`: parse links even when they are not enclosed in `<>`
 characters. Autolinks for the http, https and ftp protocols will be
-automatically detected. Email addresses are also handled, and http
-links without protocol, but starting with `www`.
+automatically detected. Email addresses and http links without protocol,
+but starting with `www` are also handled.
 
 * `:disable_indented_code_blocks`: do not parse usual markdown
 code blocks. Markdown converts text with four spaces at
@@ -77,7 +87,7 @@ the front of each line to code blocks. This options
 prevents it from doing so. Recommended to use
 with `fenced_code_blocks: true`.
 
-* `:strikethrough`: parse strikethrough, PHP-Markdown style
+* `:strikethrough`: parse strikethrough, PHP-Markdown style.
 Two `~` characters mark the start of a strikethrough,
 e.g. `this is ~~good~~ bad`.
 
@@ -108,20 +118,9 @@ within the document (e.g. `[^1]: This is a footnote.`).
 
 Example:
 
-~~~~~ ruby
-markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true)
-~~~~~
-
-Rendering with the `Markdown` object is done through `Markdown#render`.
-Unlike in the RedCloth API, the text to render is passed as an argument
-and not stored inside the `Markdown` instance, to encourage reusability.
-Example:
-
-~~~~~ ruby
-markdown.render("This is *bongos*, indeed.")
-# => "<p>This is <em>bongos</em>, indeed</p>"
-~~~~~
-
+~~~ruby
+markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true, tables: true)
+ ~~~~~
 
 Darling, I packed you a couple renderers for lunch
 --------------------------------------------------
@@ -150,6 +149,10 @@ Initializes an HTML renderer. The following flags are available:
 
 * `:no_styles`: do not generate any `<style>` tags.
 
+* `:escape_html`: escape any HTML tags. This option has precedence over
+`:no_styles`, `:no_links`, `:no_images` and `:filter_html` which means
+that any existing tag will be escaped instead of being removed.
+
 * `:safe_links_only`: only generate links for protocols which are considered
 safe.
 
@@ -169,7 +172,7 @@ Markdown document had newlines (by default, Markdown ignores these newlines).
 Example:
 
 ~~~~~ ruby
-renderer = Redcarpet::Render::HTML.new(:no_links => true, :hard_wrap => true)
+renderer = Redcarpet::Render::HTML.new(no_links: true, hard_wrap: true)
 ~~~~~
 
 
@@ -196,11 +199,11 @@ built-in renderers, `HTML` and `XHTML` may be extended as such:
 # create a custom renderer that allows highlighting of code blocks
 class HTMLwithPygments < Redcarpet::Render::HTML
   def block_code(code, language)
-    Pygments.highlight(code, :lexer => language)
+    Pygments.highlight(code, lexer: language)
   end
 end
 
-markdown = Redcarpet::Markdown.new(HTMLwithPygments, :fenced_code_blocks => true)
+markdown = Redcarpet::Markdown.new(HTMLwithPygments, fenced_code_blocks: true)
 ~~~~~
 
 But new renderers can also be created from scratch (see `lib/redcarpet/render_man.rb` for
@@ -217,8 +220,9 @@ The following instance methods may be implemented by the renderer:
 ### Block-level calls
 
 If the return value of the method is `nil`, the block will be skipped.
-If the method for a document element is not implemented, the block will
-be skipped.
+Therefore, make sure that your renderer has at least a `paragraph` method
+implemented. If the method for a document element is not implemented, the
+block will be skipped.
 
 Example:
 
@@ -265,6 +269,11 @@ be copied verbatim:
 * highlight(text)
 * quote(text)
 * footnote_ref(number)
+
+**Note**: When overriding a renderer's method, be sure to return a HTML
+element with a level that matches the level of that method (e.g. return a
+block element when overriding a block-level callback). Otherwise, the output
+may be unexpected.
 
 ### Low level rendering
 
@@ -322,47 +331,6 @@ Redcarpet::Render::SmartyPants.render("<p>Oh SmartyPants, you're so crazy...</p>
 SmartyPants works on top of already-rendered HTML, and will ignore replacements
 inside the content of HTML tags and inside specific HTML blocks such as
 `<code>` or `<pre>`.
-
-What? You really want to mix Markdown renderers?
-------------------------------------------------
-
-Redcarpet used to be a drop-in replacement for Redcloth. This is no longer the
-case since version 2 -- it now has its own API, but retains the old name. Yes,
-that does mean that Redcarpet is not backwards-compatible with the 1.X
-versions.
-
-Each renderer has its own API and its own set of extensions: you should choose one
-(it doesn't have to be Redcarpet, though that would be great!), write your
-software accordingly, and force your users to install it. That's the
-only way to have reliable and predictable Markdown output on your program.
-
-Markdown is already ill-specified enough; if you create software that is
-renderer-independent, the results will be completely unreliable!
-
-Still, if major forces (let's say, tornadoes or other natural disasters) force you
-to keep a Markdown-compatibility layer, Redcarpet also supports this:
-
-~~~~~ ruby
-require 'redcarpet/compat'
-~~~~~
-
-Requiring the compatibility library will declare a `Markdown` class with the
-classical RedCloth API, e.g.
-
-~~~~~ ruby
-Markdown.new('this is my text').to_html
-~~~~~
-
-This class renders 100% standards compliant Markdown with 0 extensions. Nada.
-Don't even try to enable extensions with a compatibility layer, because
-that's a maintenance nightmare and won't work.
-
-On a related topic: if your Markdown gem has a `lib/markdown.rb` file that
-monkeypatches the Markdown class, you're a terrible human being. Just saying.
-
-Testing
--------
-Tests run a lot faster without `bundle exec` :)
 
 Boring legal stuff
 ------------------

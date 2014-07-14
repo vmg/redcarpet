@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class CustomRenderTest < Test::Unit::TestCase
+class CustomRenderTest < Redcarpet::TestCase
   class SimpleRender < Redcarpet::Render::HTML
     def emphasis(text)
       "<em class=\"cool\">#{text}</em>"

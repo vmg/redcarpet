@@ -1,7 +1,7 @@
 # coding: UTF-8
 require 'test_helper'
 
-class HTMLRenderTest < Test::Unit::TestCase
+class HTMLRenderTest < Redcarpet::TestCase
   def setup
     @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
     @rndr = {
@@ -219,5 +219,22 @@ Markdown
     output = renderer.render(text)
 
     assert output.include?("<code class=\"prettyprint ruby\">")
+  end
+
+  def test_safe_links_only_with_anchors
+    markdown = "An [anchor link](#anchor) on a page."
+
+    renderer = Redcarpet::Markdown.new(@rndr[:safe_links])
+    output = renderer.render(markdown)
+
+    assert_match %r{<a href="#anchor">anchor link</a>}, output
+  end
+
+  def test_autolink_with_link_attributes
+    render = Redcarpet::Render::HTML.new(link_attributes: {rel: "nofollow"})
+    parser = Redcarpet::Markdown.new(render, autolink: true)
+
+    output = parser.render("https://github.com/")
+    assert_match %r{rel="nofollow"}, output
   end
 end

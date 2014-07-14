@@ -23,7 +23,7 @@
 #include <ctype.h>
 
 #if defined(_WIN32)
-#define snprintf	_snprintf		
+#define snprintf	_snprintf
 #endif
 
 struct smartypants_data {
@@ -137,6 +137,12 @@ smartypants_squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previo
 			uint8_t next_char = (size > 1+next_squote_len) ? text[1+next_squote_len] : 0;
 			if (smartypants_quotes(ob, previous_char, next_char, 'd', &smrt->in_dquote))
 				return next_squote_len;
+		}
+
+		// trailing single quotes: students', tryin'
+		if (word_boundary(t1)) {
+			BUFPUTSL(ob, "&rsquo;");
+			return 0;
 		}
 
 		// Tom's, isn't, I'm, I'd
