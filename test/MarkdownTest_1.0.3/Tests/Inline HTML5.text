@@ -1,0 +1,45 @@
+This should be recognized as an HTML block:
+
+<section>
+	<p>The quick brown fox jumps over the lazy dog.</p>
+</section>
+
+And this too:
+
+<article>
+	<h1>Hello world!</h1>
+</article>
+
+And this (using spaces):
+
+<header>
+    <hgroup>
+        <h1>Section heading</h1>
+        <h2>Subhead</h2>
+    </hgroup>
+</header>
+
+And so on:
+
+<figure>
+    <img src="http://example.org/image.jpg" alt="">
+    <figcaption>
+        <p>Hello world!</p>
+    </figcaption>
+</figure>
+
+But these should still be code blocks:
+
+	<section>
+		<p>The quick brown fox jumps over the lazy dog.</p>
+	</section>
+
+Same with spaces:
+
+    <header>
+        <hgroup>
+            <h1>Section heading</h1>
+            <h2>Subhead</h2>
+        </hgroup>
+    </header>
+
