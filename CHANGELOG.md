@@ -1,5 +1,9 @@
 # Changelog
 
+* HTML5 block-level tags are now recognized
+
+  *silverhammermba*
+
 * The RedCloth API compatibility layer is now deprecated.
 
   *Robin Dupret*
