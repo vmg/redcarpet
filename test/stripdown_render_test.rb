@@ -29,4 +29,12 @@ class StripDownRender < Redcarpet::TestCase
 
     assert_equal expected, output
   end
+
+  def test_links
+    markdown = "Here's an [example](https://github.com)"
+    expected = "Here's an example (https://github.com)\n"
+    output   = @parser.render(markdown)
+
+    assert_equal expected, output
+  end
 end
