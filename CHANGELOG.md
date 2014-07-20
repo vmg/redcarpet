@@ -1,5 +1,10 @@
 # Changelog
 
+* The `StripDown` render object now displays the URL of links
+  along with the text. 
+
+  *Robin Dupret*
+
 * The RedCloth API compatibility layer is now deprecated.
 
   *Robin Dupret*
