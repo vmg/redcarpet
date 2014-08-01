@@ -26,9 +26,9 @@ module Redcarpet
         end
       end
 
-      # Other methods where the text content is in another argument
+      # Other methods where we don't return only a specific argument
       def link(link, title, content)
-        content
+        "#{content} (#{link})"
       end
 
       def image(link, title, content)

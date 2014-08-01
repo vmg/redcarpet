@@ -27,13 +27,13 @@ end
 
 task 'test:unit' => :compile
 
-desc 'Run conformance tests (MARKDOWN_TEST_VER=1.0)'
+desc 'Run conformance tests (MARKDOWN_TEST_VER=1.0.3)'
 task 'test:conformance' => :compile do |t|
-  script = "#{pwd}/bin/redcarpet"
-  test_version = ENV['MARKDOWN_TEST_VER'] || '1.0.3'
+  script  = "#{pwd}/bin/redcarpet"
+  version = ENV['MARKDOWN_TEST_VER'] || '1.0.3'
   lib_dir = "#{pwd}/lib"
 
-  chdir("test/MarkdownTest_#{test_version}") do
+  chdir("test/MarkdownTest_#{version}") do
     sh "RUBYLIB=#{lib_dir} ./MarkdownTest.pl --script='#{script}' --tidy"
   end
 end
