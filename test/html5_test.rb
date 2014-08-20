@@ -1,10 +1,6 @@
 require 'test_helper'
 
 class HTML5Test < Redcarpet::TestCase
-  def assert_renders markdown, html
-    html_equal Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(markdown), html
-  end
-
   def test_that_html5_works
     section = <<EOS
 <section>
