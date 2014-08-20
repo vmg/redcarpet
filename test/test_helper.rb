@@ -17,8 +17,8 @@ class Redcarpet::TestCase < Test::Unit::TestCase
       Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
   end
 
-  def assert_renders(markdown, html)
-    html_equal parser.render(markdown), html
+  def assert_renders(html, markdown)
+    html_equal html, parser.render(markdown)
   end
 
   private

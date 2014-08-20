@@ -54,7 +54,7 @@ EOS
 </code></pre>
 EOE
 
-    assert_renders section, section_expected
-    assert_renders header, header_expected
+    assert_renders section_expected, section
+    assert_renders header_expected, header
   end
 end
