@@ -1,5 +1,9 @@
 # Changelog
 
+* HTML5 block-level tags are now recognized
+
+  *silverhammermba*
+
 * The `StripDown` render object now displays the URL of links
   along with the text. 
 
