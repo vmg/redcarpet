@@ -1,11 +1,19 @@
 # Changelog
 
+* Add a `Safe` renderer to deal with users' input. The `escape_html`
+  and `safe_links_only` options are turned on by default.
+
+  Moreover, the `block_code` callback removes the tag's class since
+  the user can basically set anything with the vanilla one.
+
+  *Robin Dupret*
+
 * HTML5 block-level tags are now recognized
 
   *silverhammermba*
 
 * The `StripDown` render object now displays the URL of links
-  along with the text. 
+  along with the text.
 
   *Robin Dupret*
 
