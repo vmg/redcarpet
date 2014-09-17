@@ -1,4 +1,6 @@
 # Changelog
+* Make img src urls safe if safe_links_only is enabled.
+  *Alex Serban*
 
 * Add a `Safe` renderer to deal with users' input. The `escape_html`
   and `safe_links_only` options are turned on by default.
