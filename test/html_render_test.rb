@@ -8,6 +8,7 @@ class HTMLRenderTest < Redcarpet::TestCase
       :no_html => Redcarpet::Render::HTML.new(:filter_html => true),
       :no_images => Redcarpet::Render::HTML.new(:no_images => true),
       :no_links => Redcarpet::Render::HTML.new(:no_links => true),
+      :no_styles => Redcarpet::Render::HTML.new(:no_styles => true),
       :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
       :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
       :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
@@ -59,6 +60,11 @@ EOE
   def test_that_no_links_flag_works
     rd = render_with(@rndr[:no_links], %([This link](http://example.net/) <a href="links.html">links</a>))
     assert rd !~ /<a /
+  end
+
+  def test_that_no_styles_flag_works
+    rd = render_with(@rndr[:no_styles], %(do you like styles? <style>body { color: red !important; }</style>))
+    assert rd !~ /<\\?style>/
   end
 
   def test_that_safelink_flag_works
