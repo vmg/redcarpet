@@ -67,6 +67,18 @@ EOE
     assert rd !~ /<\/?style>/
   end
 
+  # a instead of body makes the test pass
+  def test_that_no_styles_flag_works_2
+    rd = render_with(@rndr[:no_styles], %(do you like styles? <style>a { color: red !important; }</style>))
+    assert rd !~ /<\/?style>/
+  end
+
+  # no text before the <style> makes it fail
+  def test_that_no_styles_flag_works_3
+      rd = render_with(@rndr[:no_styles], %(<style>a { color: red !important; }</style>))
+      assert rd !~ /<\/?style>/
+  end
+
   def test_that_safelink_flag_works
     rd = render_with(@rndr[:safe_links], "[IRC](irc://chat.freenode.org/#freenode)")
     html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", rd
