@@ -64,7 +64,7 @@ EOE
 
   def test_that_no_styles_flag_works
     rd = render_with(@rndr[:no_styles], %(do you like styles? <style>body { color: red !important; }</style>))
-    assert rd !~ /<\\?style>/
+    assert rd !~ /<\/?style>/
   end
 
   def test_that_safelink_flag_works
