@@ -16,7 +16,7 @@ class CustomRenderTest < Redcarpet::TestCase
 
   def test_that_no_styles_flag_works
     md = Redcarpet::Markdown.new(SimpleRender.new(no_styles: true))
-    rd = md.render(%(<style> a { color: red !important; } </style>))
+    rd = md.render(%(do you like styles? <style>a { color: red !important; }</style>))
     assert rd !~ /<\/?style>/
   end
 

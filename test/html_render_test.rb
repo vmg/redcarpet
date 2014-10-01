@@ -67,16 +67,16 @@ EOE
     assert rd !~ /<\/?style>/
   end
 
-  # a instead of body makes the test pass
+  # no text before the <style> makes it fail
   def test_that_no_styles_flag_works_2
-    rd = render_with(@rndr[:no_styles], %(do you like styles? <style>a { color: red !important; }</style>))
+    rd = render_with(@rndr[:no_styles], %(<style>a { color: red !important; }</style>))
     assert rd !~ /<\/?style>/
   end
 
-  # no text before the <style> makes it fail
+  # a space after the <style> makes it pass
   def test_that_no_styles_flag_works_3
-      rd = render_with(@rndr[:no_styles], %(<style>a { color: red !important; }</style>))
-      assert rd !~ /<\/?style>/
+    rd = render_with(@rndr[:no_styles], %(<style> a { color: red !important; }</style>))
+    assert rd !~ /<\/?style>/
   end
 
   def test_that_styles_stay_without_no_styles_flag
