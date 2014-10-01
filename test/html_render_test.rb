@@ -79,6 +79,11 @@ EOE
       assert rd !~ /<\/?style>/
   end
 
+  def test_that_styles_stay_without_no_styles_flag
+    rd = render_with(Redcarpet::Render::HTML.new, %(do you like styles? <style>body { color: red !important; }</style>))
+    assert rd, "do you like styles? <style>body { color: red !important; }</style>"
+  end
+
   def test_that_safelink_flag_works
     rd = render_with(@rndr[:safe_links], "[IRC](irc://chat.freenode.org/#freenode)")
     html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", rd
