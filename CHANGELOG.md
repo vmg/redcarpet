@@ -1,5 +1,10 @@
 # Changelog
 
+* The `StripDown` renderer handles tables if the `tables` extension is
+  enabled.
+
+  *amnesia7*
+
 * Fix Smarty Pants to avoid fraction conversions when there are several
   numbers separated with slashes (e.g. for a date).
 
