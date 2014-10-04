@@ -1,5 +1,9 @@
 # Changelog
 
+* The StripDown renderer handles tables now if tables extension set to true.
+
+  *amnesia7*
+
 * Add a `Safe` renderer to deal with users' input. The `escape_html`
   and `safe_links_only` options are turned on by default.
 
