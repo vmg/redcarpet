@@ -461,7 +461,7 @@ tag_length(uint8_t *data, size_t size, enum mkd_autolink *autolink)
 static void
 parse_inline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size)
 {
-	size_t i = 0, end = 0;
+	size_t i = 0, end = 0, last_inline = 0;
 	uint8_t action = 0;
 	struct buf work = { 0, 0, 0, 0 };
 
@@ -486,12 +486,12 @@ parse_inline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t siz
 		if (end >= size) break;
 		i = end;
 
-		end = markdown_char_ptrs[(int)action](ob, rndr, data + i, i, size - i);
+		end = markdown_char_ptrs[(int)action](ob, rndr, data + i, i - last_inline, size - i);
 		if (!end) /* no action from the callback */
 			end = i + 1;
 		else {
 			i += end;
-			end = i;
+			last_inline = end = i;
 		}
 	}
 }
