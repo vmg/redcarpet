@@ -1,10 +1,10 @@
 # encoding: utf-8
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '3.1.1'
+  s.version = '3.2.0'
   s.summary = "Markdown that smells nice"
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
-  s.date = '2014-02-17'
+  s.date = '2014-10-11'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/vmg/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
@@ -41,16 +41,19 @@ Gem::Specification.new do |s|
     lib/redcarpet/render_man.rb
     lib/redcarpet/render_strip.rb
     redcarpet.gemspec
-    test/test_helper.rb
+    test/benchmark.rb
     test/custom_render_test.rb
+    test/html5_test.rb
     test/html_render_test.rb
     test/html_toc_render_test.rb
     test/markdown_test.rb
     test/pathological_inputs_test.rb
     test/redcarpet_compat_test.rb
+    test/safe_render_test.rb
     test/smarty_html_test.rb
     test/smarty_pants_test.rb
     test/stripdown_render_test.rb
+    test/test_helper.rb
   ]
   # = MANIFEST =
   s.test_files = s.files.grep(%r{^test/})

@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.2.0
+
 * Add a `Safe` renderer to deal with users' input. The `escape_html`
   and `safe_links_only` options are turned on by default.
 
@@ -26,6 +28,11 @@
   *namusyaka*
 
 * Fix emphasis character escape sequence detection while mid-emphasis.
+
+  *jcheatham*
+
+* Add `=` to the whitelist of escaped chars so it can be used inside
+  highlighted snippets.
 
   *jcheatham*
 
