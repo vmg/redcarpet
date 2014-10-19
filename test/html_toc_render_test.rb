@@ -46,4 +46,11 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert_equal 1, output.scan("<li>").length
     assert !output.include?('<a href=\"#\"></a>')
   end
+
+  def test_toc_heading_with_extra_spaces
+    renderer = Redcarpet::Markdown.new(@render)
+    output   = renderer.render('# First level  heading')
+
+    assert_match /#first-level-heading/, output
+  end
 end
