@@ -17,7 +17,6 @@
 
 #include "markdown.h"
 #include "html.h"
-#include "ruby.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -265,17 +264,52 @@ rndr_linebreak(struct buf *ob, void *opaque)
 	return 1;
 }
 
-char *header_anchor(struct buf *text)
+char *header_anchor(const struct buf *buffer)
 {
-	VALUE str = rb_str_new2(bufcstr(text));
-	VALUE space_regex = rb_reg_new(" +", 2 /* length */, 0);
-	VALUE tags_regex = rb_reg_new("<\\/?[^>]*>", 10, 0);
+	size_t i, j, k, size = buffer->size;
 
-	VALUE heading = rb_funcall(str, rb_intern("gsub"), 2, space_regex, rb_str_new2("-"));
-	heading = rb_funcall(heading, rb_intern("gsub"), 2, tags_regex, rb_str_new2(""));
-	heading = rb_funcall(heading, rb_intern("downcase"), 0);
+	char text[size];
+	strcpy(text, bufcstr(buffer));
 
-	return StringValueCStr(heading);
+	char raw_string[size];
+
+	/* Strip down the inline HTML markup if needed */
+	if (strchr(text, '<') < strchr(text, '>')) {
+		char* part = strtok(text, "<>");
+
+		/* Once every two times, the yielded token is the
+		   content of a HTML tag so we don't need to copy it */
+		for (k = 0; part != NULL; k++) {
+			if (k == 0)
+				strcpy(raw_string, part);
+			else if (k % 2 == 0)
+				strcat(raw_string, part);
+
+			part = strtok(NULL, "<>");
+		}
+
+		size = strlen(raw_string);
+	} else {
+		strcpy(raw_string, text);
+	}
+
+	char* heading = malloc(size * sizeof(char));
+
+	/* Remove extra white spaces and lower case all
+	   characters ; also replace spaces with dashes */
+	for (i = 0, j = 0; i <= size; ++i) {
+		if (raw_string[i] == ' ' && raw_string[i+1] == ' ')
+			continue;
+
+		if (raw_string[i] == ' ')
+			heading[j] = '-';
+		else
+			heading[j] = tolower(raw_string[i]);
+
+		j++;
+	}
+
+	return heading;
 }
 
 static void
