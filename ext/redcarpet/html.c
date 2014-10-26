@@ -661,7 +661,7 @@ toc_finalize(struct buf *ob, void *opaque)
 }
 
 void
-sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, int nesting_level)
+sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options)
 {
 	static const struct sd_callbacks cb_default = {
 		NULL,
@@ -703,7 +703,6 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 
 	memset(options, 0x0, sizeof(struct html_renderopt));
 	options->flags = HTML_TOC;
-	options->toc_data.nesting_level = nesting_level;
 
 	memcpy(callbacks, &cb_default, sizeof(struct sd_callbacks));
 }

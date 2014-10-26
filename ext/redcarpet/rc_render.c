@@ -472,24 +472,24 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 static VALUE rb_redcarpet_htmltoc_init(int argc, VALUE *argv, VALUE self)
 {
 	struct rb_redcarpet_rndr *rndr;
-	int nesting_level = 6;
-	VALUE hash, key = Qnil;
+	VALUE hash, nesting_level = Qnil;
 
 	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
 
 	if (rb_scan_args(argc, argv, "01", &hash) == 1) {
 		Check_Type(hash, T_HASH);
 
-		key = CSTR2SYM("nesting_level");
-
-		if (RTEST(rb_hash_aref(hash, key))) {
-			Check_Type(rb_hash_aref(hash, key), T_FIXNUM);
-			nesting_level = NUM2INT(rb_hash_aref(hash, key));
-		}
+		/* Nesting level */
+		nesting_level = rb_hash_aref(hash, CSTR2SYM("nesting_level"));
 	}
 
-	sdhtml_toc_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html, nesting_level);
+	sdhtml_toc_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html);
 	rb_redcarpet__overload(self, rb_cRenderHTML_TOC);
+
+	if (!(NIL_P(nesting_level)))
+		rndr->options.html.toc_data.nesting_level = NUM2INT(nesting_level);
+	else
+		rndr->options.html.toc_data.nesting_level = 6;
 
 	return Qnil;
 }
