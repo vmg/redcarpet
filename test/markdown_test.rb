@@ -126,6 +126,11 @@ HTML
     html_equal exp, rd
   end
 
+  def test_links_do_not_rewind_into_previous_inlines
+    rd = render_with({:autolink => true}, "__o__a@foo.http://example.com/")
+    html_equal "<p><strong>o</strong><a href=\"mailto:a@foo.http\">a@foo.http</a>://example.com/</p>\n", rd
+  end
+
   def test_memory_leak_when_parsing_char_links
     @markdown.render(<<-leaks)
 2. Identify the wild-type cluster and determine all clusters

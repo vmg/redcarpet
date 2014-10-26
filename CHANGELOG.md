@@ -1,5 +1,9 @@
 # Changelog
 
+* Don't rewind into previous inlines when autolinking.
+
+  *Jordan Milne*
+
 ## Version 3.2.0
 
 * Add a `Safe` renderer to deal with users' input. The `escape_html`
