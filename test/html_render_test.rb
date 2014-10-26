@@ -196,13 +196,6 @@ HTML
     assert output.include? '<a href="http://a/u/t/o/s/h/o/r/t">http://a/u/t/o/s/h/o/r/t</a>'
   end
 
-  def test_toc_heading_id
-    markdown = "# First level  heading\n## Second level heading"
-    output = render_with(@rndr[:toc_data], markdown)
-    assert_match /<h1 id="first-level-heading">/, output
-    assert_match /<h2 id="second-level-heading">/, output
-  end
-
   def test_that_prettify_works
     text = <<-Markdown
 Foo
