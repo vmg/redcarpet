@@ -678,7 +678,14 @@ toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 		}
 
 		bufprintf(ob, "<a href=\"#%s\">", header_anchor(text));
-		if (text) escape_html(ob, text->data, text->size);
+
+		if (text) {
+			if (options->flags & HTML_ESCAPE)
+				escape_html(ob, text->data, text->size);
+			else
+				bufput(ob, text->data, text->size);
+		}
+
 		BUFPUTSL(ob, "</a>\n");
 	}
 }
@@ -703,7 +710,7 @@ toc_finalize(struct buf *ob, void *opaque)
 }
 
 void
-sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options)
+sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, unsigned int render_flags)
 {
 	static const struct sd_callbacks cb_default = {
 		NULL,
@@ -744,7 +751,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 	};
 
 	memset(options, 0x0, sizeof(struct html_renderopt));
-	options->flags = HTML_TOC;
+	options->flags = render_flags;
 
 	memcpy(callbacks, &cb_default, sizeof(struct sd_callbacks));
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+* Avoid escaping table-of-contents' headers by default. A new
+  `:escape_html` option is now available for the `HTML_TOC` object
+  if there are security concerns.
+
 * Add the `lang-` prefix in front of the language's name when using
   `:prettify` along with `:fenced_code_blocks`.
 
