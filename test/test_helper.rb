@@ -18,12 +18,25 @@ class Redcarpet::TestCase < Test::Unit::TestCase
   end
 
   def assert_renders(html, markdown)
-    html_equal html, parser.render(markdown)
+    html_equal html, render(markdown)
+  end
+
+  def render(markdown, options = {})
+    options = options.fetch(:with, {})
+
+    if options.kind_of?(Array)
+      options = Hash[options.map {|o| [o, true]}]
+    end
+
+    render = renderer.new(options)
+    parser = Redcarpet::Markdown.new(render, options)
+
+    parser.render(markdown)
   end
 
   private
 
-  def parser
-    @parser ||= Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  def renderer
+    @renderer ||= Redcarpet::Render::HTML
   end
 end
