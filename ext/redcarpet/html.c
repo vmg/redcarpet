@@ -298,7 +298,15 @@ char *header_anchor(const struct buf *buffer)
 	/* Remove extra white spaces and lower case all
 	   characters ; also replace spaces with dashes */
 	for (i = 0, j = 0; i <= size; ++i) {
-		if (raw_string[i] == ' ' && raw_string[i+1] == ' ')
+		/* Collapse a stripped char surrounded by spaces
+		   to a single space (e.g. " + " -> " ") */
+		if (raw_string[i-1] == ' ' && raw_string[i+1] == ' '
+		    && STRIPPED_CHAR(raw_string[i]) && (i+1) < size)
+			i = i + 2;
+
+		/* Remove double spaces and stripped out chars */
+		if ((raw_string[i] == ' ' && raw_string[i+1] == ' ')
+		   || (STRIPPED_CHAR(raw_string[i]) && i < size))
 			continue;
 
 		if (raw_string[i] == ' ')

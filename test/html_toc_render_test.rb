@@ -43,8 +43,19 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert !output.include?('<a href=\"#\"></a>')
   end
 
-  def test_toc_heading_with_extra_spaces
-    output = render("# First level  heading")
-    assert_match /#first-level-heading/, output
+  def test_anchor_generation_with_edge_cases
+    # Imported from ActiveSupport::Inflector#parameterize's tests
+    titles = {
+      "Donald E. Knuth"                     => "donald-e-knuth",
+      "Random text with *(bad)* characters" => "random-text-with-bad-characters",
+      "Trailing bad characters!@#"          => "trailing-bad-characters",
+      "!@#Leading bad characters"           => "leading-bad-characters",
+      "Squeeze   separators"                => "squeeze-separators",
+      "Test with + sign"                    => "test-with-sign"
+    }
+
+    titles.each do |title, anchor|
+      assert_match anchor, render("# #{title}")
+    end
   end
 end

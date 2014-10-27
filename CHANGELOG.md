@@ -1,5 +1,8 @@
 # Changelog
 
+* Non-alphanumeric chars are now stripped out from generated anchors
+  (along the lines of Active Support's `#parameterize` method).
+
 ## Version 3.2.0
 
 * Add a `Safe` renderer to deal with users' input. The `escape_html`
