@@ -167,6 +167,8 @@ Markdown document had newlines (by default, Markdown ignores these newlines).
 
 * `:prettify`: add prettyprint classes to `<code>` tags for google-code-prettify.
 
+* `:safe_lang`: use lang attribute for code block languages `<code lang="ruby">`.
+
 * `:link_attributes`: hash of extra attributes to add to links.
 
 Example:

@@ -50,6 +50,7 @@ typedef enum {
 	HTML_USE_XHTML = (1 << 8),
 	HTML_ESCAPE = (1 << 9),
 	HTML_PRETTIFY = (1 << 10),
+	HTML_SAFE_LANG = (1 << 11),
 } html_render_mode;
 
 typedef enum {
