@@ -422,6 +422,10 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 		if (rb_hash_aref(hash, CSTR2SYM("escape_html")) == Qtrue)
 			render_flags |= HTML_ESCAPE;
 
+		/* safe_lang */
+		if (rb_hash_aref(hash, CSTR2SYM("safe_lang")) == Qtrue)
+			render_flags |= HTML_SAFE_LANG;
+
 		/* filter_html */
 		if (rb_hash_aref(hash, CSTR2SYM("filter_html")) == Qtrue)
 			render_flags |= HTML_SKIP_HTML;

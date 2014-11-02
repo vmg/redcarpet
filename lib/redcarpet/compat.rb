@@ -43,10 +43,11 @@ class RedcarpetCompat
     :gh_blockcode => nil,
     :no_tables    => nil,
     :smart        => nil,
-    :strict       => nil
+    :strict       => nil,
+    :safe_lang    => nil
   }
 
-  RENDERER_OPTIONS = [:filter_html, :no_images, :no_links, :no_styles,
+  RENDERER_OPTIONS = [:safe_lang, :filter_html, :no_images, :no_links, :no_styles,
     :safe_links_only, :with_toc_data, :hard_wrap, :prettify, :xhtml]
 
   def rename_extensions(exts)

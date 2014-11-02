@@ -12,7 +12,9 @@ class HTMLRenderTest < Redcarpet::TestCase
       :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
       :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
       :toc_data => Redcarpet::Render::HTML.new(:with_toc_data => true),
-      :prettify => Redcarpet::Render::HTML.new(:prettify => true)
+      :prettify => Redcarpet::Render::HTML.new(:prettify => true),
+      :safe_lang => Redcarpet::Render::HTML.new(:safe_lang => true),
+      :safe_lang_prettify => Redcarpet::Render::HTML.new(:safe_lang => true, :prettify => true)
     }
   end
 
@@ -212,6 +214,42 @@ Markdown
     output = renderer.render(text)
 
     assert output.include?("<code class=\"prettyprint ruby\">")
+  end
+
+  def test_that_safe_lang_works
+    text = <<-Markdown
+Foo
+
+~~~ruby
+some
+code
+~~~
+
+Bar
+Markdown
+
+    renderer = Redcarpet::Markdown.new(@rndr[:safe_lang], fenced_code_blocks: true)
+    output = renderer.render(text)
+
+    assert output.include?("<code lang=\"ruby\">")
+  end
+
+  def test_that_safe_lang_and_prettify_works
+    text = <<-Markdown
+Foo
+
+~~~ruby
+some
+code
+~~~
+
+Bar
+Markdown
+
+    renderer = Redcarpet::Markdown.new(@rndr[:safe_lang_prettify], fenced_code_blocks: true)
+    output = renderer.render(text)
+
+    assert output.include?("<code class=\"prettyprint\" lang=\"ruby\">")
   end
 
   def test_safe_links_only_with_anchors

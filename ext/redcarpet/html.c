@@ -124,8 +124,14 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 	if (lang && lang->size) {
 		size_t i, cls;
 		if (options->flags & HTML_PRETTIFY) {
-			BUFPUTSL(ob, "<pre><code class=\"prettyprint ");
+			if (options->flags & HTML_SAFE_LANG) {
+				BUFPUTSL(ob, "<pre><code class=\"prettyprint\" lang=\"");
+			} else {
+				BUFPUTSL(ob, "<pre><code class=\"prettyprint ");
+			}
 			cls++;
+		} else if (options->flags & HTML_SAFE_LANG) {
+			BUFPUTSL(ob, "<pre><code lang=\"");
 		} else {
 			BUFPUTSL(ob, "<pre><code class=\"");
 		}
