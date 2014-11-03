@@ -8,6 +8,7 @@ class HTMLRenderTest < Redcarpet::TestCase
       :no_html => Redcarpet::Render::HTML.new(:filter_html => true),
       :no_images => Redcarpet::Render::HTML.new(:no_images => true),
       :no_links => Redcarpet::Render::HTML.new(:no_links => true),
+      :no_styles => Redcarpet::Render::HTML.new(:no_styles => true),
       :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
       :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
       :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
@@ -59,6 +60,35 @@ EOE
   def test_that_no_links_flag_works
     rd = render_with(@rndr[:no_links], %([This link](http://example.net/) <a href="links.html">links</a>))
     assert rd !~ /<a /
+  end
+
+  # no space left, no space right: fail
+  def test_that_no_styles_flag_works_1
+    rd = render_with(@rndr[:no_styles], %(<style>a { color: red !important; }</style>))
+    assert rd !~ /<\/?style>/
+  end
+
+  # space left, no space right: pass
+  def test_that_no_styles_flag_works_2
+    rd = render_with(@rndr[:no_styles], %( <style>a { color: red !important; }</style>))
+    assert rd !~ /<\/?style>/
+  end
+
+  # no space left, space right: fail
+  def test_that_no_styles_flag_works_3
+    rd = render_with(@rndr[:no_styles], %(<style> a { color: red !important; }</style>))
+    assert rd !~ /<\/?style>/
+  end
+
+  # space left, space right: pass
+  def test_that_no_styles_flag_works_4
+    rd = render_with(@rndr[:no_styles], %( <style> a { color: red !important; }</style>))
+    assert rd !~ /<\/?style>/
+  end
+
+  def test_that_styles_stay_without_no_styles_flag
+    rd = render_with(Redcarpet::Render::HTML.new, %(do you like styles? <style>body { color: red !important; }</style>))
+    assert rd, "do you like styles? <style>body { color: red !important; }</style>"
   end
 
   def test_that_safelink_flag_works

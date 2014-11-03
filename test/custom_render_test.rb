@@ -14,6 +14,12 @@ class CustomRenderTest < Redcarpet::TestCase
       md.render("This is *just* a test")
   end
 
+  def test_that_no_styles_flag_works
+    md = Redcarpet::Markdown.new(SimpleRender.new(no_styles: true))
+    rd = md.render(%(do you like styles? <style>a { color: red !important; }</style>))
+    assert rd !~ /<\/?style>/
+  end
+
   class NilPreprocessRenderer < Redcarpet::Render::HTML
     def preprocess(fulldoc)
       nil
