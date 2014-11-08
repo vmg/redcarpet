@@ -186,6 +186,18 @@ HTML
   end
 
   def test_that_prettify_works
+    markdown = "\tclass Foo\nend"
+    output   = render(markdown, with: [:prettify])
+
+    assert output.include?("<pre><code class=\"prettyprint\">")
+
+    markdown = "`class`"
+    output   = render(markdown, with: [:prettify])
+
+    assert output.include?("<code class=\"prettyprint\">")
+  end
+
+  def test_prettify_with_fenced_code_blocks
     markdown = "~~~ruby\ncode\n~~~"
     output   = render(markdown, with: [:fenced_code_blocks, :prettify])
 
