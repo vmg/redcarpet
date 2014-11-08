@@ -201,7 +201,7 @@ HTML
     markdown = "~~~ruby\ncode\n~~~"
     output   = render(markdown, with: [:fenced_code_blocks, :prettify])
 
-    assert output.include?("<code class=\"prettyprint ruby\">")
+    assert output.include?("<code class=\"prettyprint lang-ruby\">")
   end
 
   def test_safe_links_only_with_anchors

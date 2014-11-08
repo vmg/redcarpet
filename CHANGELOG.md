@@ -1,5 +1,8 @@
 # Changelog
 
+* Add the `lang-` prefix in front of the language's name when using
+  `:prettify` along with `:fenced_code_blocks`.
+
 * Non-alphanumeric chars are now stripped out from generated anchors
   (along the lines of Active Support's `#parameterize` method).
 
