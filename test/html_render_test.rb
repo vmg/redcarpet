@@ -3,21 +3,7 @@ require 'test_helper'
 
 class HTMLRenderTest < Redcarpet::TestCase
   def setup
-    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
-    @rndr = {
-      :no_html => Redcarpet::Render::HTML.new(:filter_html => true),
-      :no_images => Redcarpet::Render::HTML.new(:no_images => true),
-      :no_links => Redcarpet::Render::HTML.new(:no_links => true),
-      :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
-      :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
-      :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
-      :toc_data => Redcarpet::Render::HTML.new(:with_toc_data => true),
-      :prettify => Redcarpet::Render::HTML.new(:prettify => true)
-    }
-  end
-
-  def render_with(rndr, text)
-    Redcarpet::Markdown.new(rndr).render(text)
+    @renderer = Redcarpet::Render::HTML
   end
 
   # Hint: overrides filter_html, no_images and no_links
@@ -37,45 +23,55 @@ EOS
 <p>&lt;img src=&quot;/favicon.ico&quot; /&gt;</p>
 EOE
 
-    markdown = render_with(@rndr[:escape_html], source)
-    html_equal expected, markdown
+    html_equal expected, render(source, with: [:escape_html])
   end
 
   def test_that_filter_html_works
-    markdown = render_with(@rndr[:no_html], 'Through <em>NO</em> <script>DOUBLE NO</script>')
-    html_equal "<p>Through NO DOUBLE NO</p>\n", markdown
+    markdown = 'Through <em>NO</em> <script>DOUBLE NO</script>'
+    output   = render(markdown, with: [:filter_html])
+
+    html_equal "<p>Through NO DOUBLE NO</p>\n", output
   end
 
   def test_filter_html_doesnt_break_two_space_hard_break
-    markdown = render_with(@rndr[:no_html], "Lorem,  \nipsum\n")
-    html_equal "<p>Lorem,<br/>\nipsum</p>\n", markdown
+    markdown = "Lorem,  \nipsum\n"
+    output   = render(markdown, with: [:filter_html])
+
+    html_equal "<p>Lorem,<br/>\nipsum</p>\n", output
   end
 
   def test_that_no_image_flag_works
-    rd = render_with(@rndr[:no_images], %(![dust mite](http://dust.mite/image.png) <img src="image.png" />))
-    assert rd !~ /<img/
+    markdown = %(![dust mite](http://dust.mite/image.png) <img src="image.png" />)
+    output   = render(markdown, with: [:no_images])
+
+    assert_no_match %r{<img}, output
   end
 
   def test_that_no_links_flag_works
-    rd = render_with(@rndr[:no_links], %([This link](http://example.net/) <a href="links.html">links</a>))
-    assert rd !~ /<a /
+    markdown = %([This link](http://example.net/) <a href="links.html">links</a>)
+    output   = render(markdown, with: [:no_links])
+
+    assert_no_match %r{<a }, output
   end
 
   def test_that_safelink_flag_works
-    rd = render_with(@rndr[:safe_links], "[IRC](irc://chat.freenode.org/#freenode)")
-    html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", rd
+    markdown = "[IRC](irc://chat.freenode.org/#freenode)"
+    output   = render(markdown, with: [:safe_links_only])
+
+    html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", output
   end
 
   def test_that_hard_wrap_works
-    rd = render_with(@rndr[:hard_wrap], <<EOE)
+    markdown = <<EOE
 Hello world,
 this is just a simple test
 
 With hard wraps
 and other *things*.
 EOE
+    output   = render(markdown, with: [:hard_wrap])
 
-    assert rd =~ /<br>/
+    assert_match %r{<br>}, output
   end
 
   def test_that_link_attributes_work
@@ -85,11 +81,11 @@ EOE
   end
 
   def test_that_link_works_with_quotes
-    rd = render_with(Redcarpet::Render::HTML.new, %([This'link"is](http://example.net/)))
-    assert_equal "<p><a href=\"http://example.net/\">This&#39;link&quot;is</a></p>\n", rd
+    markdown = %([This'link"is](http://example.net/))
+    expected = %(<p><a href="http://example.net/">This&#39;link&quot;is</a></p>\n)
 
-    rd = render_with(@rndr[:escape_html], %([This'link"is](http://example.net/)))
-    assert_equal "<p><a href=\"http://example.net/\">This&#39;link&quot;is</a></p>\n", rd
+    assert_equal expected, render(markdown)
+    assert_equal expected, render(markdown, with: [:escape_html])
   end
 
   def test_that_code_emphasis_work
@@ -111,22 +107,19 @@ However, this should be <em><code>an emphasised codespan</code></em></p>
 </ul>
 HTML
 
-    output = render_with(Redcarpet::Render::HTML.new, markdown)
-    assert_equal html, output
+    assert_equal html, render(markdown)
   end
 
   def test_that_parenthesis_are_handled_into_links
-    markdown = "Hey have a look at the [bash man page](man:bash(1))!"
-    html = "<p>Hey have a look at the <a href=\"man:bash(1)\">bash man page</a>!</p>\n"
-    output = render_with(Redcarpet::Render::HTML.new, markdown)
+    markdown = %(The [bash man page](man:bash(1))!)
+    expected = %(<p>The <a href="man:bash(1)">bash man page</a>!</p>\n)
 
-    assert_equal html, output
+    assert_equal expected, render(markdown)
   end
 
   def test_autolinking_works_as_expected
-    markdown = "Example of uri ftp://user:pass@example.com/. Email foo@bar.com and link http://bar.com"
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true)
-    output = renderer.render(markdown)
+    markdown = "Uri ftp://user:pass@example.com/. Email foo@bar.com and link http://bar.com"
+    output   = render(markdown, with: [:autolink])
 
     assert output.include? '<a href="ftp://user:pass@example.com/">ftp://user:pass@example.com/</a>'
     assert output.include? 'mailto:foo@bar.com'
@@ -155,8 +148,7 @@ MD
 </div>
 HTML
 
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
-    output = renderer.render(markdown)
+    output = render(markdown, with: [:footnotes])
     assert_equal html, output
   end
 
@@ -172,24 +164,21 @@ MD
 <p>[^1] And a trailing definition</p>
 HTML
 
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
-    output = renderer.render(markdown)
+    output = render(markdown, with: [:footnotes])
     assert_equal html, output
   end
 
   def test_footnotes_enabled_but_missing_definition
     markdown = "Some text with a marker[^1] but no definition."
-    html = "<p>Some text with a marker[^1] but no definition.</p>\n"
+    expected = "<p>Some text with a marker[^1] but no definition.</p>\n"
 
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
-    output = renderer.render(markdown)
-    assert_equal html, output
+    output = render(markdown, with: [:footnotes])
+    assert_equal expected, output
   end
 
   def test_autolink_short_domains
     markdown = "Example of uri ftp://auto/short/domains. Email auto@l.n and link http://a/u/t/o/s/h/o/r/t"
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true)
-    output = renderer.render(markdown)
+    output   = render(markdown, with: [:autolink])
 
     assert output.include? '<a href="ftp://auto/short/domains">ftp://auto/short/domains</a>'
     assert output.include? 'mailto:auto@l.n'
@@ -197,37 +186,23 @@ HTML
   end
 
   def test_that_prettify_works
-    text = <<-Markdown
-Foo
-
-~~~ruby
-some
-code
-~~~
-
-Bar
-Markdown
-
-    renderer = Redcarpet::Markdown.new(@rndr[:prettify], fenced_code_blocks: true)
-    output = renderer.render(text)
+    markdown = "~~~ruby\ncode\n~~~"
+    output   = render(markdown, with: [:fenced_code_blocks, :prettify])
 
     assert output.include?("<code class=\"prettyprint ruby\">")
   end
 
   def test_safe_links_only_with_anchors
     markdown = "An [anchor link](#anchor) on a page."
-
-    renderer = Redcarpet::Markdown.new(@rndr[:safe_links])
-    output = renderer.render(markdown)
+    output   = render(markdown, with: [:safe_links_only])
 
     assert_match %r{<a href="#anchor">anchor link</a>}, output
   end
 
   def test_autolink_with_link_attributes
-    render = Redcarpet::Render::HTML.new(link_attributes: {rel: "nofollow"})
-    parser = Redcarpet::Markdown.new(render, autolink: true)
+    options = { autolink: true, link_attributes: {rel: "nofollow"} }
+    output  = render("https://github.com/", with: options)
 
-    output = parser.render("https://github.com/")
     assert_match %r{rel="nofollow"}, output
   end
 end
