@@ -2800,6 +2800,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	struct buf *text;
 	size_t beg, end;
+	int in_fence = 0;
 
 	text = bufnew(64);
 	if (!text)
@@ -2811,7 +2812,8 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	/* reset the references table */
 	memset(&md->refs, 0x0, REF_TABLE_SIZE * sizeof(void *));
 
-	int footnotes_enabled = md->ext_flags & MKDEXT_FOOTNOTES;
+	int footnotes_enabled  = md->ext_flags & MKDEXT_FOOTNOTES;
+	int codefences_enabled = md->ext_flags & MKDEXT_FENCED_CODE;
 
 	/* reset the footnotes lists */
 	if (footnotes_enabled) {
@@ -2827,10 +2829,13 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	if (doc_size >= 3 && memcmp(document, UTF8_BOM, 3) == 0)
 		beg += 3;
 
-	while (beg < doc_size) /* iterating over lines */
-		if (footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
+	while (beg < doc_size) { /* iterating over lines */
+		if (codefences_enabled && (is_codefence(document + beg, doc_size - beg, NULL) != 0))
+			in_fence = !in_fence;
+
+		if (!in_fence && footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
 			beg = end;
-		else if (is_ref(document, beg, doc_size, &end, md->refs))
+		else if (!in_fence && is_ref(document, beg, doc_size, &end, md->refs))
 			beg = end;
 		else { /* skipping to the next line */
 			end = beg;
@@ -2850,6 +2855,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 			beg = end;
 		}
+	}
 
 	/* pre-grow the output buffer to minimize allocations */
 	bufgrow(ob, MARKDOWN_GROW(text->size));
