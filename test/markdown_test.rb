@@ -238,6 +238,32 @@ fenced
     assert !out.include?("<pre><code>")
   end
 
+  def test_that_indented_code_preserves_references
+    text = <<indented
+This is normal text
+
+    Link to [Google][1]
+
+    [1]: http://google.com
+indented
+    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
+    assert out.include?("[1]: http://google.com")
+  end
+
+  def test_that_fenced_flag_preserves_references
+    text = <<fenced
+This is normal text
+
+```
+Link to [Google][1]
+
+[1]: http://google.com
+```
+fenced
+    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
+    assert out.include?("[1]: http://google.com")
+  end
+
   def test_that_indented_flag_works
     text = <<indented
 This is a simple text
