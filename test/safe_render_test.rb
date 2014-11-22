@@ -13,13 +13,6 @@ class SafeRenderTest < Redcarpet::TestCase
     assert_not_match %r{a href}, output
   end
 
-  def test_safe_image_src_is_enabled_by_default
-    markdown = "![foo](javascript:while(1);)"
-    output   = @parser.render(markdown)
-
-    assert_not_match %r{img src}, output
-  end
-
   def test_escape_html_is_enabled_by_default
     markdown = "<p>Hello world!</p>"
     output   = @parser.render(markdown)

@@ -217,4 +217,11 @@ HTML
 
     assert_match %r{rel="nofollow"}, output
   end
+
+  def test_image_unsafe_src_with_safe_links_only
+    markdown = "![foo](javascript:while(1);)"
+    output   = render(markdown, with: [:safe_links_only])
+
+    assert_not_match %r{img src}, output
+  end
 end

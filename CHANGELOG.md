@@ -1,5 +1,8 @@
 # Changelog
-* Make img src urls safe if safe_links_only is enabled.
+
+* Avoid parsing images when the given URL isn't safe and the
+  `:safe_links_only` option is enabled.
+
   *Alex Serban*
 
 * Avoid parsing references inside fenced code blocks so they are

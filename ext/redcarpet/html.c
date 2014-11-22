@@ -472,7 +472,6 @@ rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, cons
 {
 	struct html_renderopt *options = opaque;
 
-
 	if (link != NULL && (options->flags & HTML_SAFELINK) != 0 && !sd_autolink_issafe(link->data, link->size))
 		return 0;
 
