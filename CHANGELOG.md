@@ -1,4 +1,6 @@
 # Changelog
+* Make img src urls safe if safe_links_only is enabled.
+  *Alex Serban*
 
 * Avoid parsing references inside fenced code blocks so they are
   now kept in the code snippet.
