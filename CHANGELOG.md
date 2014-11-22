@@ -1,5 +1,10 @@
 # Changelog
 
+* Avoid parsing references inside fenced code blocks so they are
+  now kept in the code snippet.
+
+  *David Waller*
+
 * Avoid escaping table-of-contents' headers by default. A new
   `:escape_html` option is now available for the `HTML_TOC` object
   if there are security concerns.
