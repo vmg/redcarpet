@@ -224,4 +224,18 @@ HTML
 
     assert_not_match %r{img src}, output
   end
+
+  def test_no_styles_option_inside_a_paragraph
+    markdown = "Hello <style> foo { bar: baz; } </style> !"
+    output   = render(markdown, with: [:no_styles])
+
+    assert_no_match %r{<style>}, output
+  end
+
+  def test_no_styles_inside_html_block_rendering
+    markdown = "<style> foo { bar: baz; } </style>"
+    output   = render(markdown, with: [:no_styles])
+
+    assert_no_match %r{<style>}, output
+  end
 end

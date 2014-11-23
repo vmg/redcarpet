@@ -1,5 +1,9 @@
 # Changelog
 
+* Strip out `style` tags at the HTML-block rendering level when the
+  `:no_styles` options is enabled ; previously they were only removed
+  inside paragraphs.
+
 * Avoid parsing images when the given URL isn't safe and the
   `:safe_links_only` option is enabled.
 

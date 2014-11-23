@@ -438,12 +438,21 @@ static void
 rndr_raw_block(struct buf *ob, const struct buf *text, void *opaque)
 {
 	size_t org, sz;
+	struct html_renderopt *options = opaque;
+
 	if (!text) return;
 	sz = text->size;
+
 	while (sz > 0 && text->data[sz - 1] == '\n') sz--;
 	org = 0;
 	while (org < sz && text->data[org] == '\n') org++;
 	if (org >= sz) return;
+
+	/* Remove style tags if the `:no_styles` option is enabled */
+	if ((options->flags & HTML_SKIP_STYLE) != 0 &&
+		sdhtml_is_tag(text->data, sz, "style"))
+		return;
+
 	if (ob->size) bufputc(ob, '\n');
 	bufput(ob, text->data + org, sz - org);
 	bufputc(ob, '\n');
