@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 3.2.1
+
+* Load `RedcarpetCompat` when requiring Redcarpet for the sake of
+  backward compatibility.
+
+  *Loren Segal*
+
 ## Version 3.2.0
 
 * Add a `Safe` renderer to deal with users' input. The `escape_html`
