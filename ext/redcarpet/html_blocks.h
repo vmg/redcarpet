@@ -1,5 +1,6 @@
 /* C code produced by gperf version 3.0.4 */
 /* Command-line: gperf -N find_block_tag -H hash_block_tag -C -c -E --ignore-case html_block_names.txt  */
+/* See http://git.io/RN0ncw for the list of recognized elements */
 /* Computed positions: -k'1-2' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -99,10 +100,10 @@ hash_block_tag (str, len)
       68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
       68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
       55, 50, 45, 40, 35, 30, 68, 68, 68, 68,
-      68, 68, 68, 68, 68, 15, 10,  5, 15, 15,
+      68, 68, 68, 68, 68, 15, 10, 15, 15, 15,
        0, 20, 10, 10,  5, 68, 68,  0, 20, 25,
        0, 68, 68,  0, 25,  0, 15, 68, 68, 68,
-      68, 68, 68, 68, 68, 68, 68, 15, 10,  5,
+      68, 68, 68, 68, 68, 68, 68, 15, 10, 15,
       15, 15,  0, 20, 10, 10,  5, 68, 68,  0,
       20, 25,  0, 68, 68,  0, 25,  0, 15, 68,
       68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
@@ -147,7 +148,7 @@ find_block_tag (str, len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 40,
+      TOTAL_KEYWORDS = 41,
       MIN_WORD_LENGTH = 1,
       MAX_WORD_LENGTH = 10,
       MIN_HASH_VALUE = 1,
@@ -175,18 +176,19 @@ find_block_tag (str, len)
       "del",
       "",
       "blockquote",
-      "canvas",
+      "script",
       "article",
       "div",
-      "abbr",
+      "",
       "video",
       "hgroup",
       "ol",
       "noscript",
-      "", "", "",
+      "", "",
+      "canvas",
       "dd",
       "nav",
-      "",
+      "abbr",
       "audio",
       "iframe",
       "address",

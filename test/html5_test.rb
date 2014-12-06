@@ -57,4 +57,13 @@ EOE
     assert_renders section_expected, section
     assert_renders header_expected, header
   end
+
+  def test_script_tag_recognition
+    markdown = <<-Md
+<script type="text/javascript">
+  alert('Foo!');
+</script>
+Md
+    assert_renders markdown, markdown
+  end
 end

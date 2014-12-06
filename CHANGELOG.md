@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 3.2.2
+
+* Consider `script` as a block-level element so it doesn't get included
+  inside a paragraph.
+
 ## Version 3.2.1
 
 * Load `RedcarpetCompat` when requiring Redcarpet for the sake of
