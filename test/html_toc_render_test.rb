@@ -51,7 +51,8 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
       "Trailing bad characters!@#"          => "trailing-bad-characters",
       "!@#Leading bad characters"           => "leading-bad-characters",
       "Squeeze   separators"                => "squeeze-separators",
-      "Test with + sign"                    => "test-with-sign"
+      "Test with + sign"                    => "test-with-sign",
+      "Test with a Namespaced::Class"       => "test-with-a-namespaced-class"
     }
 
     titles.each do |title, anchor|
