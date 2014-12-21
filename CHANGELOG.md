@@ -1,5 +1,10 @@
 # Changelog
 
+* Undeprecate the compatibility layer for the old RedCloth API.
+
+  This layer actually ease the support of libraries supporting different
+  Markdown processors.
+
 * Strip out `style` tags at the HTML-block rendering level when the
   `:no_styles` options is enabled ; previously they were only removed
   inside paragraphs.

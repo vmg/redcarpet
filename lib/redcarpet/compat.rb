@@ -1,8 +1,5 @@
 require 'redcarpet'
 
-# Deprecated: Please use the default API to parse Markdown
-# documents ; this layer will be removed in Redcarpet 4.0.
-#
 # Creates an instance of Redcarpet with the RedCloth API.
 class RedcarpetCompat
   attr_accessor :text

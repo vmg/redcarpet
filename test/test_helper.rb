@@ -9,7 +9,6 @@ require 'nokogiri'
 require 'redcarpet'
 require 'redcarpet/render_strip'
 require 'redcarpet/render_man'
-require 'redcarpet/compat'
 
 class Redcarpet::TestCase < Test::Unit::TestCase
   def html_equal(html_a, html_b)
