@@ -1,8 +1,6 @@
 # coding: UTF-8
 Encoding.default_internal = 'UTF-8' if defined? Encoding
 
-gem 'test-unit', '>= 2' # necessary when not using bundle exec
-
 require 'test/unit'
 require 'nokogiri'
 
