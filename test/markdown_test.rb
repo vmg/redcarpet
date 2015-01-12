@@ -13,37 +13,37 @@ class MarkdownTest < Redcarpet::TestCase
 
   def test_that_simple_one_liner_goes_to_html
     assert_respond_to @markdown, :render
-    html_equal "<p>Hello World.</p>\n", @markdown.render("Hello World.")
+    assert_equal "<p>Hello World.</p>\n", @markdown.render("Hello World.")
   end
 
   def test_that_inline_markdown_goes_to_html
     markdown = @markdown.render('_Hello World_!')
-    html_equal "<p><em>Hello World</em>!</p>\n", markdown
+    assert_equal "<p><em>Hello World</em>!</p>\n", markdown
   end
 
   def test_that_inline_markdown_starts_and_ends_correctly
     markdown = render_with({:no_intra_emphasis => true}, '_start _ foo_bar bar_baz _ end_ *italic* **bold** <a>_blah_</a>')
 
-    html_equal "<p><em>start _ foo_bar bar_baz _ end</em> <em>italic</em> <strong>bold</strong> <a><em>blah</em></a></p>\n", markdown
+    assert_equal "<p><em>start _ foo_bar bar_baz _ end</em> <em>italic</em> <strong>bold</strong> <a><em>blah</em></a></p>\n", markdown
 
     markdown = @markdown.render("Run 'rake radiant:extensions:rbac_base:migrate'")
-    html_equal "<p>Run 'rake radiant:extensions:rbac_base:migrate'</p>\n", markdown
+    assert_equal "<p>Run &#39;rake radiant:extensions:rbac_base:migrate&#39;</p>\n", markdown
   end
 
   def test_that_urls_are_not_doubly_escaped
     markdown = @markdown.render('[Page 2](/search?query=Markdown+Test&page=2)')
-    html_equal "<p><a href=\"/search?query=Markdown+Test&amp;page=2\">Page 2</a></p>\n", markdown
+    assert_equal "<p><a href=\"/search?query=Markdown+Test&amp;page=2\">Page 2</a></p>\n", markdown
   end
 
   def test_simple_inline_html
     #markdown = Markdown.new("before\n\n<div>\n  foo\n</div>\nafter")
     markdown = @markdown.render("before\n\n<div>\n  foo\n</div>\n\nafter")
-    html_equal "<p>before</p>\n\n<div>\n  foo\n</div>\n\n<p>after</p>\n", markdown
+    assert_equal "<p>before</p>\n\n<div>\n  foo\n</div>\n\n<p>after</p>\n", markdown
   end
 
   def test_that_html_blocks_do_not_require_their_own_end_tag_line
     markdown = @markdown.render("Para 1\n\n<div><pre>HTML block\n</pre></div>\n\nPara 2 [Link](#anchor)")
-    html_equal "<p>Para 1</p>\n\n<div><pre>HTML block\n</pre></div>\n\n<p>Para 2 <a href=\"#anchor\">Link</a></p>\n",
+    assert_equal "<p>Para 1</p>\n\n<div><pre>HTML block\n</pre></div>\n\n<p>Para 2 <a href=\"#anchor\">Link</a></p>\n",
       markdown
   end
 
@@ -53,8 +53,8 @@ class MarkdownTest < Redcarpet::TestCase
       "A wise man once said:\n\n" +
       " > Isn't it wonderful just to be alive.\n"
     )
-    html_equal "<p>A wise man once said:</p>\n\n" +
-      "<blockquote><p>Isn't it wonderful just to be alive.</p>\n</blockquote>\n",
+    assert_equal "<p>A wise man once said:</p>\n\n" +
+      "<blockquote>\n<p>Isn&#39;t it wonderful just to be alive.</p>\n</blockquote>\n",
       markdown
   end
 
@@ -63,7 +63,7 @@ class MarkdownTest < Redcarpet::TestCase
       "Things to watch out for\n" +
       "<ul>\n<li>Blah</li>\n</ul>\n")
 
-    html_equal "<p>Things to watch out for</p>\n\n" +
+    assert_equal "<p>Things to watch out for</p>\n\n" +
       "<ul>\n<li>Blah</li>\n</ul>\n", markdown
   end
 
@@ -85,7 +85,7 @@ MARKDOWN
 
 <p>This paragraph is not part of the list.</p>
 HTML
-    html_equal expected, @markdown.render(text)
+    assert_equal expected, @markdown.render(text)
   end
 
   # http://github.com/rtomayko/rdiscount/issues/#issue/13
@@ -93,37 +93,37 @@ HTML
     text = "The Ant-Sugar Tales \n"         +
            "=================== \n\n"        +
            "By Candice Yellowflower   \n"
-    html_equal "<h1>The Ant-Sugar Tales </h1>\n\n<p>By Candice Yellowflower   </p>\n", @markdown.render(text)
+    assert_equal "<h1>The Ant-Sugar Tales </h1>\n\n<p>By Candice Yellowflower   </p>\n", @markdown.render(text)
   end
 
   def test_that_intra_emphasis_works
     rd = render_with({}, "foo_bar_baz")
-    html_equal "<p>foo<em>bar</em>baz</p>\n", rd
+    assert_equal "<p>foo<em>bar</em>baz</p>\n", rd
 
     rd = render_with({:no_intra_emphasis => true},"foo_bar_baz")
-    html_equal "<p>foo_bar_baz</p>\n", rd
+    assert_equal "<p>foo_bar_baz</p>\n", rd
   end
 
   def test_that_autolink_flag_works
     rd = render_with({:autolink => true}, "http://github.com/rtomayko/rdiscount")
-    html_equal "<p><a href=\"http://github.com/rtomayko/rdiscount\">http://github.com/rtomayko/rdiscount</a></p>\n", rd
+    assert_equal "<p><a href=\"http://github.com/rtomayko/rdiscount\">http://github.com/rtomayko/rdiscount</a></p>\n", rd
   end
 
   def test_that_tags_can_have_dashes_and_underscores
     rd = @markdown.render("foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b>")
-    html_equal "<p>foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b></p>\n", rd
+    assert_equal "<p>foo <asdf-qwerty>bar</asdf-qwerty> and <a_b>baz</a_b></p>\n", rd
   end
 
   def test_link_syntax_is_not_processed_within_code_blocks
     markdown = @markdown.render("    This is a code block\n    This is a link [[1]] inside\n")
-    html_equal "<pre><code>This is a code block\nThis is a link [[1]] inside\n</code></pre>\n",
+    assert_equal "<pre><code>This is a code block\nThis is a link [[1]] inside\n</code></pre>\n",
       markdown
   end
 
   def test_whitespace_after_urls
     rd = render_with({:autolink => true}, "Japan: http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm (yes, japan)")
     exp = %{<p>Japan: <a href="http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm">http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm</a> (yes, japan)</p>\n}
-    html_equal exp, rd
+    assert_equal exp, rd
   end
 
   def test_memory_leak_when_parsing_char_links
@@ -142,7 +142,7 @@ HTML
   end
 
   def test_infinite_loop_in_header
-    html_equal "<h1>Body</h1>\n", @markdown.render(<<-header)
+    assert_equal "<h1>Body</h1>\n", @markdown.render(<<-header)
 ######
 #Body#
 ######
@@ -150,8 +150,8 @@ HTML
   end
 
   def test_a_hyphen_and_a_equal_should_not_be_converted_to_heading
-    html_equal "<p>-</p>\n", @markdown.render("-")
-    html_equal "<p>=</p>\n", @markdown.render("=")
+    assert_equal "<p>-</p>\n", @markdown.render("-")
+    assert_equal "<p>=</p>\n", @markdown.render("=")
   end
 
   def test_that_tables_flag_works
@@ -280,14 +280,14 @@ indented
 
   def test_that_headers_are_linkable
     markdown = @markdown.render('### Hello [GitHub](http://github.com)')
-    html_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>\n", markdown
+    assert_equal "<h3>Hello <a href=\"http://github.com\">GitHub</a></h3>\n", markdown
   end
 
   def test_autolinking_with_ent_chars
     markdown = render_with({:autolink => true}, <<text)
 This a stupid link: https://github.com/rtomayko/tilt/issues?milestone=1&state=open
 text
-    html_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown
+    assert_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown
   end
 
   def test_spaced_headers
@@ -313,13 +313,13 @@ text
 
   def test_emphasis_escaping
     markdown = @markdown.render("**foo\\*** _dd\\_dd_")
-    html_equal "<p><strong>foo*</strong> <em>dd_dd</em></p>\n", markdown
+    assert_equal "<p><strong>foo*</strong> <em>dd_dd</em></p>\n", markdown
   end
 
   def test_char_escaping_when_highlighting
     markdown = "==attribute\\==="
     output = render_with({highlight: true}, markdown)
-    html_equal "<p><mark>attribute=</mark></p>\n", output
+    assert_equal "<p><mark>attribute=</mark></p>\n", output
   end
 
   def test_ordered_lists_with_lax_spacing
@@ -332,6 +332,6 @@ text
 
   def test_references_with_tabs_after_colon
     markdown = @markdown.render("[Link][id]\n[id]:\t\t\thttp://google.es")
-    html_equal "<p><a href=\"http://google.es\">Link</a></p>\n", markdown
+    assert_equal "<p><a href=\"http://google.es\">Link</a></p>\n", markdown
   end
 end

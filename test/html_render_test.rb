@@ -23,21 +23,21 @@ EOS
 <p>&lt;img src=&quot;/favicon.ico&quot; /&gt;</p>
 EOE
 
-    html_equal expected, render(source, with: [:escape_html])
+    assert_equal expected, render(source, with: [:escape_html])
   end
 
   def test_that_filter_html_works
     markdown = 'Through <em>NO</em> <script>DOUBLE NO</script>'
     output   = render(markdown, with: [:filter_html])
 
-    html_equal "<p>Through NO DOUBLE NO</p>\n", output
+    assert_equal "<p>Through NO DOUBLE NO</p>\n", output
   end
 
   def test_filter_html_doesnt_break_two_space_hard_break
     markdown = "Lorem,  \nipsum\n"
     output   = render(markdown, with: [:filter_html])
 
-    html_equal "<p>Lorem,<br/>\nipsum</p>\n", output
+    assert_equal "<p>Lorem,<br>\nipsum</p>\n", output
   end
 
   def test_that_no_image_flag_works
@@ -58,7 +58,7 @@ EOE
     markdown = "[IRC](irc://chat.freenode.org/#freenode)"
     output   = render(markdown, with: [:safe_links_only])
 
-    html_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", output
+    assert_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", output
   end
 
   def test_that_hard_wrap_works
