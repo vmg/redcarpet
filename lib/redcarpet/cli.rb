@@ -59,6 +59,7 @@ module Redcarpet
     end
 
     def self.process(args)
+      self.legacy_parse!(args)
       self.options_parser.parse!(args)
       STDOUT.write parser_object.render(ARGF.read)
     end
@@ -70,6 +71,16 @@ module Redcarpet
     def self.parser_object
       renderer = render_object.new(@@options[:render_extensions])
       Redcarpet::Markdown.new(renderer, @@options[:parse_extensions])
+    end
+
+    def self.legacy_parse!(args) # :nodoc:
+      # Workaround for backward compatibility as OptionParser
+      # doesn't support the --flag-OPTION syntax.
+      args.select {|a| a =~ /--(parse|render)-/ }.each do |arg|
+        args.delete(arg)
+        arg = arg.partition(/\b-/)
+        args.push(arg.first, arg.last)
+      end
     end
   end
 end

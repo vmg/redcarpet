@@ -50,6 +50,16 @@ class RedcarpetBinTest < Redcarpet::TestCase
     assert_output "Redcarpet #{Redcarpet::VERSION}"
   end
 
+  def test_legacy_option_parsing
+    run_bin("--parse-highlight", "--render-no-links", @fixture_path)
+
+    assert_output "<mark>"
+    refute_output "=="
+
+    assert_output "[link]"
+    refute_output "</a>"
+  end
+
   private
 
   def run_bin(*args)
