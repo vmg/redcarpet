@@ -1,5 +1,11 @@
 # Changelog
 
+* Provide a `Redcarpet::CLI` class to create custom binary files.
+
+  Relying on Ruby's OptionParser, it's now straightforward to add new
+  options, rely on custom render objects or handle differently the
+  rendering of the provided files.
+
 * Undeprecate the compatibility layer for the old RedCloth API.
 
   This layer actually ease the support of libraries supporting different

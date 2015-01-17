@@ -25,14 +25,14 @@ class RedcarpetBinTest < Redcarpet::TestCase
   end
 
   def test_enabling_a_parse_option
-    run_bin("--parse-highlight", @fixture_path)
+    run_bin("--parse", "highlight", @fixture_path)
 
     assert_output "<mark>"
     refute_output "=="
   end
 
   def test_enabling_a_render_option
-    run_bin("--render-no-links", @fixture_path)
+    run_bin("--render", "no-links", @fixture_path)
 
     assert_output "[link]"
     refute_output "</a>"
