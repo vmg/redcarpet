@@ -298,7 +298,7 @@ char *header_anchor(const struct buf *buffer)
 	/* Dasherize the string removing extra white spaces
 	   and stripped chars */
 	for (i = 0, j = 0; i < size; ++i, ++j) {
-		while (STRIPPED_CHAR(raw_string[i]) && STRIPPED_CHAR(raw_string[i+1]))
+		while ((i+1) < size && STRIPPED_CHAR(raw_string[i]) && STRIPPED_CHAR(raw_string[i+1]))
 			i++;
 
 		if (STRIPPED_CHAR(raw_string[i]))
