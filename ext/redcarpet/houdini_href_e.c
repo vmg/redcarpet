@@ -22,10 +22,10 @@
  * have its native function (i.e. as an URL 
  * component/separator) and hence needs no escaping.
  *
- * There are two exceptions: the chacters & (amp)
- * and ' (single quote) do not appear in the table.
- * They are meant to appear in the URL as components,
- * yet they require special HTML-entity escaping
+ * There is one exception: the ' (single quote) 
+ * character does not appear in the table.
+ * It is meant to appear in the URL as components,
+ * however it require special HTML-entity escaping
  * to generate valid HTML markup.
  *
  * All other characters will be escaped to %XX.
@@ -34,7 +34,7 @@
 static const char HREF_SAFE[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 
+	0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 
@@ -73,12 +73,6 @@ houdini_escape_href(struct buf *ob, const uint8_t *src, size_t size)
 			break;
 
 		switch (src[i]) {
-		/* amp appears all the time in URLs, but needs
-		 * HTML-entity escaping to be inside an href */
-		case '&': 
-			BUFPUTSL(ob, "&amp;");
-			break;
-
 		/* the single quote is a valid URL character
 		 * according to the standard; it needs HTML
 		 * entity escaping too */

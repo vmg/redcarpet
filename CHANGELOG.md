@@ -1,5 +1,9 @@
 # Changelog
 
+* Avoid escaping ampersands in href links
+
+  *Nolan Evans*
+
 * Provide a `Redcarpet::CLI` class to create custom binary files.
 
   Relying on Ruby's OptionParser, it's now straightforward to add new
