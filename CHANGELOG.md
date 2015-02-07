@@ -1,5 +1,8 @@
 # Changelog
 
+* Fix escaping of forward slashes with the `Safe` render object (add a
+  missing semi-colon).
+
 ## Version 3.2.2
 
 * Consider `script` as a block-level element so it doesn't get included
