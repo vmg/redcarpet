@@ -1,5 +1,8 @@
 # Changelog
 
+* Fix escaping of forward slashes with the `Safe` render object (add a
+  missing semi-colon).
+
 * Provide a `Redcarpet::CLI` class to create custom binary files.
 
   Relying on Ruby's OptionParser, it's now straightforward to add new
