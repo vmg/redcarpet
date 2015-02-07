@@ -126,6 +126,20 @@ HTML
     assert_equal exp, rd
   end
 
+	# See https://github.com/vmg/redcarpet/pull/358 for more details
+  def test_auto_linked_www_utf8_issue
+		rd = render_with({ autolink: true }, "www.example.com/码")
+		exp = %{<p><a href="http://www.example.com/%E7%A0%81">www.example.com/码</a></p>\n}
+    assert_equal exp, rd
+  end
+
+	# See https://github.com/vmg/redcarpet/pull/358 for more details
+  def test_auto_linked_url_utf8_issue
+		rd = render_with({ autolink: true }, "http://example.com/码")
+    exp = %{<p><a href="http://example.com/%E7%A0%81">http://example.com/码</a></p>\n}
+    assert_equal exp, rd
+  end
+
   def test_memory_leak_when_parsing_char_links
     @markdown.render(<<-leaks)
 2. Identify the wild-type cluster and determine all clusters
