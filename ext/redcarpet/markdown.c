@@ -53,6 +53,7 @@ struct link_ref {
 	struct buf *title;
 
 	struct link_ref *next;
+
 };
 
 /* footnote_ref: reference to a footnote */
