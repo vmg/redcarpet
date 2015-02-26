@@ -1118,7 +1118,7 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 				title_e--;
 
 			/* checking for closing quote presence */
-			if (data[title_e] != '\'' &&  data[title_e] != '"') {
+			if (data[title_e] != '\'' && data[title_e] != '"') {
 				title_b = title_e = 0;
 				link_e = i;
 			}
@@ -2866,7 +2866,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	if (text->size) {
 		/* adding a final newline if not already present */
-		if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r')
+		if (text->data[text->size - 1] != '\n' && text->data[text->size - 1] != '\r')
 			bufputc(text, '\n');
 
 		parse_block(ob, md, text->data, text->size);
