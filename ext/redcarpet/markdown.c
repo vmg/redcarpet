@@ -2879,7 +2879,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	if (md->cb.doc_footer)
 		md->cb.doc_footer(ob, md->opaque);
 
-	/* appends null-terminated string */
+	/* Null-terminate the buffer */
 	bufcstr(ob);
 
 	/* clean-up */
