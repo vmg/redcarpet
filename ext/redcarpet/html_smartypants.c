@@ -130,7 +130,7 @@ smartypants_squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previo
 {
 	if (size >= 2) {
 		uint8_t t1 = tolower(text[1]);
-		int next_squote_len = squote_len(text+1, size-1);
+		size_t next_squote_len = squote_len(text+1, size-1);
 
 		// convert '' to &ldquo; or &rdquo;
 		if (next_squote_len > 0) {
@@ -235,7 +235,7 @@ smartypants_cb__amp(struct buf *ob, struct smartypants_data *smrt, uint8_t previ
 			return 5;
 	}
 
-	int len = squote_len(text, size);
+	size_t len = squote_len(text, size);
 	if (len > 0) {
 		return (len-1) + smartypants_squote(ob, smrt, previous_char, text+(len-1), size-(len-1), text, len);
 	}
