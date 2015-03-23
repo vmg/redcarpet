@@ -122,7 +122,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 	if (ob->size) bufputc(ob, '\n');
 
 	if (lang && lang->size) {
-		size_t i, cls;
+		size_t cls = 0;
 		if (options->flags & HTML_PRETTIFY) {
 			BUFPUTSL(ob, "<pre><code class=\"prettyprint lang-");
 			cls++;
@@ -130,7 +130,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 			BUFPUTSL(ob, "<pre><code class=\"");
 		}
 
-		for (i = 0, cls = 0; i < lang->size; ++i, ++cls) {
+		for (size_t i = 0; i < lang->size; ++i, ++cls) {
 			while (i < lang->size && isspace(lang->data[i]))
 				i++;
 
@@ -269,7 +269,7 @@ char *header_anchor(const struct buf *buffer)
 	size_t i, j, k, size = buffer->size;
 
 	char text[size];
-	strcpy(text, bufcstr(buffer));
+	strcpy(text, bufcstr((struct buf *)buffer));
 
 	char raw_string[size];
 
