@@ -4,11 +4,16 @@ require 'test_helper'
 class MarkdownTest < Greenmat::TestCase
 
   def setup
-    @markdown = Greenmat::Markdown.new(Greenmat::Render::HTML)
+    @markdown = Greenmat::Markdown.new(Greenmat::Render::HTML, greenmat_options)
   end
 
   def render_with(flags, text)
+    flags = greenmat_options.merge(flags)
     Greenmat::Markdown.new(Greenmat::Render::HTML, flags).render(text)
+  end
+
+  def greenmat_options
+    { no_mention_emphasis: true }
   end
 
   def test_that_simple_one_liner_goes_to_html
