@@ -3,11 +3,11 @@ Encoding.default_internal = 'UTF-8' if defined? Encoding
 
 require 'test/unit'
 
-require 'redcarpet'
-require 'redcarpet/render_strip'
-require 'redcarpet/render_man'
+require 'greenmat'
+require 'greenmat/render_strip'
+require 'greenmat/render_man'
 
-class Redcarpet::TestCase < Test::Unit::TestCase
+class Greenmat::TestCase < Test::Unit::TestCase
   def assert_renders(html, markdown)
     assert_equal html, render(markdown)
   end
@@ -20,7 +20,7 @@ class Redcarpet::TestCase < Test::Unit::TestCase
     end
 
     render = renderer.new(options)
-    parser = Redcarpet::Markdown.new(render, options)
+    parser = Greenmat::Markdown.new(render, options)
 
     parser.render(markdown)
   end
@@ -28,6 +28,6 @@ class Redcarpet::TestCase < Test::Unit::TestCase
   private
 
   def renderer
-    @renderer ||= Redcarpet::Render::HTML
+    @renderer ||= Greenmat::Render::HTML
   end
 end

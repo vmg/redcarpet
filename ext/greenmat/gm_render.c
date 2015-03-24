@@ -14,10 +14,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "redcarpet.h"
+#include "greenmat.h"
 
 #define SPAN_CALLBACK(method_name, ...) {\
-	struct redcarpet_renderopt *opt = opaque;\
+	struct greenmat_renderopt *opt = opaque;\
 	VALUE ret = rb_funcall(opt->self, rb_intern(method_name), __VA_ARGS__);\
 	if (NIL_P(ret)) return 0;\
 	Check_Type(ret, T_STRING);\
@@ -26,14 +26,14 @@
 }
 
 #define BLOCK_CALLBACK(method_name, ...) {\
-	struct redcarpet_renderopt *opt = opaque;\
+	struct greenmat_renderopt *opt = opaque;\
 	VALUE ret = rb_funcall(opt->self, rb_intern(method_name), __VA_ARGS__);\
 	if (NIL_P(ret)) return;\
 	Check_Type(ret, T_STRING);\
 	bufput(ob, RSTRING_PTR(ret), RSTRING_LEN(ret));\
 }
 
-extern VALUE rb_mRedcarpet;
+extern VALUE rb_mGreenmat;
 VALUE rb_mRender;
 VALUE rb_cRenderBase;
 VALUE rb_cRenderHTML;
@@ -277,15 +277,15 @@ cb_link_attribute(VALUE key, VALUE val, VALUE payload)
 static void
 rndr_link_attributes(struct buf *ob, const struct buf *url, void *opaque)
 {
-	struct redcarpet_renderopt *opt = opaque;
-	struct rb_redcarpet_rndr *rndr;
+	struct greenmat_renderopt *opt = opaque;
+	struct rb_greenmat_rndr *rndr;
 
-	Data_Get_Struct(opt->self, struct rb_redcarpet_rndr, rndr);
+	Data_Get_Struct(opt->self, struct rb_greenmat_rndr, rndr);
 	Check_Type(opt->link_attributes, T_HASH);
 	rb_hash_foreach(opt->link_attributes, &cb_link_attribute, (VALUE)ob);
 }
 
-static struct sd_callbacks rb_redcarpet_callbacks = {
+static struct sd_callbacks rb_greenmat_callbacks = {
 	rndr_blockcode,
 	rndr_blockquote,
 	rndr_raw_block,
@@ -323,7 +323,7 @@ static struct sd_callbacks rb_redcarpet_callbacks = {
 	rndr_doc_footer,
 };
 
-static const char *rb_redcarpet_method_names[] = {
+static const char *rb_greenmat_method_names[] = {
 	"block_code",
 	"block_quote",
 	"block_html",
@@ -361,59 +361,59 @@ static const char *rb_redcarpet_method_names[] = {
 	"doc_footer"
 };
 
-static const size_t rb_redcarpet_method_count = sizeof(rb_redcarpet_method_names)/sizeof(char *);
+static const size_t rb_greenmat_method_count = sizeof(rb_greenmat_method_names)/sizeof(char *);
 
-static void rb_redcarpet_rbase_mark(struct rb_redcarpet_rndr *rndr)
+static void rb_greenmat_rbase_mark(struct rb_greenmat_rndr *rndr)
 {
 	if (rndr->options.link_attributes)
 		rb_gc_mark(rndr->options.link_attributes);
 }
 
-static VALUE rb_redcarpet_rbase_alloc(VALUE klass)
+static VALUE rb_greenmat_rbase_alloc(VALUE klass)
 {
-	struct rb_redcarpet_rndr *rndr = ALLOC(struct rb_redcarpet_rndr);
-	memset(rndr, 0x0, sizeof(struct rb_redcarpet_rndr));
-	return Data_Wrap_Struct(klass, rb_redcarpet_rbase_mark, NULL, rndr);
+	struct rb_greenmat_rndr *rndr = ALLOC(struct rb_greenmat_rndr);
+	memset(rndr, 0x0, sizeof(struct rb_greenmat_rndr));
+	return Data_Wrap_Struct(klass, rb_greenmat_rbase_mark, NULL, rndr);
 }
 
-static void rb_redcarpet__overload(VALUE self, VALUE base_class)
+static void rb_greenmat__overload(VALUE self, VALUE base_class)
 {
-	struct rb_redcarpet_rndr *rndr;
+	struct rb_greenmat_rndr *rndr;
 
-	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
+	Data_Get_Struct(self, struct rb_greenmat_rndr, rndr);
 	rndr->options.self = self;
 	rndr->options.base_class = base_class;
 
 	if (rb_obj_class(self) == rb_cRenderBase)
 		rb_raise(rb_eRuntimeError,
-			"The Redcarpet::Render::Base class cannot be instantiated. "
+			"The Greenmat::Render::Base class cannot be instantiated. "
 			"Create an inheriting class instead to implement a custom renderer.");
 
 	if (rb_obj_class(self) != base_class) {
-		void **source = (void **)&rb_redcarpet_callbacks;
+		void **source = (void **)&rb_greenmat_callbacks;
 		void **dest = (void **)&rndr->callbacks;
 		size_t i;
 
-		for (i = 0; i < rb_redcarpet_method_count; ++i) {
-			if (rb_respond_to(self, rb_intern(rb_redcarpet_method_names[i])))
+		for (i = 0; i < rb_greenmat_method_count; ++i) {
+			if (rb_respond_to(self, rb_intern(rb_greenmat_method_names[i])))
 				dest[i] = source[i];
 		}
 	}
 }
 
-static VALUE rb_redcarpet_rbase_init(VALUE self)
+static VALUE rb_greenmat_rbase_init(VALUE self)
 {
-	rb_redcarpet__overload(self, rb_cRenderBase);
+	rb_greenmat__overload(self, rb_cRenderBase);
 	return Qnil;
 }
 
-static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
+static VALUE rb_greenmat_html_init(int argc, VALUE *argv, VALUE self)
 {
-	struct rb_redcarpet_rndr *rndr;
+	struct rb_greenmat_rndr *rndr;
 	unsigned int render_flags = 0;
 	VALUE hash, link_attr = Qnil;
 
-	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
+	Data_Get_Struct(self, struct rb_greenmat_rndr, rndr);
 
 	if (rb_scan_args(argc, argv, "01", &hash) == 1) {
 		Check_Type(hash, T_HASH);
@@ -459,7 +459,7 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 	}
 
 	sdhtml_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html, render_flags);
-	rb_redcarpet__overload(self, rb_cRenderHTML);
+	rb_greenmat__overload(self, rb_cRenderHTML);
 
 	if (!NIL_P(link_attr)) {
 		rndr->options.link_attributes = link_attr;
@@ -469,13 +469,13 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 	return Qnil;
 }
 
-static VALUE rb_redcarpet_htmltoc_init(int argc, VALUE *argv, VALUE self)
+static VALUE rb_greenmat_htmltoc_init(int argc, VALUE *argv, VALUE self)
 {
-	struct rb_redcarpet_rndr *rndr;
+	struct rb_greenmat_rndr *rndr;
 	unsigned int render_flags = HTML_TOC;
 	VALUE hash, nesting_level = Qnil;
 
-	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
+	Data_Get_Struct(self, struct rb_greenmat_rndr, rndr);
 
 	if (rb_scan_args(argc, argv, "01", &hash) == 1) {
 		Check_Type(hash, T_HASH);
@@ -489,7 +489,7 @@ static VALUE rb_redcarpet_htmltoc_init(int argc, VALUE *argv, VALUE self)
 	}
 
 	sdhtml_toc_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html, render_flags);
-	rb_redcarpet__overload(self, rb_cRenderHTML_TOC);
+	rb_greenmat__overload(self, rb_cRenderHTML_TOC);
 
 	if (!(NIL_P(nesting_level)))
 		rndr->options.html.toc_data.nesting_level = NUM2INT(nesting_level);
@@ -499,7 +499,7 @@ static VALUE rb_redcarpet_htmltoc_init(int argc, VALUE *argv, VALUE self)
 	return Qnil;
 }
 
-static VALUE rb_redcarpet_smartypants_render(VALUE self, VALUE text)
+static VALUE rb_greenmat_smartypants_render(VALUE self, VALUE text)
 {
 	VALUE result;
 	struct buf *output_buf;
@@ -515,20 +515,20 @@ static VALUE rb_redcarpet_smartypants_render(VALUE self, VALUE text)
 	return result;
 }
 
-void Init_redcarpet_rndr()
+void Init_greenmat_rndr()
 {
-	rb_mRender = rb_define_module_under(rb_mRedcarpet, "Render");
+	rb_mRender = rb_define_module_under(rb_mGreenmat, "Render");
 
 	rb_cRenderBase = rb_define_class_under(rb_mRender, "Base", rb_cObject);
-	rb_define_alloc_func(rb_cRenderBase, rb_redcarpet_rbase_alloc);
-	rb_define_method(rb_cRenderBase, "initialize", rb_redcarpet_rbase_init, 0);
+	rb_define_alloc_func(rb_cRenderBase, rb_greenmat_rbase_alloc);
+	rb_define_method(rb_cRenderBase, "initialize", rb_greenmat_rbase_init, 0);
 
 	rb_cRenderHTML = rb_define_class_under(rb_mRender, "HTML", rb_cRenderBase);
-	rb_define_method(rb_cRenderHTML, "initialize", rb_redcarpet_html_init, -1);
+	rb_define_method(rb_cRenderHTML, "initialize", rb_greenmat_html_init, -1);
 
 	rb_cRenderHTML_TOC = rb_define_class_under(rb_mRender, "HTML_TOC", rb_cRenderBase);
-	rb_define_method(rb_cRenderHTML_TOC, "initialize", rb_redcarpet_htmltoc_init, -1);
+	rb_define_method(rb_cRenderHTML_TOC, "initialize", rb_greenmat_htmltoc_init, -1);
 
 	rb_mSmartyPants = rb_define_module_under(rb_mRender, "SmartyPants");
-	rb_define_method(rb_mSmartyPants, "postprocess", rb_redcarpet_smartypants_render, 1);
+	rb_define_method(rb_mSmartyPants, "postprocess", rb_greenmat_smartypants_render, 1);
 }

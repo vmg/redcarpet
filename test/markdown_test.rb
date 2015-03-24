@@ -1,14 +1,14 @@
 # coding: UTF-8
 require 'test_helper'
 
-class MarkdownTest < Redcarpet::TestCase
+class MarkdownTest < Greenmat::TestCase
 
   def setup
-    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    @markdown = Greenmat::Markdown.new(Greenmat::Render::HTML)
   end
 
   def render_with(flags, text)
-    Redcarpet::Markdown.new(Redcarpet::Render::HTML, flags).render(text)
+    Greenmat::Markdown.new(Greenmat::Render::HTML, flags).render(text)
   end
 
   def test_that_simple_one_liner_goes_to_html
@@ -67,7 +67,7 @@ class MarkdownTest < Redcarpet::TestCase
       "<ul>\n<li>Blah</li>\n</ul>\n", markdown
   end
 
-  # https://github.com/vmg/redcarpet/issues/111
+  # https://github.com/vmg/greenmat/issues/111
   def test_p_with_less_than_4space_indent_should_not_be_part_of_last_list_item
     text = <<MARKDOWN
   * a
@@ -231,10 +231,10 @@ fenced
 
   def test_that_fenced_flag_works_without_space
     text = "foo\nbar\n```\nsome\ncode\n```\nbaz"
-    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true, :lax_spacing => true).render(text)
+    out = Greenmat::Markdown.new(Greenmat::Render::HTML, :fenced_code_blocks => true, :lax_spacing => true).render(text)
     assert out.include?("<pre><code>")
 
-    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
+    out = Greenmat::Markdown.new(Greenmat::Render::HTML, :fenced_code_blocks => true).render(text)
     assert !out.include?("<pre><code>")
   end
 
@@ -246,7 +246,7 @@ This is normal text
 
     [1]: http://google.com
 indented
-    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
+    out = Greenmat::Markdown.new(Greenmat::Render::HTML, :fenced_code_blocks => true).render(text)
     assert out.include?("[1]: http://google.com")
   end
 
@@ -260,7 +260,7 @@ Link to [Google][1]
 [1]: http://google.com
 ```
 fenced
-    out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
+    out = Greenmat::Markdown.new(Greenmat::Render::HTML, :fenced_code_blocks => true).render(text)
     assert out.include?("[1]: http://google.com")
   end
 

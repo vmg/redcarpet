@@ -2,6 +2,6 @@
 lib_path = File.expand_path('../../lib', __FILE__)
 $:.unshift(lib_path)
 
-require 'redcarpet/cli'
+require 'greenmat/cli'
 
-Redcarpet::CLI.process(ARGV)
+Greenmat::CLI.process(ARGV)

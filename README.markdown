@@ -1,56 +1,56 @@
-Redcarpet is written with sugar, spice and everything nice
+Greenmat is written with sugar, spice and everything nice
 ============================================================
 
-[![Build Status](https://travis-ci.org/vmg/redcarpet.svg?branch=master)](https://travis-ci.org/vmg/redcarpet)
+[![Build Status](https://travis-ci.org/vmg/greenmat.svg?branch=master)](https://travis-ci.org/vmg/greenmat)
 
-Redcarpet is a Ruby library for Markdown processing that smells like
+Greenmat is a Ruby library for Markdown processing that smells like
 butterflies and popcorn.
 
 This library is written by people
 ---------------------------------
 
-Redcarpet was written by [Vicent Martí](https://github.com/vmg). It is maintained by
+Greenmat was written by [Vicent Martí](https://github.com/vmg). It is maintained by
 [Robin Dupret](https://github.com/robin850) and [Matt Rogers](https://github.com/mattr-).
 
-Redcarpet would not be possible without the [Sundown](https://www.github.com/vmg/sundown)
+Greenmat would not be possible without the [Sundown](https://www.github.com/vmg/sundown)
 library and its authors (Natacha Porté, Vicent Martí, and its many awesome contributors).
 
 You can totally install it as a Gem
 -----------------------------------
 
-Redcarpet is readily available as a Ruby gem. It will build some native
+Greenmat is readily available as a Ruby gem. It will build some native
 extensions, but the parser is standalone and requires no installed libraries.
-Starting with Redcarpet 3.0, the minimum required Ruby version is 1.9.2 (or Rubinius in 1.9 mode).
+Starting with Greenmat 3.0, the minimum required Ruby version is 1.9.2 (or Rubinius in 1.9 mode).
 
-    $ [sudo] gem install redcarpet
+    $ [sudo] gem install greenmat
 
 If you need to use it with Ruby 1.8.7, you will need to stick with 2.3.0:
 
-    $ [sudo] gem install redcarpet -v 2.3.0
+    $ [sudo] gem install greenmat -v 2.3.0
 
-The Redcarpet source is available at GitHub:
+The Greenmat source is available at GitHub:
 
-    $ git clone git://github.com/vmg/redcarpet.git
+    $ git clone git://github.com/vmg/greenmat.git
 
 
 And it's like *really* simple to use
 ------------------------------------
 
-The core of the Redcarpet library is the `Redcarpet::Markdown` class. Each
+The core of the Greenmat library is the `Greenmat::Markdown` class. Each
 instance of the class is attached to a `Renderer` object; the Markdown class
 performs parsing of a document and uses the attached renderer to generate
 output.
 
-The `Redcarpet::Markdown` object is encouraged to be instantiated once with the
+The `Greenmat::Markdown` object is encouraged to be instantiated once with the
 required settings, and reused between parses.
 
 ~~~~~ ruby
 # Initializes a Markdown parser
-markdown = Redcarpet::Markdown.new(renderer, extensions = {})
+markdown = Greenmat::Markdown.new(renderer, extensions = {})
 ~~~~~
 
 Here, the `renderer` variable refers to a renderer object, inheriting
-from `Redcarpet::Render::Base`. If the given object has not been
+from `Greenmat::Render::Base`. If the given object has not been
 instantiated, the library will do it with default arguments.
 
 Rendering with the `Markdown` object is done through `Markdown#render`.
@@ -119,24 +119,24 @@ within the document (e.g. `[^1]: This is a footnote.`).
 Example:
 
 ~~~ruby
-markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true, tables: true)
+markdown = Greenmat::Markdown.new(Greenmat::Render::HTML, autolink: true, tables: true)
  ~~~~~
 
 Darling, I packed you a couple renderers for lunch
 --------------------------------------------------
 
-Redcarpet comes with two built-in renderers, `Redcarpet::Render::HTML` and
-`Redcarpet::Render::XHTML`, which output HTML and XHTML, respectively. These
+Greenmat comes with two built-in renderers, `Greenmat::Render::HTML` and
+`Greenmat::Render::XHTML`, which output HTML and XHTML, respectively. These
 renderers are actually implemented in C and hence offer brilliant
 performance — several degrees of magnitude faster than other Ruby Markdown
 solutions.
 
 All the rendering flags that previously applied only to HTML output have
-now been moved to the `Redcarpet::Render::HTML` class, and may be enabled when
+now been moved to the `Greenmat::Render::HTML` class, and may be enabled when
 instantiating the renderer:
 
 ~~~~~ ruby
-Redcarpet::Render::HTML.new(render_options = {})
+Greenmat::Render::HTML.new(render_options = {})
 ~~~~~
 
 Initializes an HTML renderer. The following flags are available:
@@ -172,11 +172,11 @@ Markdown document had newlines (by default, Markdown ignores these newlines).
 Example:
 
 ~~~~~ ruby
-renderer = Redcarpet::Render::HTML.new(no_links: true, hard_wrap: true)
+renderer = Greenmat::Render::HTML.new(no_links: true, hard_wrap: true)
 ~~~~~
 
 
-The `HTML` renderer has an alternate version, `Redcarpet::Render::HTML_TOC`,
+The `HTML` renderer has an alternate version, `Greenmat::Render::HTML_TOC`,
 which will output a table of contents in HTML based on the headers of the
 Markdown document.
 
@@ -184,7 +184,7 @@ When instantiating this render object, you can optionally pass a `nesting_level`
 option which takes an integer and allows you to make it render only headers
 until a specific level.
 
-Furthermore, the abstract base class `Redcarpet::Render::Base` can be used
+Furthermore, the abstract base class `Greenmat::Render::Base` can be used
 to write a custom renderer purely in Ruby, or extending an existing renderer.
 See the following section for more information.
 
@@ -197,20 +197,20 @@ built-in renderers, `HTML` and `XHTML` may be extended as such:
 
 ~~~~~ ruby
 # create a custom renderer that allows highlighting of code blocks
-class HTMLwithPygments < Redcarpet::Render::HTML
+class HTMLwithPygments < Greenmat::Render::HTML
   def block_code(code, language)
     Pygments.highlight(code, lexer: language)
   end
 end
 
-markdown = Redcarpet::Markdown.new(HTMLwithPygments, fenced_code_blocks: true)
+markdown = Greenmat::Markdown.new(HTMLwithPygments, fenced_code_blocks: true)
 ~~~~~
 
-But new renderers can also be created from scratch (see `lib/redcarpet/render_man.rb` for
+But new renderers can also be created from scratch (see `lib/greenmat/render_man.rb` for
 an example implementation of a Manpage renderer)
 
 ~~~~~~ ruby
-class ManPage < Redcarpet::Render::Base
+class ManPage < Greenmat::Render::Base
   # you get the drill -- keep going from here
 end
 ~~~~~
@@ -227,7 +227,7 @@ block will be skipped.
 Example:
 
 ~~~~ ruby
-class RenderWithoutCode < Redcarpet::Render::HTML
+class RenderWithoutCode < Greenmat::Render::HTML
   def block_code(code, language)
     nil
   end
@@ -301,18 +301,18 @@ or after the rendering process begins:
 * postprocess(full_document)
 
 You can look at
-["How to extend the Redcarpet 2 Markdown library?"](http://dev.af83.com/2012/02/27/howto-extend-the-redcarpet2-markdown-lib.html)
+["How to extend the Greenmat 2 Markdown library?"](http://dev.af83.com/2012/02/27/howto-extend-the-greenmat2-markdown-lib.html)
 for some more explanations.
 
 Also, now our Pants are much smarter
 ------------------------------------
 
-Redcarpet 2 comes with a standalone [SmartyPants](
+Greenmat 2 comes with a standalone [SmartyPants](
 http://daringfireball.net/projects/smartypants/) implementation. It is fully
 compliant with the original implementation. It is the fastest SmartyPants
 parser there is, with a difference of several orders of magnitude.
 
-The SmartyPants parser can be found in `Redcarpet::Render::SmartyPants`. It has
+The SmartyPants parser can be found in `Greenmat::Render::SmartyPants`. It has
 been implemented as a module, so it can be used standalone or as a mixin.
 
 When mixed with a Renderer class, it will override the `postprocess` method
@@ -320,12 +320,12 @@ to perform SmartyPants replacements once the rendering is complete.
 
 ~~~~ ruby
 # Mixin
-class HTMLWithPants < Redcarpet::Render::HTML
-  include Redcarpet::Render::SmartyPants
+class HTMLWithPants < Greenmat::Render::HTML
+  include Greenmat::Render::SmartyPants
 end
 
 # Standalone
-Redcarpet::Render::SmartyPants.render("<p>Oh SmartyPants, you're so crazy...</p>")
+Greenmat::Render::SmartyPants.render("<p>Oh SmartyPants, you're so crazy...</p>")
 ~~~~~
 
 SmartyPants works on top of already-rendered HTML, and will ignore replacements
@@ -335,13 +335,13 @@ inside the content of HTML tags and inside specific HTML blocks such as
 What? You really want to mix Markdown renderers?
 ------------------------------------------------
 
-Redcarpet used to be a drop-in replacement for Redcloth. This is no longer the
+Greenmat used to be a drop-in replacement for Redcloth. This is no longer the
 case since version 2 -- it now has its own API, but retains the old name. Yes,
-that does mean that Redcarpet is not backwards-compatible with the 1.X
+that does mean that Greenmat is not backwards-compatible with the 1.X
 versions.
 
 Each renderer has its own API and its own set of extensions: you should choose one
-(it doesn't have to be Redcarpet, though that would be great!), write your
+(it doesn't have to be Greenmat, though that would be great!), write your
 software accordingly, and force your users to install it. That's the
 only way to have reliable and predictable Markdown output on your program.
 
@@ -349,10 +349,10 @@ Markdown is already ill-specified enough; if you create software that is
 renderer-independent, the results will be completely unreliable!
 
 Still, if major forces (let's say, tornadoes or other natural disasters) force you
-to keep a Markdown-compatibility layer, Redcarpet also supports this:
+to keep a Markdown-compatibility layer, Greenmat also supports this:
 
 ~~~~~ ruby
-require 'redcarpet/compat'
+require 'greenmat/compat'
 ~~~~~
 
 Requiring the compatibility library will declare a `Markdown` class with the

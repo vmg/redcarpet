@@ -1,7 +1,7 @@
-require 'redcarpet.so'
-require 'redcarpet/compat'
+require 'greenmat.so'
+require 'greenmat/compat'
 
-module Redcarpet
+module Greenmat
   VERSION = '3.2.0'
 
   class Markdown
@@ -80,7 +80,7 @@ module Redcarpet
     #   end
     #
     #   # Standalone
-    #   Redcarpet::Render::SmartyPants.render("you're")
+    #   Greenmat::Render::SmartyPants.render("you're")
     #
     module SmartyPants
       extend self

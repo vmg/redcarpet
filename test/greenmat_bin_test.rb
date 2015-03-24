@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'tempfile'
 
-class RedcarpetBinTest < Redcarpet::TestCase
+class GreenmatBinTest < Greenmat::TestCase
   def setup
     @fixture_file = Tempfile.new('bin')
     @fixture_path = @fixture_file.path
@@ -47,7 +47,7 @@ class RedcarpetBinTest < Redcarpet::TestCase
 
   def test_version_option
     run_bin("--version")
-    assert_output "Redcarpet #{Redcarpet::VERSION}"
+    assert_output "Greenmat #{Greenmat::VERSION}"
   end
 
   def test_legacy_option_parsing
@@ -63,7 +63,7 @@ class RedcarpetBinTest < Redcarpet::TestCase
   private
 
   def run_bin(*args)
-    bin_path = File.expand_path('../../bin/redcarpet', __FILE__)
+    bin_path = File.expand_path('../../bin/greenmat', __FILE__)
 
     IO.popen("#{bin_path} #{args.join(" ")}") do |stream|
       @output = stream.read

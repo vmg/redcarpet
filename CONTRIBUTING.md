@@ -30,4 +30,4 @@
 [fork]: https://help.github.com/articles/fork-a-repo
 [pr]: https://help.github.com/articles/using-pull-requests
 [rvm]: https://rvm.io
-[travis_yml]: https://github.com/vmg/redcarpet/blob/master/.travis.yml
+[travis_yml]: https://github.com/vmg/greenmat/blob/master/.travis.yml

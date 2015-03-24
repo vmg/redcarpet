@@ -3,7 +3,7 @@
 * Fix escaping of forward slashes with the `Safe` render object (add a
   missing semi-colon).
 
-* Provide a `Redcarpet::CLI` class to create custom binary files.
+* Provide a `Greenmat::CLI` class to create custom binary files.
 
   Relying on Ruby's OptionParser, it's now straightforward to add new
   options, rely on custom render objects or handle differently the
@@ -45,7 +45,7 @@
 
 ## Version 3.2.1
 
-* Load `RedcarpetCompat` when requiring Redcarpet for the sake of
+* Load `GreenmatCompat` when requiring Greenmat for the sake of
   backward compatibility.
 
   *Loren Segal*
@@ -133,7 +133,7 @@
 
 * Allow using tabs between a reference's colon and its link
 
-  Fix issue [#337](https://github.com/vmg/redcarpet/issues/337)
+  Fix issue [#337](https://github.com/vmg/greenmat/issues/337)
 
   *Juan Guerrero*
 
@@ -153,7 +153,7 @@
 * Revert lax indent of less than 4 characters after list items
 
   Follow the standard to detect when new paragraph is outside last item.
-  Fixes [issue #111](https://github.com/vmg/redcarpet/issues/111).
+  Fixes [issue #111](https://github.com/vmg/greenmat/issues/111).
 
   *Eric Bréchemier*
 
@@ -165,7 +165,7 @@
 
   *Simonini*
 
-* Add `-v`/`--version` and `-h` flags to commandline redcarpet
+* Add `-v`/`--version` and `-h` flags to commandline greenmat
 
   *Lukas Stabe*
 
@@ -207,7 +207,7 @@
   generated table of content. For example:
 
   ~~~ruby
-  Redcarpet::Markdown.new(Redcarpet::Render::HTML_TOC.new(nesting_level: 2))
+  Greenmat::Markdown.new(Greenmat::Render::HTML_TOC.new(nesting_level: 2))
   ~~~
 
   *Robin Dupret*
@@ -236,7 +236,7 @@
 
 * Add a `:disable_indented_code_blocks` option *Dmitriy Kiriyenko*
 
-* Fix issue [#57](https://github.com/vmg/redcarpet/issues/57) *Mike Morearty*
+* Fix issue [#57](https://github.com/vmg/greenmat/issues/57) *Mike Morearty*
 
 * Ensure new lines characters are inserted when using the StripDown
 render. *Robin Dupret*
@@ -258,7 +258,7 @@ render. *Robin Dupret*
 
 * Remove unused C macros *Matt Rogers*
 
-* Remove 'extern' definition for Init_redcarpet_rndr() *Matt Rogers*
+* Remove 'extern' definition for Init_greenmat_rndr() *Matt Rogers*
 
 * Remove Gemfile.lock from the gemspec *Matt Rogers*
 
@@ -288,7 +288,7 @@ render. *Robin Dupret*
 
 * Ignore /tmp directory *Ryan McGeary*
 
-* Add redcarpet_ prefix for `stack_*` functions *Kenta Murata*
+* Add greenmat_ prefix for `stack_*` functions *Kenta Murata*
 
 * Mark any html_attributes has held by a renderer as used *Tom Hughes*
 

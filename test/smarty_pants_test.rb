@@ -1,9 +1,9 @@
 # coding: UTF-8
 require 'test_helper'
 
-class SmartyPantsTest < Redcarpet::TestCase
+class SmartyPantsTest < Greenmat::TestCase
   def setup
-    @pants = Redcarpet::Render::SmartyPants
+    @pants = Greenmat::Render::SmartyPants
   end
 
   def test_that_smart_converts_single_quotes_in_words_that_end_in_re
