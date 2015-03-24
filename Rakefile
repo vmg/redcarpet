@@ -3,7 +3,7 @@ require 'rake/clean'
 require 'rake/extensiontask'
 require 'digest/md5'
 
-task :default => [:test]
+task :default => [:test, :spec]
 
 # Gem Spec
 gem_spec = Gem::Specification.load('greenmat.gemspec')
