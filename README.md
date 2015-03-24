@@ -1,3 +1,4 @@
+[![Gem Version](http://img.shields.io/gem/v/greenmat.svg?style=flat)](http://badge.fury.io/rb/greenmat)
 [![Build Status](https://travis-ci.org/increments/greenmat.svg?branch=master&style=flat)](https://travis-ci.org/increments/greenmat)
 
 # Greenmat
