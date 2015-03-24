@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.homepage = 'http://github.com/vmg/greenmat'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
-  s.required_ruby_version = '>= 1.9.2'
+  s.required_ruby_version = '>= 2.0.0'
   # = MANIFEST =
   s.files = %w[
     COPYING
