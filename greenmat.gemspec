@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.files = %w[
     COPYING
     Gemfile
-    README.markdown
+    README.md
     Rakefile
     bin/greenmat
     ext/greenmat/autolink.c

@@ -21,7 +21,8 @@ module ProjectRenamer
   SYMBOL_RENAME_EXCLUSION_PATH_PATTERNS = [
     /^tasks\//,
     /^tmp\//,
-    /\.(?:bundle|so)$/
+    /\.(?:bundle|so)$/,
+    /README/
   ]
 
   module_function
