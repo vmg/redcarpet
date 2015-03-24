@@ -6,11 +6,10 @@ require 'greenmat'
 Gem::Specification.new do |s|
   s.name = 'greenmat'
   s.version = Greenmat::VERSION
-  s.summary = "Markdown that smells nice"
-  s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
-  s.date = '2014-10-11'
-  s.email = 'vicent@github.com'
-  s.homepage = 'http://github.com/vmg/greenmat'
+  s.summary = "A Markdown parser for Qiita, based on Redcarpet."
+  s.description = s.summary
+  s.email = 'nkymyj@gmail.com'
+  s.homepage = 'https://github.com/increments/greenmat'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
   s.required_ruby_version = '>= 2.0.0'
