@@ -2,7 +2,7 @@ require 'greenmat.so'
 require 'greenmat/compat'
 
 module Greenmat
-  VERSION = '3.2.0'
+  VERSION = '3.2.0.0'
 
   class Markdown
     attr_reader :renderer

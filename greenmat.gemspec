@@ -1,7 +1,11 @@
 # encoding: utf-8
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'greenmat'
+
 Gem::Specification.new do |s|
   s.name = 'greenmat'
-  s.version = '3.2.0'
+  s.version = Greenmat::VERSION
   s.summary = "Markdown that smells nice"
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
   s.date = '2014-10-11'

@@ -6,6 +6,12 @@
 
 It's a core module of [qiita-markdown](https://github.com/increments/qiita-markdown) gem and not intended for direct use. If you are looking for Qiita-specified markdown processor, use qiita-markdown gem.
 
+## Versioning Policy
+
+Greenmat follows Redcarpet's updates by merging the upstream changes.
+The version format is `MAJOR.MINOR.PATCH.FORK`.
+`MAJOR.MINOR.PATCH` is the same as the version of Redcarpet that Greenmat is based on. `FORK` is incremented on each release of Greenmat itself and reset to zero when any of `MAJOR.MINOR.PATCH` is bumped.
+
 ## Acknowledgment
 
 We appreciate Redcarpet project and the contributors for the great efforts!
