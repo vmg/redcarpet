@@ -58,3 +58,5 @@ task :benchmark => :compile do |t|
   $:.unshift 'lib'
   load 'test/benchmark.rb'
 end
+
+Dir['tasks/*.rake'].each { |file| load file }
