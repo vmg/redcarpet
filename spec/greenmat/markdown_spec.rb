@@ -21,7 +21,10 @@ module Greenmat
         ['A@_username_',        true],
         ['@*username*',         true],
         ['_foo_',               true],
-        ['_',                   false]
+        ['_',                   false],
+        ['_foo @username_',     false],
+        ['__foo @username__',   false],
+        ['___foo @username___', false]
       ].each do |text, emphasize|
         context "with text #{text.inspect}" do
           let(:text) { text }
@@ -44,6 +47,14 @@ module Greenmat
 
       context 'with text "@_username_"' do
         let(:text) { '@_username_' }
+
+        it 'emphasizes the text' do
+          expect(rendered_html).to include('<em>')
+        end
+      end
+
+      context 'with text "_foo @username_"' do
+        let(:text) { '_foo @username_' }
 
         it 'emphasizes the text' do
           expect(rendered_html).to include('<em>')

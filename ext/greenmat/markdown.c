@@ -650,6 +650,11 @@ parse_emph1(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 					continue;
 			}
 
+			if (rndr->ext_flags & MKDEXT_NO_MENTION_EMPHASIS) {
+				if (is_part_of_mention(data + i, i))
+					continue;
+			}
+
 			work = rndr_newbuf(rndr, BUFFER_SPAN);
 			parse_inline(work, rndr, data, i);
 
@@ -680,6 +685,11 @@ parse_emph2(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 		i += len;
 
 		if (i + 1 < size && data[i] == c && data[i + 1] == c && i && !_isspace(data[i - 1])) {
+			if (rndr->ext_flags & MKDEXT_NO_MENTION_EMPHASIS) {
+				if (is_part_of_mention(data + i, i))
+					continue;
+			}
+
 			work = rndr_newbuf(rndr, BUFFER_SPAN);
 			parse_inline(work, rndr, data, i);
 
@@ -716,6 +726,11 @@ parse_emph3(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 			continue;
 
 		if (i + 2 < size && data[i + 1] == c && data[i + 2] == c && rndr->cb.triple_emphasis) {
+			if (rndr->ext_flags & MKDEXT_NO_MENTION_EMPHASIS) {
+				if (is_part_of_mention(data + i, i))
+					continue;
+			}
+
 			/* triple symbol found */
 			struct buf *work = rndr_newbuf(rndr, BUFFER_SPAN);
 
