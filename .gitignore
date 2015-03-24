@@ -6,3 +6,4 @@
 /tmp
 Gemfile.lock
 *.xcodeproj
+/pkg
