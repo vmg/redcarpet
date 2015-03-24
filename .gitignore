@@ -5,3 +5,4 @@
 /ext/redcarpet/Makefile
 /tmp
 Gemfile.lock
+*.xcodeproj

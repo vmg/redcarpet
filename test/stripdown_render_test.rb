@@ -1,9 +1,9 @@
 # coding: UTF-8
 require 'test_helper'
 
-class StripDownRender < Redcarpet::TestCase
+class StripDownRender < Greenmat::TestCase
   def setup
-    @parser = Redcarpet::Markdown.new(Redcarpet::Render::StripDown)
+    @parser = Greenmat::Markdown.new(Greenmat::Render::StripDown)
   end
 
   def test_titles

@@ -1,8 +1,8 @@
-require 'redcarpet.so'
-require 'redcarpet/compat'
+require 'greenmat.so'
+require 'greenmat/compat'
 
-module Redcarpet
-  VERSION = '3.2.0'
+module Greenmat
+  VERSION = '3.2.0.0'
 
   class Markdown
     attr_reader :renderer
@@ -80,7 +80,7 @@ module Redcarpet
     #   end
     #
     #   # Standalone
-    #   Redcarpet::Render::SmartyPants.render("you're")
+    #   Greenmat::Render::SmartyPants.render("you're")
     #
     module SmartyPants
       extend self

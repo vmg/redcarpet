@@ -1,4 +1,4 @@
-module Redcarpet
+module Greenmat
   module Render
     # Markdown-stripping renderer. Turns Markdown into plaintext
     # Thanks to @toupeira (Markus Koller)

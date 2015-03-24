@@ -3,13 +3,13 @@ require 'rake/clean'
 require 'rake/extensiontask'
 require 'digest/md5'
 
-task :default => [:test]
+task :default => [:test, :spec]
 
 # Gem Spec
-gem_spec = Gem::Specification.load('redcarpet.gemspec')
+gem_spec = Gem::Specification.load('greenmat.gemspec')
 
 # Ruby Extension
-Rake::ExtensionTask.new('redcarpet', gem_spec)
+Rake::ExtensionTask.new('greenmat', gem_spec)
 
 # Packaging
 require 'bundler/gem_tasks'
@@ -29,7 +29,7 @@ task 'test:unit' => :compile
 
 desc 'Run conformance tests (MARKDOWN_TEST_VER=1.0.3)'
 task 'test:conformance' => :compile do |t|
-  script  = "#{pwd}/bin/redcarpet"
+  script  = "#{pwd}/bin/greenmat"
   version = ENV['MARKDOWN_TEST_VER'] || '1.0.3'
   lib_dir = "#{pwd}/lib"
 
@@ -58,3 +58,5 @@ task :benchmark => :compile do |t|
   $:.unshift 'lib'
   load 'test/benchmark.rb'
 end
+
+Dir['tasks/*.rake'].each { |file| load file }
