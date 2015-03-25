@@ -30,7 +30,7 @@ namespace :greenmat do
     sh 'git', 'commit', '--message', 'Rename project'
 
     sh 'git', 'checkout', main_branch
-    sh 'git', 'merge', target_merge_branch
+    sh 'git', 'merge', '--no-commit', '--strategy-option', 'theirs', target_merge_branch
   end
 end
 

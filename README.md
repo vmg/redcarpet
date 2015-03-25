@@ -38,6 +38,8 @@ Run the following task to merge `upstream/master` branch into the current branch
 $ rake greenmat:merge_upstream
 ```
 
+Note that this task does _not_ automatically commit the merge, so you need to commit the changes after checking each diff. Also it forces conflicting hunks to be auto-resolved cleanly by favoring upstream version.
+
 If you want to merge a branch other than `upstream/master`, specify the name as `BRANCH` environment variable:
 
 ```bash
