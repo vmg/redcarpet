@@ -68,6 +68,9 @@ static void rb_greenmat_md_flags(VALUE hash, unsigned int *enabled_extensions_p)
 	if (rb_hash_lookup(hash, CSTR2SYM("footnotes")) == Qtrue)
 		extensions |= MKDEXT_FOOTNOTES;
 
+	if (rb_hash_lookup(hash, CSTR2SYM("no_mention_emphasis")) == Qtrue)
+		extensions |= MKDEXT_NO_MENTION_EMPHASIS;
+
 	*enabled_extensions_p = extensions;
 }
 

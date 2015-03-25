@@ -342,6 +342,12 @@ _isalnum(int c)
 	return isalnum(c) && c < 0x7f;
 }
 
+static inline int
+is_wordchar(int c)
+{
+	return _isalnum(c) || c == '_' || c == '-';
+}
+
 /*
  * Check whether a char is a Markdown space.
 
@@ -587,6 +593,38 @@ find_emph_char(uint8_t *data, size_t size, uint8_t c)
 	return 0;
 }
 
+static int
+is_part_of_mention(uint8_t *data, size_t offset)
+{
+	int i;
+	int lookbehind_limit = (int)-offset;
+	uint8_t character;
+
+	for (i = 0; i >= lookbehind_limit; i--) {
+		character = data[i];
+
+		if (is_wordchar(character)) {
+			// Continue lookbehind.
+		} else if (character == '@') {
+			if (i == offset) {
+				// The "@" is at beginning of the text. (e.g. "@foo")
+				return 1;
+			} else {
+				// Check if the previous character of the "@" is alphanumeric or not.
+				//   " @foo" and "あ@foo" are mentions.
+				//   "a@foo" is not a mention.
+				uint8_t prev_character = data[i - 1];
+				return !_isalnum(prev_character);
+			}
+		} else {
+			// Found non-mention character, so this is not a mention.
+			return 0;
+		}
+	}
+
+	return 0;
+}
+
 /* parse_emph1 • parsing single emphase */
 /* closed by a symbol not preceded by whitespace and not followed by symbol */
 static size_t
@@ -609,6 +647,11 @@ parse_emph1(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 
 			if (rndr->ext_flags & MKDEXT_NO_INTRA_EMPHASIS) {
 				if (i + i < size && _isalnum(data[i + 1]))
+					continue;
+			}
+
+			if (rndr->ext_flags & MKDEXT_NO_MENTION_EMPHASIS) {
+				if (is_part_of_mention(data + i, i))
 					continue;
 			}
 
@@ -642,6 +685,11 @@ parse_emph2(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 		i += len;
 
 		if (i + 1 < size && data[i] == c && data[i + 1] == c && i && !_isspace(data[i - 1])) {
+			if (rndr->ext_flags & MKDEXT_NO_MENTION_EMPHASIS) {
+				if (is_part_of_mention(data + i, i))
+					continue;
+			}
+
 			work = rndr_newbuf(rndr, BUFFER_SPAN);
 			parse_inline(work, rndr, data, i);
 
@@ -678,6 +726,11 @@ parse_emph3(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 			continue;
 
 		if (i + 2 < size && data[i + 1] == c && data[i + 2] == c && rndr->cb.triple_emphasis) {
+			if (rndr->ext_flags & MKDEXT_NO_MENTION_EMPHASIS) {
+				if (is_part_of_mention(data + i, i))
+					continue;
+			}
+
 			/* triple symbol found */
 			struct buf *work = rndr_newbuf(rndr, BUFFER_SPAN);
 
@@ -711,6 +764,11 @@ char_emphasis(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 
 	if (rndr->ext_flags & MKDEXT_NO_INTRA_EMPHASIS) {
 		if (offset > 0 && _isalnum(data[-1]))
+			return 0;
+	}
+
+	if (rndr->ext_flags & MKDEXT_NO_MENTION_EMPHASIS) {
+		if (is_part_of_mention(data, offset))
 			return 0;
 	}
 
