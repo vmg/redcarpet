@@ -3,6 +3,13 @@ namespace :greenmat do
   task :rename_project do
     ProjectRenamer.rename
   end
+
+  desc 'Set up git remote for redcarpet as `upstream`.'
+  task :setup_upstream do
+    sh 'git remote add upstream https://github.com/vmg/redcarpet.git'
+    sh 'git remote update'
+  end
+  end
 end
 
 module ProjectRenamer
