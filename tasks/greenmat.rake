@@ -9,6 +9,28 @@ namespace :greenmat do
     sh 'git remote add upstream https://github.com/vmg/redcarpet.git'
     sh 'git remote update'
   end
+
+  desc 'Merge upstream branch while renaming project (BRANCH=branch_name).'
+  task :merge_upstream do
+    abort 'The current repository is not clean.' unless `git status --porcelain`.empty?
+
+    main_branch = `git rev-parse --abbrev-ref HEAD`.chomp
+    target_branch = ENV['BRANCH'] || 'upstream/master'
+    target_merge_branch = "merge-#{target_branch}"
+
+    puts "Merging #{target_branch.inspect} into #{main_branch.inspect}"
+
+    require 'fileutils'
+    Dir.mkdir('tmp') unless Dir.exist?('tmp')
+    FileUtils.cp('tasks/greenmat.rake', 'tmp')
+
+    sh 'git', 'checkout', '-B', target_merge_branch, target_branch
+    sh 'rake --rakefile tmp/greenmat.rake greenmat:rename_project'
+    sh 'git', 'add', '.'
+    sh 'git', 'commit', '--message', 'Rename project'
+
+    sh 'git', 'checkout', main_branch
+    sh 'git', 'merge', target_merge_branch
   end
 end
 
@@ -29,7 +51,9 @@ module ProjectRenamer
     /^tasks\//,
     /^tmp\//,
     /\.(?:bundle|so)$/,
-    /README/
+    /README/,
+    /CHANGELOG.md/,
+    /CONTRIBUTING\.md/
   ]
 
   module_function
