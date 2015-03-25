@@ -13,6 +13,37 @@ Greenmat follows Redcarpet's updates by merging the upstream changes.
 The version format is `MAJOR.MINOR.PATCH.FORK`.
 `MAJOR.MINOR.PATCH` is the same as the version of Redcarpet that Greenmat is based on. `FORK` is incremented on each release of Greenmat itself and reset to zero when any of `MAJOR.MINOR.PATCH` is bumped.
 
+## Development
+
+### Initial setup
+
+Clone the Greenmat repository:
+
+```bash
+$ git clone git@github.com:increments/greenmat.git
+$ cd greenmat
+```
+
+Set up git remote for Redcarpet as `upstream`:
+
+```bash
+$ rake greenmat:setup_upstream
+```
+
+### Merging upstream changes
+
+Run the following task to merge `upstream/master` branch into the current branch:
+
+```bash
+$ rake greenmat:merge_upstream
+```
+
+If you want to merge a branch other than `upstream/master`, specify the name as `BRANCH` environment variable:
+
+```bash
+$ rake greenmat:merge_upstream BRANCH=branch_name
+```
+
 ## Acknowledgment
 
 We appreciate Redcarpet project and the contributors for the great efforts!
