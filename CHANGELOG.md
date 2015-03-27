@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v3.2.2.0
+
+* Update base Redcarpet version to 3.2.2.
+
 ## v3.2.0.2
 
 * Fix missing `greenmat/version` in the gem package.
