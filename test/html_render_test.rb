@@ -1,23 +1,23 @@
 # coding: UTF-8
 require 'test_helper'
 
-class HTMLRenderTest < Redcarpet::TestCase
+class HTMLRenderTest < Greenmat::TestCase
   def setup
-    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    @markdown = Greenmat::Markdown.new(Greenmat::Render::HTML)
     @rndr = {
-      :no_html => Redcarpet::Render::HTML.new(:filter_html => true),
-      :no_images => Redcarpet::Render::HTML.new(:no_images => true),
-      :no_links => Redcarpet::Render::HTML.new(:no_links => true),
-      :safe_links => Redcarpet::Render::HTML.new(:safe_links_only => true),
-      :escape_html => Redcarpet::Render::HTML.new(:escape_html => true),
-      :hard_wrap => Redcarpet::Render::HTML.new(:hard_wrap => true),
-      :toc_data => Redcarpet::Render::HTML.new(:with_toc_data => true),
-      :prettify => Redcarpet::Render::HTML.new(:prettify => true)
+      :no_html => Greenmat::Render::HTML.new(:filter_html => true),
+      :no_images => Greenmat::Render::HTML.new(:no_images => true),
+      :no_links => Greenmat::Render::HTML.new(:no_links => true),
+      :safe_links => Greenmat::Render::HTML.new(:safe_links_only => true),
+      :escape_html => Greenmat::Render::HTML.new(:escape_html => true),
+      :hard_wrap => Greenmat::Render::HTML.new(:hard_wrap => true),
+      :toc_data => Greenmat::Render::HTML.new(:with_toc_data => true),
+      :prettify => Greenmat::Render::HTML.new(:prettify => true)
     }
   end
 
   def render_with(rndr, text)
-    Redcarpet::Markdown.new(rndr).render(text)
+    Greenmat::Markdown.new(rndr).render(text)
   end
 
   # Hint: overrides filter_html, no_images and no_links
@@ -79,13 +79,13 @@ EOE
   end
 
   def test_that_link_attributes_work
-    rndr = Redcarpet::Render::HTML.new(:link_attributes => {:rel => 'blank'})
-    md = Redcarpet::Markdown.new(rndr)
+    rndr = Greenmat::Render::HTML.new(:link_attributes => {:rel => 'blank'})
+    md = Greenmat::Markdown.new(rndr)
     assert md.render('This is a [simple](http://test.com) test.').include?('rel="blank"')
   end
 
   def test_that_link_works_with_quotes
-    rd = render_with(Redcarpet::Render::HTML.new, %([This'link"is](http://example.net/)))
+    rd = render_with(Greenmat::Render::HTML.new, %([This'link"is](http://example.net/)))
     assert_equal "<p><a href=\"http://example.net/\">This&#39;link&quot;is</a></p>\n", rd
 
     rd = render_with(@rndr[:escape_html], %([This'link"is](http://example.net/)))
@@ -111,21 +111,21 @@ However, this should be <em><code>an emphasised codespan</code></em></p>
 </ul>
 HTML
 
-    output = render_with(Redcarpet::Render::HTML.new, markdown)
+    output = render_with(Greenmat::Render::HTML.new, markdown)
     assert_equal html, output
   end
 
   def test_that_parenthesis_are_handled_into_links
     markdown = "Hey have a look at the [bash man page](man:bash(1))!"
     html = "<p>Hey have a look at the <a href=\"man:bash(1)\">bash man page</a>!</p>\n"
-    output = render_with(Redcarpet::Render::HTML.new, markdown)
+    output = render_with(Greenmat::Render::HTML.new, markdown)
 
     assert_equal html, output
   end
 
   def test_autolinking_works_as_expected
     markdown = "Example of uri ftp://user:pass@example.com/. Email foo@bar.com and link http://bar.com"
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true)
+    renderer = Greenmat::Markdown.new(Greenmat::Render::HTML, :autolink => true)
     output = renderer.render(markdown)
 
     assert output.include? '<a href="ftp://user:pass@example.com/">ftp://user:pass@example.com/</a>'
@@ -155,7 +155,7 @@ MD
 </div>
 HTML
 
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    renderer = Greenmat::Markdown.new(Greenmat::Render::HTML, :footnotes => true)
     output = renderer.render(markdown)
     assert_equal html, output
   end
@@ -172,7 +172,7 @@ MD
 <p>[^1] And a trailing definition</p>
 HTML
 
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    renderer = Greenmat::Markdown.new(Greenmat::Render::HTML, :footnotes => true)
     output = renderer.render(markdown)
     assert_equal html, output
   end
@@ -181,14 +181,14 @@ HTML
     markdown = "Some text with a marker[^1] but no definition."
     html = "<p>Some text with a marker[^1] but no definition.</p>\n"
 
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :footnotes => true)
+    renderer = Greenmat::Markdown.new(Greenmat::Render::HTML, :footnotes => true)
     output = renderer.render(markdown)
     assert_equal html, output
   end
 
   def test_autolink_short_domains
     markdown = "Example of uri ftp://auto/short/domains. Email auto@l.n and link http://a/u/t/o/s/h/o/r/t"
-    renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :autolink => true)
+    renderer = Greenmat::Markdown.new(Greenmat::Render::HTML, :autolink => true)
     output = renderer.render(markdown)
 
     assert output.include? '<a href="ftp://auto/short/domains">ftp://auto/short/domains</a>'
@@ -215,7 +215,7 @@ code
 Bar
 Markdown
 
-    renderer = Redcarpet::Markdown.new(@rndr[:prettify], fenced_code_blocks: true)
+    renderer = Greenmat::Markdown.new(@rndr[:prettify], fenced_code_blocks: true)
     output = renderer.render(text)
 
     assert output.include?("<code class=\"prettyprint ruby\">")
@@ -224,15 +224,15 @@ Markdown
   def test_safe_links_only_with_anchors
     markdown = "An [anchor link](#anchor) on a page."
 
-    renderer = Redcarpet::Markdown.new(@rndr[:safe_links])
+    renderer = Greenmat::Markdown.new(@rndr[:safe_links])
     output = renderer.render(markdown)
 
     assert_match %r{<a href="#anchor">anchor link</a>}, output
   end
 
   def test_autolink_with_link_attributes
-    render = Redcarpet::Render::HTML.new(link_attributes: {rel: "nofollow"})
-    parser = Redcarpet::Markdown.new(render, autolink: true)
+    render = Greenmat::Render::HTML.new(link_attributes: {rel: "nofollow"})
+    parser = Greenmat::Markdown.new(render, autolink: true)
 
     output = parser.render("https://github.com/")
     assert_match %r{rel="nofollow"}, output

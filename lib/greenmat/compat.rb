@@ -1,17 +1,17 @@
-require 'redcarpet'
+require 'greenmat'
 
 # Deprecated: Please use the default API to parse Markdown
-# documents ; this layer will be removed in Redcarpet 4.0.
+# documents ; this layer will be removed in Greenmat 4.0.
 #
-# Creates an instance of Redcarpet with the RedCloth API.
-class RedcarpetCompat
+# Creates an instance of Greenmat with the RedCloth API.
+class GreenmatCompat
   attr_accessor :text
 
   def initialize(text, *exts)
     exts_hash, render_hash = *parse_extensions_and_renderer_options(exts)
     @text = text
-    renderer = Redcarpet::Render::HTML.new(render_hash)
-    @markdown = Redcarpet::Markdown.new(renderer, exts_hash)
+    renderer = Greenmat::Render::HTML.new(render_hash)
+    @markdown = Greenmat::Markdown.new(renderer, exts_hash)
   end
 
   def to_html(*_dummy)
@@ -73,4 +73,4 @@ class RedcarpetCompat
   end
 end
 
-Markdown = RedcarpetCompat unless defined? Markdown
+Markdown = GreenmatCompat unless defined? Markdown

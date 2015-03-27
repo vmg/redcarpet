@@ -1,14 +1,14 @@
 # coding: UTF-8
 require 'test_helper'
 
-class HTMLTOCRenderTest < Redcarpet::TestCase
+class HTMLTOCRenderTest < Greenmat::TestCase
   def setup
-    @render = Redcarpet::Render::HTML_TOC
+    @render = Greenmat::Render::HTML_TOC
     @markdown = "# A title \n## A __nice__ subtitle\n## Another one \n### A sub-sub-title"
   end
 
   def test_simple_toc_render
-    renderer = Redcarpet::Markdown.new(@render)
+    renderer = Greenmat::Markdown.new(@render)
     output = renderer.render(@markdown).strip
 
     assert output.start_with?("<ul>")
@@ -19,7 +19,7 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
   end
 
   def test_granular_toc_render
-    renderer = Redcarpet::Markdown.new(@render.new(nesting_level: 2))
+    renderer = Greenmat::Markdown.new(@render.new(nesting_level: 2))
     output = renderer.render(@markdown).strip
 
     assert output.start_with?("<ul>")
@@ -30,7 +30,7 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
   end
 
   def test_toc_heading_id
-    renderer = Redcarpet::Markdown.new(@render)
+    renderer = Greenmat::Markdown.new(@render)
     output = renderer.render(@markdown)
 
     assert_match /a-title/, output
@@ -40,7 +40,7 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
   end
 
   def test_toc_heading_with_hyphen_and_equal
-    renderer = Redcarpet::Markdown.new(@render)
+    renderer = Greenmat::Markdown.new(@render)
     output = renderer.render("# Hello World\n\n-\n\n=")
 
     assert_equal 1, output.scan("<li>").length

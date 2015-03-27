@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class SafeRenderTest < Redcarpet::TestCase
+class SafeRenderTest < Greenmat::TestCase
   def setup
-    @render = Redcarpet::Render::Safe
-    @parser = Redcarpet::Markdown.new(@render, fenced_code_blocks: true)
+    @render = Greenmat::Render::Safe
+    @parser = Greenmat::Markdown.new(@render, fenced_code_blocks: true)
   end
 
   def test_safe_links_only_is_enabled_by_default

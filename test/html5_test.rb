@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class HTML5Test < Redcarpet::TestCase
+class HTML5Test < Greenmat::TestCase
   def test_that_html5_works
     section = <<EOS
 <section>

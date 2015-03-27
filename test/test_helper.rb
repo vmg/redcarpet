@@ -6,12 +6,12 @@ gem 'test-unit', '>= 2' # necessary when not using bundle exec
 require 'test/unit'
 require 'nokogiri'
 
-require 'redcarpet'
-require 'redcarpet/render_strip'
-require 'redcarpet/render_man'
-require 'redcarpet/compat'
+require 'greenmat'
+require 'greenmat/render_strip'
+require 'greenmat/render_man'
+require 'greenmat/compat'
 
-class Redcarpet::TestCase < Test::Unit::TestCase
+class Greenmat::TestCase < Test::Unit::TestCase
   def html_equal(html_a, html_b)
     assert_equal Nokogiri::HTML::DocumentFragment.parse(html_a).to_html,
       Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
@@ -24,6 +24,6 @@ class Redcarpet::TestCase < Test::Unit::TestCase
   private
 
   def parser
-    @parser ||= Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    @parser ||= Greenmat::Markdown.new(Greenmat::Render::HTML)
   end
 end
