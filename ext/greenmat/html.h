@@ -65,16 +65,10 @@ extern void
 sdhtml_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options_ptr, unsigned int render_flags);
 
 extern void
-sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options_ptr, unsigned int render_flags);
+sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options_ptr, int nesting_level);
 
 extern void
 sdhtml_smartypants(struct buf *ob, const uint8_t *text, size_t size);
-
-/* header method used internally in Greenmat */
-char *header_anchor(const struct buf *buffer);
-
-#define STRIPPED_CHARS " -&+$,/:;=?@\"#{}|^~[]`\\*()%.!'"
-#define STRIPPED_CHAR(x) (strchr(STRIPPED_CHARS, x) != NULL)
 
 #ifdef __cplusplus
 }

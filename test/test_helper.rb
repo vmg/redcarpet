@@ -1,33 +1,29 @@
 # coding: UTF-8
 Encoding.default_internal = 'UTF-8' if defined? Encoding
 
+gem 'test-unit', '>= 2' # necessary when not using bundle exec
+
 require 'test/unit'
+require 'nokogiri'
 
 require 'greenmat'
 require 'greenmat/render_strip'
 require 'greenmat/render_man'
+require 'greenmat/compat'
 
 class Greenmat::TestCase < Test::Unit::TestCase
-  def assert_renders(html, markdown)
-    assert_equal html, render(markdown)
+  def html_equal(html_a, html_b)
+    assert_equal Nokogiri::HTML::DocumentFragment.parse(html_a).to_html,
+      Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
   end
 
-  def render(markdown, options = {})
-    options = options.fetch(:with, {})
-
-    if options.kind_of?(Array)
-      options = Hash[options.map {|o| [o, true]}]
-    end
-
-    render = renderer.new(options)
-    parser = Greenmat::Markdown.new(render, options)
-
-    parser.render(markdown)
+  def assert_renders(html, markdown)
+    html_equal html, parser.render(markdown)
   end
 
   private
 
-  def renderer
-    @renderer ||= Greenmat::Render::HTML
+  def parser
+    @parser ||= Greenmat::Markdown.new(Greenmat::Render::HTML)
   end
 end

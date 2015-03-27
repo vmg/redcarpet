@@ -1176,7 +1176,7 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 				title_e--;
 
 			/* checking for closing quote presence */
-			if (data[title_e] != '\'' && data[title_e] != '"') {
+			if (data[title_e] != '\'' &&  data[title_e] != '"') {
 				title_b = title_e = 0;
 				link_e = i;
 			}
@@ -1605,7 +1605,7 @@ prefix_oli(uint8_t *data, size_t size)
 	return i + 2;
 }
 
-/* prefix_uli • returns unordered list item prefix */
+/* prefix_uli • returns ordered list item prefix */
 static size_t
 prefix_uli(uint8_t *data, size_t size)
 {
@@ -1677,7 +1677,7 @@ parse_blockquote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 static size_t
 parse_htmlblock(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size, int do_render);
 
-/* parse_paragraph • handles parsing of a regular paragraph */
+/* parse_blockquote • handles parsing of a regular paragraph */
 static size_t
 parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size)
 {
@@ -2858,7 +2858,6 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	struct buf *text;
 	size_t beg, end;
-	int in_fence = 0;
 
 	text = bufnew(64);
 	if (!text)
@@ -2870,8 +2869,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	/* reset the references table */
 	memset(&md->refs, 0x0, REF_TABLE_SIZE * sizeof(void *));
 
-	int footnotes_enabled  = md->ext_flags & MKDEXT_FOOTNOTES;
-	int codefences_enabled = md->ext_flags & MKDEXT_FENCED_CODE;
+	int footnotes_enabled = md->ext_flags & MKDEXT_FOOTNOTES;
 
 	/* reset the footnotes lists */
 	if (footnotes_enabled) {
@@ -2887,13 +2885,10 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	if (doc_size >= 3 && memcmp(document, UTF8_BOM, 3) == 0)
 		beg += 3;
 
-	while (beg < doc_size) { /* iterating over lines */
-		if (codefences_enabled && (is_codefence(document + beg, doc_size - beg, NULL) != 0))
-			in_fence = !in_fence;
-
-		if (!in_fence && footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
+	while (beg < doc_size) /* iterating over lines */
+		if (footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
 			beg = end;
-		else if (!in_fence && is_ref(document, beg, doc_size, &end, md->refs))
+		else if (is_ref(document, beg, doc_size, &end, md->refs))
 			beg = end;
 		else { /* skipping to the next line */
 			end = beg;
@@ -2913,7 +2908,6 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 			beg = end;
 		}
-	}
 
 	/* pre-grow the output buffer to minimize allocations */
 	bufgrow(ob, MARKDOWN_GROW(text->size));
@@ -2924,7 +2918,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	if (text->size) {
 		/* adding a final newline if not already present */
-		if (text->data[text->size - 1] != '\n' && text->data[text->size - 1] != '\r')
+		if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r')
 			bufputc(text, '\n');
 
 		parse_block(ob, md, text->data, text->size);
@@ -2936,9 +2930,6 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	if (md->cb.doc_footer)
 		md->cb.doc_footer(ob, md->opaque);
-
-	/* Null-terminate the buffer */
-	bufcstr(ob);
 
 	/* clean-up */
 	bufrelease(text);

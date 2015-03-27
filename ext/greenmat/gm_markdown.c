@@ -125,9 +125,13 @@ static VALUE rb_greenmat_md_render(VALUE self, VALUE text)
 	if (NIL_P(text))
 		return Qnil;
 
-	struct rb_greenmat_rndr *renderer;
-	Data_Get_Struct(rb_rndr, struct rb_greenmat_rndr, renderer);
-	renderer->options.active_enc = rb_enc_get(text);
+#ifdef HAVE_RUBY_ENCODING_H
+	{
+		struct rb_greenmat_rndr *renderer;
+		Data_Get_Struct(rb_rndr, struct rb_greenmat_rndr, renderer);
+		renderer->options.active_enc = rb_enc_get(text);
+	}
+#endif
 
 	/* initialize buffers */
 	output_buf = bufnew(128);

@@ -10,7 +10,7 @@ class CustomRenderTest < Greenmat::TestCase
 
   def test_simple_overload
     md = Greenmat::Markdown.new(SimpleRender)
-    assert_equal "<p>This is <em class=\"cool\">just</em> a test</p>\n",
+    html_equal "<p>This is <em class=\"cool\">just</em> a test</p>\n",
       md.render("This is *just* a test")
   end
 
