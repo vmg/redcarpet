@@ -334,4 +334,14 @@ text
     markdown = @markdown.render("[Link][id]\n[id]:\t\t\thttp://google.es")
     assert_equal "<p><a href=\"http://google.es\">Link</a></p>\n", markdown
   end
+
+  def test_superscript
+    markdown = render_with({:superscript => true}, "this is the 2^nd time")
+    assert_equal "<p>this is the 2<sup>nd</sup> time</p>\n", markdown
+  end
+
+  def test_superscript_enclosed_in_parenthesis
+    markdown = render_with({:superscript => true}, "this is the 2^(nd) time")
+    assert_equal "<p>this is the 2<sup>nd</sup> time</p>\n", markdown
+  end
 end
