@@ -482,7 +482,10 @@ rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, cons
 		return 0;
 
 	BUFPUTSL(ob, "<img src=\"");
-	escape_href(ob, link->data, link->size);
+
+	if (link && link->size)
+		escape_href(ob, link->data, link->size);
+
 	BUFPUTSL(ob, "\" alt=\"");
 
 	if (alt && alt->size)
@@ -490,7 +493,8 @@ rndr_image(struct buf *ob, const struct buf *link, const struct buf *title, cons
 
 	if (title && title->size) {
 		BUFPUTSL(ob, "\" title=\"");
-		escape_html(ob, title->data, title->size); }
+		escape_html(ob, title->data, title->size);
+	}
 
 	bufputs(ob, USE_XHTML(options) ? "\"/>" : "\">");
 	return 1;
