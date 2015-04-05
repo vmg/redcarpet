@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.2.3
+
 * Avoid rewinding content of a previous inline when autolinking is
   enabled.
 
