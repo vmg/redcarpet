@@ -38,6 +38,13 @@
 * Non-alphanumeric chars are now stripped out from generated anchors
   (along the lines of Active Support's `#parameterize` method).
 
+## Version 3.2.3
+
+* Avoid rewinding content of a previous inline when autolinking is
+  enabled.
+
+  *Daniel LeCheminant*
+
 ## Version 3.2.2
 
 * Consider `script` as a block-level element so it doesn't get included
