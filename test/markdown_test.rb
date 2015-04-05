@@ -308,4 +308,16 @@ text
     markdown = @markdown.render("[Link][id]\n[id]:\t\t\thttp://google.es")
     html_equal "<p><a href=\"http://google.es\">Link</a></p>\n", markdown
   end
+
+  def test_no_rewind_into_previous_inline
+    result = "<p><em>!dl</em><a href=\"mailto:1@danlec.com\">1@danlec.com</a></p>\n"
+    output = render("_!dl_1@danlec.com", with: [:autolink])
+
+    assert_equal result, output
+
+    result = "<p>abc123<em><a href=\"http://www.foo.com\">www.foo.com</a></em>@foo.com</p>\n"
+    output = render("abc123_www.foo.com_@foo.com", with: [:autolink])
+
+    assert_equal result, output
+  end
 end

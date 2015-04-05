@@ -1,5 +1,10 @@
 # Changelog
 
+* Avoid rewinding content of a previous inline when autolinking is
+  enabled.
+
+  *Daniel LeCheminant*
+
 * Fix escaping of forward slashes with the `Safe` render object (add a
   missing semi-colon).
 
