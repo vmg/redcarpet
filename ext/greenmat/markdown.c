@@ -606,7 +606,7 @@ is_part_of_mention(uint8_t *data, size_t offset)
 		if (is_wordchar(character)) {
 			// Continue lookbehind.
 		} else if (character == '@') {
-			if (i == offset) {
+			if (i == lookbehind_limit) {
 				// The "@" is at beginning of the text. (e.g. "@foo")
 				return 1;
 			} else {
