@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.2.2.1
+
 * Fix a bug where bad memory access would happen in a document starting with `@`.
 
 ## v3.2.2.0
