@@ -311,12 +311,12 @@ text
 
   def test_no_rewind_into_previous_inline
     result = "<p><em>!dl</em><a href=\"mailto:1@danlec.com\">1@danlec.com</a></p>\n"
-    output = render("_!dl_1@danlec.com", with: [:autolink])
+    output = render_with({autolink: true}, "_!dl_1@danlec.com")
 
     assert_equal result, output
 
     result = "<p>abc123<em><a href=\"http://www.foo.com\">www.foo.com</a></em>@foo.com</p>\n"
-    output = render("abc123_www.foo.com_@foo.com", with: [:autolink])
+    output = render_with({autolink: true}, "abc123_www.foo.com_@foo.com")
 
     assert_equal result, output
   end
