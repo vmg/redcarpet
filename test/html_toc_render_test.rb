@@ -48,15 +48,14 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     titles = {
       "Donald E. Knuth"                     => "donald-e-knuth",
       "Random text with *(bad)* characters" => "random-text-with-bad-characters",
-      "Trailing bad characters!@#"          => "trailing-bad-characters",
-      "!@#Leading bad characters"           => "leading-bad-characters",
+      "!@#Surrounding bad characters!@#"    => "surrounding-bad-characters",
       "Squeeze   separators"                => "squeeze-separators",
       "Test with + sign"                    => "test-with-sign",
       "Test with a Namespaced::Class"       => "test-with-a-namespaced-class"
     }
 
     titles.each do |title, anchor|
-      assert_match anchor, render("# #{title}")
+      assert_match %("##{anchor}"), render("# #{title}")
     end
   end
 

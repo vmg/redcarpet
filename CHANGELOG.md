@@ -1,5 +1,8 @@
 # Changelog
 
+* Fix the stripping of surrounding characters that should be removed
+  during anchor generation.
+
 * Provide a `Redcarpet::CLI` class to create custom binary files.
 
   Relying on Ruby's OptionParser, it's now straightforward to add new

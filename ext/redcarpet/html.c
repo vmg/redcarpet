@@ -266,7 +266,7 @@ rndr_linebreak(struct buf *ob, void *opaque)
 
 char *header_anchor(const struct buf *buffer)
 {
-	size_t i, j, k, size = buffer->size;
+	size_t i = 0, j, k, size = buffer->size;
 
 	char text[size];
 	strcpy(text, bufcstr(buffer));
@@ -295,13 +295,18 @@ char *header_anchor(const struct buf *buffer)
 
 	char* heading = malloc(size * sizeof(char));
 
+	/* Remove leading stripped chars */
+	while (STRIPPED_CHAR(raw_string[i])) i++;
+
 	/* Dasherize the string removing extra white spaces
 	   and stripped chars */
-	for (i = 0, j = 0; i < size; ++i, ++j) {
+	for (j = 0; i < size; i++, j++) {
 		while ((i+1) < size && STRIPPED_CHAR(raw_string[i]) && STRIPPED_CHAR(raw_string[i+1]))
 			i++;
 
-		if (STRIPPED_CHAR(raw_string[i]))
+		if (STRIPPED_CHAR(raw_string[i]) && i == size - 1)
+			break;
+		else if (STRIPPED_CHAR(raw_string[i]))
 			heading[j] = '-';
 		else
 			heading[j] = tolower(raw_string[i]);
