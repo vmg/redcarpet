@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.3.0
+
 * Fix the stripping of surrounding characters that should be removed
   during anchor generation.
 

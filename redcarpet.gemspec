@@ -1,10 +1,10 @@
 # encoding: utf-8
 Gem::Specification.new do |s|
   s.name = 'redcarpet'
-  s.version = '3.2.0'
+  s.version = '3.3.0'
   s.summary = "Markdown that smells nice"
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
-  s.date = '2014-10-11'
+  s.date = '2015-06-05'
   s.email = 'vicent@github.com'
   s.homepage = 'http://github.com/vmg/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
@@ -43,11 +43,13 @@ Gem::Specification.new do |s|
     redcarpet.gemspec
     test/benchmark.rb
     test/custom_render_test.rb
+    test/fixtures/benchmark.md
     test/html5_test.rb
     test/html_render_test.rb
     test/html_toc_render_test.rb
     test/markdown_test.rb
     test/pathological_inputs_test.rb
+    test/redcarpet_bin_test.rb
     test/redcarpet_compat_test.rb
     test/safe_render_test.rb
     test/smarty_html_test.rb
