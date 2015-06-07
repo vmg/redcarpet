@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.3.1
+
 * Include the `Redcarpet::CLI`'s file in the gemspec to make it
   available when downloading.
 
