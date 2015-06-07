@@ -1,5 +1,8 @@
 # Changelog
 
+* Include the `Redcarpet::CLI`'s file in the gemspec to make it
+  available when downloading.
+
 ## Version 3.3.0
 
 * Fix the stripping of surrounding characters that should be removed

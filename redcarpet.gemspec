@@ -37,6 +37,7 @@ Gem::Specification.new do |s|
     ext/redcarpet/stack.c
     ext/redcarpet/stack.h
     lib/redcarpet.rb
+    lib/redcarpet/cli.rb
     lib/redcarpet/compat.rb
     lib/redcarpet/render_man.rb
     lib/redcarpet/render_strip.rb
