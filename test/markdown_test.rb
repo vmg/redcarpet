@@ -264,6 +264,18 @@ fenced
     assert out.include?("[1]: http://google.com")
   end
 
+  def test_that_fenced_code_copies_language_verbatim_with_braces
+    text = "```{rust,no_run}\nx = 'foo'\n```"
+    html = render_with({:fenced_code_blocks => true}, text)
+    assert_equal "<pre><code class=\"rust,no_run\">x = &#39;foo&#39;\n</code></pre>\n", html
+  end
+
+  def test_that_fenced_code_copies_language_verbatim
+    text = "```rust,no_run\nx = 'foo'\n```"
+    html = render_with({:fenced_code_blocks => true}, text)
+    assert_equal "<pre><code class=\"rust,no_run\">x = &#39;foo&#39;\n</code></pre>\n", html
+  end
+
   def test_that_indented_flag_works
     text = <<indented
 This is a simple text
