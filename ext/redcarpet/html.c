@@ -264,56 +264,35 @@ rndr_linebreak(struct buf *ob, void *opaque)
 	return 1;
 }
 
-char *header_anchor(const struct buf *buffer)
+static void
+rndr_header_anchor(struct buf *out, const struct buf *anchor)
 {
-	size_t i = 0, j, k, size = buffer->size;
+	static const char *STRIPPED = " -&+$,/:;=?@\"#{}|^~[]`\\*()%.!'";
 
-	char text[size];
-	strcpy(text, bufcstr(buffer));
+	const uint8_t *a = anchor->data;
+	const size_t size = anchor->size;
+	size_t i = 0;
+	int stripped = 0, inserted = 0;
 
-	char raw_string[size];
-
-	/* Strip down the inline HTML markup if needed */
-	if (strchr(text, '<') < strchr(text, '>')) {
-		char* part = strtok(text, "<>");
-
-		/* Once every two times, the yielded token is the
-		   content of a HTML tag so we don't need to copy it */
-		for (k = 0; part != NULL; k++) {
-			if (k == 0)
-				strcpy(raw_string, part);
-			else if (k % 2 == 0)
-				strcat(raw_string, part);
-
-			part = strtok(NULL, "<>");
+	for (; i < size; ++i) {
+		if (a[i] == '<') {
+			while (i < size && a[i] != '>')
+				i++;
 		}
-
-		size = strlen(raw_string);
-	} else {
-		strcpy(raw_string, text);
+		else if (strchr(STRIPPED, a[i])) {
+			if (inserted && !stripped)
+				bufputc(out, '-');
+			stripped = 1;
+		}
+		else {
+			bufputc(out, tolower(a[i]));
+			stripped = 0;
+			inserted++;
+		}
 	}
 
-	char* heading = malloc(size * sizeof(char));
-
-	/* Remove leading stripped chars */
-	while (STRIPPED_CHAR(raw_string[i])) i++;
-
-	/* Dasherize the string removing extra white spaces
-	   and stripped chars */
-	for (j = 0; i < size; i++, j++) {
-		while ((i+1) < size && STRIPPED_CHAR(raw_string[i]) && STRIPPED_CHAR(raw_string[i+1]))
-			i++;
-
-		if (STRIPPED_CHAR(raw_string[i]) && i == size - 1)
-			break;
-		else if (STRIPPED_CHAR(raw_string[i]))
-			heading[j] = '-';
-		else
-			heading[j] = tolower(raw_string[i]);
-	}
-
-	heading[j++] = '\0';
-	return heading;
+	if (stripped)
+		out->size--;
 }
 
 static void
@@ -324,8 +303,11 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 	if (ob->size)
 		bufputc(ob, '\n');
 
-	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level))
-		bufprintf(ob, "<h%d id=\"%s\">", level, header_anchor(text));
+	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level)) {
+		bufprintf(ob, "<h%d id=\"", level);
+		rndr_header_anchor(ob, text);
+		BUFPUTSL(ob, "\">");
+	}
 	else
 		bufprintf(ob, "<h%d>", level);
 
@@ -694,7 +676,9 @@ toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 			BUFPUTSL(ob,"</li>\n<li>\n");
 		}
 
-		bufprintf(ob, "<a href=\"#%s\">", header_anchor(text));
+		bufprintf(ob, "<a href=\"#");
+		rndr_header_anchor(ob, text);
+		BUFPUTSL(ob, "\">");
 
 		if (text) {
 			if (options->flags & HTML_ESCAPE)
