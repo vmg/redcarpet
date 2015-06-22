@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 3.3.2
+
+* Fix a potential security issue in the HTML renderer
+
 ## Version 3.3.1
 
 * Include the `Redcarpet::CLI`'s file in the gemspec to make it
