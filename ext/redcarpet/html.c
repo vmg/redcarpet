@@ -267,7 +267,7 @@ rndr_linebreak(struct buf *ob, void *opaque)
 static void
 rndr_header_anchor(struct buf *out, const struct buf *anchor)
 {
-	static const char *STRIPPED = " -&+$,/:;=?@\"#{}|^~[]`\\*()%.!'";
+	static const char *STRIPPED = " &+$,/:;=?@\"#{}|^~[]`\\*()%.!'";
 
 	const uint8_t *a = anchor->data;
 	const size_t size = anchor->size;
