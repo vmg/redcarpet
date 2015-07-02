@@ -3,7 +3,7 @@
 ## Version 3.3.2
 
 * Fix a potential security issue in the HTML renderer
-  (Thanks to Giancarlo Canales for the heads up)
+  (Thanks to Giancarlo Canales Barreto for the heads up)
 
 ## Version 3.3.1
 
