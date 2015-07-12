@@ -1,6 +1,9 @@
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install tidy
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - tidy
 
 install: travis_retry bundle install --without=benchmark
 
