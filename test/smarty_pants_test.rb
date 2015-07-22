@@ -45,4 +45,9 @@ class SmartyPantsTest < Redcarpet::TestCase
     rd = @pants.render("<p>Hopin' that this bug gets some fixin'.</p>")
     assert_equal "<p>Hopin&rsquo; that this bug gets some fixin&rsquo;.</p>", rd
   end
+
+  def test_that_is_not_confused_by_fractions
+    rd = @pants.render('I am 1/4... of the way to 1/4/2000')
+    assert_equal "I am &frac14;&hellip; of the way to 1/4/2000", rd
+  end
 end

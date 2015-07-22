@@ -89,6 +89,12 @@ word_boundary(uint8_t c)
 	return c == 0 || isspace(c) || ispunct(c);
 }
 
+static inline int
+fraction_boundary(uint8_t c)
+{
+	return c == 0 || isspace(c) || (c != '/' && ispunct(c));
+}
+
 // If 'text' begins with any kind of single quote (e.g. "'" or "&apos;" etc.),
 // returns the length of the sequence of characters that makes up the single-
 // quote.  Otherwise, returns zero.
@@ -288,16 +294,16 @@ smartypants_cb__backtick(struct buf *ob, struct smartypants_data *smrt, uint8_t 
 static size_t
 smartypants_cb__number(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
-	if (word_boundary(previous_char) && size >= 3) {
+	if (fraction_boundary(previous_char) && size >= 3) {
 		if (text[0] == '1' && text[1] == '/' && text[2] == '2') {
-			if (size == 3 || word_boundary(text[3])) {
+			if (size == 3 || fraction_boundary(text[3])) {
 				BUFPUTSL(ob, "&frac12;");
 				return 2;
 			}
 		}
 
 		if (text[0] == '1' && text[1] == '/' && text[2] == '4') {
-			if (size == 3 || word_boundary(text[3]) ||
+			if (size == 3 || fraction_boundary(text[3]) ||
 				(size >= 5 && tolower(text[3]) == 't' && tolower(text[4]) == 'h')) {
 				BUFPUTSL(ob, "&frac14;");
 				return 2;
@@ -305,7 +311,7 @@ smartypants_cb__number(struct buf *ob, struct smartypants_data *smrt, uint8_t pr
 		}
 
 		if (text[0] == '3' && text[1] == '/' && text[2] == '4') {
-			if (size == 3 || word_boundary(text[3]) ||
+			if (size == 3 || fraction_boundary(text[3]) ||
 				(size >= 6 && tolower(text[3]) == 't' && tolower(text[4]) == 'h' && tolower(text[5]) == 's')) {
 				BUFPUTSL(ob, "&frac34;");
 				return 2;
