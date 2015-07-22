@@ -1,5 +1,10 @@
 # Changelog
 
+* Fix Smarty Pants to avoid fraction conversions when there are several
+  numbers separated with slashes (e.g. for a date).
+
+  *Sam Saffron*
+
 ## Version 3.3.2
 
 * Fix a potential security issue in the HTML renderer
