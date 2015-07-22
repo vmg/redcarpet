@@ -83,7 +83,7 @@ but starting with `www` are also handled.
 
 * `:disable_indented_code_blocks`: do not parse usual markdown
 code blocks. Markdown converts text with four spaces at
-the front of each line to code blocks. This options
+the front of each line to code blocks. This option
 prevents it from doing so. Recommended to use
 with `fenced_code_blocks: true`.
 
@@ -159,7 +159,7 @@ safe.
 * `:with_toc_data`: add HTML anchors to each header in the output HTML,
 to allow linking to each section.
 
-* `:hard_wrap`: insert HTML `<br>` tags inside on paragraphs where the origin
+* `:hard_wrap`: insert HTML `<br>` tags inside on paragraphs where the original
 Markdown document had newlines (by default, Markdown ignores these newlines).
 
 * `:xhtml`: output XHTML-conformant tags. This option is always enabled in the
