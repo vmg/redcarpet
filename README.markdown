@@ -159,7 +159,7 @@ safe.
 * `:with_toc_data`: add HTML anchors to each header in the output HTML,
 to allow linking to each section.
 
-* `:hard_wrap`: insert HTML `<br>` tags inside on paragraphs where the original
+* `:hard_wrap`: insert HTML `<br>` tags inside paragraphs where the original
 Markdown document had newlines (by default, Markdown ignores these newlines).
 
 * `:xhtml`: output XHTML-conformant tags. This option is always enabled in the
