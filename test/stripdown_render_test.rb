@@ -3,20 +3,19 @@ require 'test_helper'
 
 class StripDownRender < Redcarpet::TestCase
   def setup
-    @parser = Redcarpet::Markdown.new(Redcarpet::Render::StripDown)
-    @parser_tables = Redcarpet::Markdown.new(Redcarpet::Render::StripDown, tables: true)
+    @renderer = Redcarpet::Render::StripDown
   end
 
   def test_titles
     markdown = "# Foo bar"
-    output   = @parser.render(markdown)
+    output   = render(markdown)
 
     assert_equal "Foo bar\n", output
   end
 
   def test_code_blocks
     markdown = "\tclass Foo\n\tend"
-    output   = @parser.render(markdown)
+    output   = render(markdown)
 
     assert_equal "class Foo\nend\n", output
   end
@@ -26,7 +25,7 @@ class StripDownRender < Redcarpet::TestCase
                "And this: ![](http://example.org/image.jpg)"
     expected = "Look at this picture http://example.org/picture.png\n" \
                "And this: http://example.org/image.jpg\n"
-    output   = @parser.render(markdown)
+    output   = render(markdown)
 
     assert_equal expected, output
   end
@@ -34,7 +33,7 @@ class StripDownRender < Redcarpet::TestCase
   def test_links
     markdown = "Here's an [example](https://github.com)"
     expected = "Here's an example (https://github.com)\n"
-    output   = @parser.render(markdown)
+    output   = render(markdown)
 
     assert_equal expected, output
   end
@@ -47,7 +46,7 @@ class StripDownRender < Redcarpet::TestCase
     expected = "Left-Aligned\tCentre Aligned\tRight Aligned\t\n" \
                "col 3 is\tsome wordy text\t$1600\t\n" \
                "col 2 is\tcentered\t$12\t\n"
-    output   = @parser_tables.render(markdown)
+    output   = render(markdown, with: [:tables])
 
     assert_equal expected, output
   end
