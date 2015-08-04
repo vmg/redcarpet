@@ -19,7 +19,12 @@ class Redcarpet::TestCase < Test::Unit::TestCase
       options = Hash[options.map {|o| [o, true]}]
     end
 
-    render = renderer.new(options)
+    render = begin
+      renderer.new(options)
+    rescue ArgumentError
+      renderer.new
+    end
+
     parser = Redcarpet::Markdown.new(render, options)
 
     parser.render(markdown)
