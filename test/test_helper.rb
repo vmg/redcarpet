@@ -1,4 +1,5 @@
 # coding: UTF-8
+$:.unshift(File.expand_path('../../lib', __FILE__))
 Encoding.default_internal = 'UTF-8' if defined? Encoding
 
 require 'test/unit'
