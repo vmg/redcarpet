@@ -50,4 +50,12 @@ class StripDownRender < Redcarpet::TestCase
 
     assert_equal expected, output
   end
+
+  def test_highlight
+    markdown = "==Hello world!=="
+    expected = "Hello world!\n"
+    output   = render(markdown, with: [:highlight])
+
+    assert_equal expected, output
+  end
 end
