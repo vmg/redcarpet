@@ -13,7 +13,7 @@ module Redcarpet
         :autolink, :codespan, :double_emphasis,
         :emphasis, :underline, :raw_html,
         :triple_emphasis, :strikethrough,
-        :superscript,
+        :superscript, :highlight,
 
         # footnotes
         :footnotes, :footnote_def, :footnote_ref,
