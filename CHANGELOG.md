@@ -1,5 +1,9 @@
 # Changelog
 
+* Fix the `StripDown` render to handle the `:highlight` option.
+
+  *Itay Grudev*
+
 * The `StripDown` renderer handles tables if the `tables` extension is
   enabled.
 
