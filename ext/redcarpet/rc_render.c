@@ -375,11 +375,16 @@ static void rb_redcarpet_rbase_mark(struct rb_redcarpet_rndr *rndr)
 		rb_gc_mark(rndr->options.link_attributes);
 }
 
+static void rndr_deallocate(void *rndr)
+{
+  xfree(rndr);
+}
+
 static VALUE rb_redcarpet_rbase_alloc(VALUE klass)
 {
 	struct rb_redcarpet_rndr *rndr = ALLOC(struct rb_redcarpet_rndr);
 	memset(rndr, 0x0, sizeof(struct rb_redcarpet_rndr));
-	return Data_Wrap_Struct(klass, rb_redcarpet_rbase_mark, NULL, rndr);
+	return Data_Wrap_Struct(klass, rb_redcarpet_rbase_mark, rndr_deallocate, rndr);
 }
 
 static void rb_redcarpet__overload(VALUE self, VALUE base_class)
