@@ -1,5 +1,9 @@
 # Changelog
 
+* Fix a memory leak instantiating a `Redcarpet::Render::Base` object.
+
+  *Oleg Dashevskii*
+
 * Fix the `StripDown` render to handle the `:highlight` option.
 
   *Itay Grudev*
