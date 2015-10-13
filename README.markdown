@@ -369,6 +369,14 @@ that's a maintenance nightmare and won't work.
 On a related topic: if your Markdown gem has a `lib/markdown.rb` file that
 monkeypatches the Markdown class, you're a terrible human being. Just saying.
 
+With HAML
+------------------
+Markdown inside a HAML template has to be forced to preserve indenting for code blocks by:
+~~~~~ ruby
+%article= preserve do
+  Redcarpet::Markdown.new(Redcarpet::Render::HTML, fenced_code_blocks: true)
+~~~~~
+
 Boring legal stuff
 ------------------
 
