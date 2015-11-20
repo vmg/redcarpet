@@ -238,4 +238,11 @@ HTML
 
     assert_no_match %r{<style>}, output
   end
+
+  def test_non_ascii_removal_in_header_anchors
+    markdown = "# Glühlampe"
+    html = "<h1 id=\"gl-hlampe\">Glühlampe</h1>\n"
+
+    assert_equal html, render(markdown, with: [:with_toc_data])
+  end
 end

@@ -1,5 +1,11 @@
 # Changelog
 
+* Fix the header anchor normalization by skipping non-ASCII chars
+  and not calling tolower because this leads to invalid UTF-8 byte
+  sequences in the HTML output. (tolower is not locale-aware)
+
+  *Clemens Gruber*
+
 ## Version 3.3.3
 
 * Fix a memory leak instantiating a `Redcarpet::Render::Base` object.
