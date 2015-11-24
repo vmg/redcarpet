@@ -4,6 +4,8 @@ addons:
   apt:
     packages:
       - tidy
+      - tcl
+      - tk
 
 install: travis_retry bundle install --without=benchmark
 
