@@ -22,6 +22,7 @@
  */
 
 #define BUFFER_MAX_ALLOC_SIZE (1024 * 1024 * 16) //16mb
+#define __USE_MINGW_ANSI_STDIO 1
 
 #include "buffer.h"
 
