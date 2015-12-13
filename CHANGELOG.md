@@ -1,5 +1,10 @@
 # Changelog
 
+* Fix `bufprintf` to correctly work on Windows MinGW-w64 so strings
+  are properly written to the buffer.
+
+  *Kenichi Saita*
+
 * Fix the header anchor normalization by skipping non-ASCII chars
   and not calling tolower because this leads to invalid UTF-8 byte
   sequences in the HTML output. (tolower is not locale-aware)
