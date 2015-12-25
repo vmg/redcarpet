@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.3.4
+
 * Fix `bufprintf` to correctly work on Windows MinGW-w64 so strings
   are properly written to the buffer.
 
