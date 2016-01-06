@@ -1,5 +1,13 @@
 # Changelog
 
+* Conform a rule of id attribute defined in HTML 4.01 specification
+
+  *namusyaka*
+
+* Prevent empty anchor if inserted chars do not exist
+
+  *namusyaka*
+
 * Multiple single quote pairs are parsed correctly with SmartyPants.
 
   Fix issue [#549](https://github.com/vmg/redcarpet/issues/549).

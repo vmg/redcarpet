@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <openssl/md5.h>
 
 #include "houdini.h"
 
@@ -274,6 +275,9 @@ static void
 rndr_header_anchor(struct buf *out, const struct buf *anchor)
 {
 	static const char *STRIPPED = " -&+$,/:;=?@\"#{}|^~[]`\\*()%.!'";
+	MD5_CTX ctx;
+	unsigned char md[MD5_LBLOCK];
+	int j = 0;
 
 	const uint8_t *a = anchor->data;
 	const size_t size = anchor->size;
@@ -288,7 +292,7 @@ rndr_header_anchor(struct buf *out, const struct buf *anchor)
 			while (i < size && a[i] != ';')
 				i++;
 		}
-		else if (!isascii(a[i]) || strchr(STRIPPED, a[i])) {
+		else if (!(inserted || isalpha(a[i])) || !isascii(a[i]) || strchr(STRIPPED, a[i])) {
 			if (inserted && !stripped)
 				bufputc(out, '-');
 			stripped = 1;
@@ -298,6 +302,16 @@ rndr_header_anchor(struct buf *out, const struct buf *anchor)
 			stripped = 0;
 			inserted++;
 		}
+	}
+
+	if (!inserted) {
+		MD5_Init(&ctx);
+		MD5_Update(&ctx, a, size);
+		MD5_Final(md, &ctx);
+		bufputs(out, "TOC_");
+		for(; j < MD5_DIGEST_LENGTH; ++j)
+			bufprintf(out, "%.2x", md[j]);
+		return;
 	}
 
 	if (stripped)
