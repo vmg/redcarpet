@@ -274,7 +274,7 @@ rndr_linebreak(struct buf *ob, void *opaque)
 static void
 rndr_header_anchor(struct buf *out, const struct buf *anchor)
 {
-	static const char *STRIPPED = " -&+$,/:;=?@\"#{}|^~[]`\\*()%.!'";
+	static const char *AVAILABLE_CHARS = "0123456789-_";
 	MD5_CTX ctx;
 	unsigned char md[MD5_LBLOCK];
 	int j = 0;
@@ -292,15 +292,15 @@ rndr_header_anchor(struct buf *out, const struct buf *anchor)
 			while (i < size && a[i] != ';')
 				i++;
 		}
-		else if (!(inserted || isalpha(a[i])) || !isascii(a[i]) || strchr(STRIPPED, a[i])) {
-			if (inserted && !stripped)
-				bufputc(out, '-');
-			stripped = 1;
-		}
-		else {
+		else if ((('a' <= a[i] && 'z' >= a[i]) || ('A' <= a[i] && 'Z' >= a[i]))
+			|| (inserted && strchr(AVAILABLE_CHARS, a[i]))) {
 			bufputc(out, tolower(a[i]));
 			stripped = 0;
 			inserted++;
+		}
+		else if (inserted && !stripped) {
+			bufputc(out, '-');
+			stripped = 1;
 		}
 	}
 
