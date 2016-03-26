@@ -47,6 +47,12 @@ EOE
     assert_no_match %r{<img}, output
   end
 
+  def test_that_links_with_ampersands_work
+    markdown = %([/?a=b&c=d](/?a=b&c=d))
+    output   = render(markdown)
+    assert_equal "<p><a href=\"/?a=b&c=d\">/?a=b&amp;c=d</a></p>\n", output
+  end
+
   def test_that_no_links_flag_works
     markdown = %([This link](http://example.net/) <a href="links.html">links</a>)
     output   = render(markdown, with: [:no_links])

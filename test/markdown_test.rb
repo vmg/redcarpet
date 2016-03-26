@@ -32,7 +32,7 @@ class MarkdownTest < Redcarpet::TestCase
 
   def test_that_urls_are_not_doubly_escaped
     markdown = @markdown.render('[Page 2](/search?query=Markdown+Test&page=2)')
-    assert_equal "<p><a href=\"/search?query=Markdown+Test&amp;page=2\">Page 2</a></p>\n", markdown
+    assert_equal "<p><a href=\"/search?query=Markdown+Test&page=2\">Page 2</a></p>\n", markdown
   end
 
   def test_simple_inline_html
@@ -299,7 +299,7 @@ indented
     markdown = render_with({:autolink => true}, <<text)
 This a stupid link: https://github.com/rtomayko/tilt/issues?milestone=1&state=open
 text
-    assert_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown
+    assert_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown
   end
 
   def test_spaced_headers

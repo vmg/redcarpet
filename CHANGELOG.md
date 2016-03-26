@@ -1,5 +1,9 @@
 # Changelog
 
+* Avoid escaping ampersands in href links.
+
+  *Nolan Evans*
+
 ## Version 3.3.4
 
 * Fix `bufprintf` to correctly work on Windows MinGW-w64 so strings
