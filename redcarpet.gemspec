@@ -65,6 +65,7 @@ Gem::Specification.new do |s|
   s.executables = ["redcarpet"]
   s.require_paths = ["lib"]
 
+  s.add_development_dependency "rake", "~> 10.5"
   s.add_development_dependency "rake-compiler", "~> 0.9.5"
   s.add_development_dependency "test-unit", "~> 3.1.3"
 end

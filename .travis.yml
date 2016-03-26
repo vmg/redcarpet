@@ -7,6 +7,9 @@ addons:
       - tcl
       - tk
 
+before_install:
+  - gem uninstall bundler -v 1.6.9
+  - gem install bundler -v 1.11.2
 install: travis_retry bundle install --without=benchmark
 
 rvm:
@@ -15,7 +18,7 @@ rvm:
   - 2.0.0
   - 2.1
   - 2.2
-  - 2.3
+  - 2.3.0
   - rbx-2
   - ruby-head
 
