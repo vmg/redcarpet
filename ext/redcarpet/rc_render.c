@@ -410,6 +410,9 @@ static void rb_redcarpet__overload(VALUE self, VALUE base_class)
 				dest[i] = source[i];
 		}
 	}
+
+	if (rb_iv_get(self, "@options") == Qnil)
+		rb_iv_set(self, "@options", rb_hash_new());
 }
 
 static VALUE rb_redcarpet_rbase_init(VALUE self)
@@ -428,6 +431,9 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 
 	if (rb_scan_args(argc, argv, "01", &hash) == 1) {
 		Check_Type(hash, T_HASH);
+
+		/* Give access to the passed options through `@options` */
+		rb_iv_set(self, "@options", hash);
 
 		/* escape_html */
 		if (rb_hash_aref(hash, CSTR2SYM("escape_html")) == Qtrue)
@@ -490,6 +496,9 @@ static VALUE rb_redcarpet_htmltoc_init(int argc, VALUE *argv, VALUE self)
 
 	if (rb_scan_args(argc, argv, "01", &hash) == 1) {
 		Check_Type(hash, T_HASH);
+
+		/* Give access to the passed options through `@options` */
+		rb_iv_set(self, "@options", hash);
 
 		/* escape_html */
 		if (rb_hash_aref(hash, CSTR2SYM("escape_html")) == Qtrue)

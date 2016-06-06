@@ -1,5 +1,8 @@
 # Changelog
 
+* Expose the Markdown and rendering options through a `Hash` inside
+  the `@options` instance variable for custom render objects.
+
 * Avoid escaping ampersands in href links.
 
   *Nolan Evans*

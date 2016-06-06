@@ -86,7 +86,7 @@ rb_redcarpet_md__free(void *markdown)
 
 static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 {
-	VALUE rb_markdown, rb_rndr, hash;
+	VALUE rb_markdown, rb_rndr, hash, rndr_options;
 	unsigned int extensions = 0;
 
 	struct rb_redcarpet_rndr *rndr;
@@ -102,6 +102,12 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 		rb_raise(rb_eTypeError, "Invalid Renderer instance given");
 
 	Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, rndr);
+
+	/* Merge the current options in the @options hash */
+	if (hash != Qnil) {
+		rndr_options = rb_iv_get(rb_rndr, "@options");
+		rb_funcall(rndr_options, rb_intern("merge!"), 1, hash);
+	}
 
 	markdown = sd_markdown_new(extensions, 16, &rndr->callbacks, &rndr->options);
 	if (!markdown)
