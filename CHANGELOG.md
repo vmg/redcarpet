@@ -1,5 +1,10 @@
 # Changelog
 
+* Remove escaped entities from `HTML` render table of contents'
+  ids to be consistent with the `HTML_TOC` render.
+
+  Fix issue [#529](https://github.com/vmg/redcarpet/issues/529).
+
 * Remove periods at the end of URLs when autolinking to make sure
   that links at the end of a sentence get properly generated.
 

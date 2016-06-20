@@ -284,6 +284,9 @@ rndr_header_anchor(struct buf *out, const struct buf *anchor)
 		if (a[i] == '<') {
 			while (i < size && a[i] != '>')
 				i++;
+		} else if (a[i] == '&') {
+			while (i < size && a[i] != ';')
+				i++;
 		}
 		else if (!isascii(a[i]) || strchr(STRIPPED, a[i])) {
 			if (inserted && !stripped)

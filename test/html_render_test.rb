@@ -251,4 +251,11 @@ HTML
 
     assert_equal html, render(markdown, with: [:with_toc_data])
   end
+
+  def test_escape_entities_removal_from_anchor
+    output = render("# Foo's & Bar's", with: [:with_toc_data])
+    result = %(<h1 id="foos-bars">Foo&#39;s &amp; Bar&#39;s</h1>\n)
+
+    assert_equal result, output
+  end
 end
