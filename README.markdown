@@ -373,7 +373,7 @@ monkeypatches the Markdown class, you're a terrible human being. Just saying.
 Boring legal stuff
 ------------------
 
-Copyright (c) 2011-2015, Vicent Martí
+Copyright (c) 2011-2016, Vicent Martí
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
