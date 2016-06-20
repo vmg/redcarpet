@@ -368,4 +368,11 @@ text
 
     assert_equal result, output
   end
+
+  def test_autolink_with_period_next_to_url
+    result = %(<p>Checkout a cool site like <a href="https://github.com">https://github.com</a>.</p>\n)
+    output = render("Checkout a cool site like https://github.com.", with: [:autolink])
+
+    assert_equal result, output
+  end
 end

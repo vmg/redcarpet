@@ -1,5 +1,10 @@
 # Changelog
 
+* Remove periods at the end of URLs when autolinking to make sure
+  that links at the end of a sentence get properly generated.
+
+  Fix issue [#465](https://github.com/vmg/redcarpet/issues/465).
+
 * Expose the Markdown and rendering options through a `Hash` inside
   the `@options` instance variable for custom render objects.
 

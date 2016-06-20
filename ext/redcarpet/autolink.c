@@ -294,6 +294,13 @@ sd_autolink__url(
 	if (link_end == 0)
 		return 0;
 
+	/**
+	 * In certain cases, we may refer to a link at the end of a
+	 * sentence so the period should not be part of the URL.
+	 */
+	if (data[link_end - 1] == '.')
+		link_end--;
+
 	bufput(link, data - rewind, link_end + rewind);
 	*rewind_p = rewind;
 
