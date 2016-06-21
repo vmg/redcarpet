@@ -8,20 +8,20 @@ class HTMLRenderTest < Redcarpet::TestCase
 
   # Hint: overrides filter_html, no_images and no_links
   def test_that_escape_html_works
-    source = <<EOS
-Through <em>NO</em> <script>DOUBLE NO</script>
+    source = <<-HTML.strip_heredoc
+      Through <em>NO</em> <script>DOUBLE NO</script>
 
-<script>BAD</script>
+      <script>BAD</script>
 
-<img src="/favicon.ico" />
-EOS
-    expected = <<EOE.chomp
-<p>Through &lt;em&gt;NO&lt;/em&gt; &lt;script&gt;DOUBLE NO&lt;/script&gt;</p>
+      <img src="/favicon.ico" />
+    HTML
+    expected = <<-HTML.chomp.strip_heredoc
+      <p>Through &lt;em&gt;NO&lt;/em&gt; &lt;script&gt;DOUBLE NO&lt;/script&gt;</p>
 
-<p>&lt;script&gt;BAD&lt;/script&gt;</p>
+      <p>&lt;script&gt;BAD&lt;/script&gt;</p>
 
-<p>&lt;img src=&quot;/favicon.ico&quot; /&gt;</p>
-EOE
+      <p>&lt;img src=&quot;/favicon.ico&quot; /&gt;</p>
+    HTML
 
     assert_equal expected, render(source, with: [:escape_html])
   end
@@ -68,13 +68,13 @@ EOE
   end
 
   def test_that_hard_wrap_works
-    markdown = <<EOE
-Hello world,
-this is just a simple test
+    markdown = <<-Markdown.strip_heredoc
+      Hello world,
+      this is just a simple test
 
-With hard wraps
-and other *things*.
-EOE
+      With hard wraps
+      and other *things*.
+    Markdown
     output   = render(markdown, with: [:hard_wrap])
 
     assert_match %r{<br>}, output
@@ -95,23 +95,23 @@ EOE
   end
 
   def test_that_code_emphasis_work
-    markdown = <<-MD
-This should be **`a bold codespan`**
-However, this should be *`an emphasised codespan`*
+    markdown = <<-Markdown.strip_heredoc
+      This should be **`a bold codespan`**
+      However, this should be *`an emphasised codespan`*
 
-* **`ABC`** or **`DEF`**
-* Foo bar
-MD
+      * **`ABC`** or **`DEF`**
+      * Foo bar
+    Markdown
 
-    html = <<HTML.chomp
-<p>This should be <strong><code>a bold codespan</code></strong>
-However, this should be <em><code>an emphasised codespan</code></em></p>
+    html = <<-HTML.chomp.strip_heredoc
+      <p>This should be <strong><code>a bold codespan</code></strong>
+      However, this should be <em><code>an emphasised codespan</code></em></p>
 
-<ul>
-<li><strong><code>ABC</code></strong> or <strong><code>DEF</code></strong></li>
-<li>Foo bar</li>
-</ul>
-HTML
+      <ul>
+      <li><strong><code>ABC</code></strong> or <strong><code>DEF</code></strong></li>
+      <li>Foo bar</li>
+      </ul>
+    HTML
 
     assert_equal html, render(markdown)
   end
@@ -133,42 +133,42 @@ HTML
   end
 
   def test_that_footnotes_work
-    markdown = <<-MD
-This is a footnote.[^1]
+    markdown = <<-Markdown.strip_heredoc
+      This is a footnote.[^1]
 
-[^1]: It provides additional information.
-MD
+      [^1]: It provides additional information.
+    Markdown
 
-    html = <<HTML.chomp
-<p>This is a footnote.<sup id="fnref1"><a href="#fn1" rel="footnote">1</a></sup></p>
+    html = <<-HTML.chomp.strip_heredoc
+      <p>This is a footnote.<sup id="fnref1"><a href="#fn1" rel="footnote">1</a></sup></p>
 
-<div class="footnotes">
-<hr>
-<ol>
+      <div class="footnotes">
+      <hr>
+      <ol>
 
-<li id="fn1">
-<p>It provides additional information.&nbsp;<a href="#fnref1" rev="footnote">&#8617;</a></p>
-</li>
+      <li id="fn1">
+      <p>It provides additional information.&nbsp;<a href="#fnref1" rev="footnote">&#8617;</a></p>
+      </li>
 
-</ol>
-</div>
-HTML
+      </ol>
+      </div>
+    HTML
 
     output = render(markdown, with: [:footnotes])
     assert_equal html, output
   end
 
   def test_footnotes_enabled_but_missing_marker
-    markdown = <<MD
-Some text without a marker
+    markdown = <<-Markdown.strip_heredoc
+      Some text without a marker
 
-[^1] And a trailing definition
-MD
-    html = <<HTML.chomp
-<p>Some text without a marker</p>
+      [^1] And a trailing definition
+    Markdown
+    html = <<-HTML.chomp.strip_heredoc
+      <p>Some text without a marker</p>
 
-<p>[^1] And a trailing definition</p>
-HTML
+      <p>[^1] And a trailing definition</p>
+    HTML
 
     output = render(markdown, with: [:footnotes])
     assert_equal html, output

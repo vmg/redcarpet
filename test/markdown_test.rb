@@ -69,22 +69,23 @@ class MarkdownTest < Redcarpet::TestCase
 
   # https://github.com/vmg/redcarpet/issues/111
   def test_p_with_less_than_4space_indent_should_not_be_part_of_last_list_item
-    text = <<MARKDOWN
+    text = <<-Markdown
   * a
   * b
   * c
 
   This paragraph is not part of the list.
-MARKDOWN
-    expected = <<HTML
-<ul>
-<li>a</li>
-<li>b</li>
-<li>c</li>
-</ul>
+    Markdown
+    expected = <<-HTML.strip_heredoc
+      <ul>
+      <li>a</li>
+      <li>b</li>
+      <li>c</li>
+      </ul>
 
-<p>This paragraph is not part of the list.</p>
-HTML
+      <p>This paragraph is not part of the list.</p>
+    HTML
+
     assert_equal expected, @markdown.render(text)
   end
 
@@ -127,25 +128,25 @@ HTML
   end
 
   def test_memory_leak_when_parsing_char_links
-    @markdown.render(<<-leaks)
-2. Identify the wild-type cluster and determine all clusters
-   containing or contained by it:
+    @markdown.render(<<-leaks.strip_heredoc)
+      2. Identify the wild-type cluster and determine all clusters
+         containing or contained by it:
 
-       wildtype <- wildtype.cluster(h)
-       wildtype.mask <- logical(nclust)
-       wildtype.mask[c(contains(h, wildtype),
-                       wildtype,
-                       contained.by(h, wildtype))] <- TRUE
+             wildtype <- wildtype.cluster(h)
+             wildtype.mask <- logical(nclust)
+             wildtype.mask[c(contains(h, wildtype),
+                             wildtype,
+                             contained.by(h, wildtype))] <- TRUE
 
-   This could be more elegant.
+         This could be more elegant.
     leaks
   end
 
   def test_infinite_loop_in_header
-    assert_equal "<h1>Body</h1>\n", @markdown.render(<<-header)
-######
-#Body#
-######
+    assert_equal "<h1>Body</h1>\n", @markdown.render(<<-header.strip_heredoc)
+      ######
+      #Body#
+      ######
     header
   end
 
@@ -155,11 +156,11 @@ HTML
   end
 
   def test_that_tables_flag_works
-    text = <<EOS
- aaa | bbbb
------|------
-hello|sailor
-EOS
+    text = <<-EOS.strip_heredoc
+       aaa | bbbb
+      -----|------
+      hello|sailor
+    EOS
 
     assert render_with({}, text) !~ /<table/
 
@@ -167,11 +168,11 @@ EOS
   end
 
   def test_that_tables_work_with_org_table_syntax
-    text = <<EOS
-| aaa | bbbb |
-|-----+------|
-|hello|sailor|
-EOS
+    text = <<-EOS.strip_heredoc
+      | aaa | bbbb |
+      |-----+------|
+      |hello|sailor|
+    EOS
 
     assert render_with({}, text) !~ /<table/
 
@@ -215,14 +216,14 @@ EOS
   end
 
   def test_that_fenced_flag_works
-    text = <<fenced
-This is a simple test
+    text = <<-fenced.strip_heredoc
+      This is a simple test
 
-~~~~~
-This is some awesome code
-    with tabs and shit
-~~~
-fenced
+      ~~~~~
+      This is some awesome code
+          with tabs and shit
+      ~~~
+    fenced
 
     assert render_with({}, text) !~ /<code/
 
@@ -239,27 +240,29 @@ fenced
   end
 
   def test_that_indented_code_preserves_references
-    text = <<indented
-This is normal text
+    text = <<-indented.strip_heredoc
+      This is normal text
 
-    Link to [Google][1]
+          Link to [Google][1]
 
-    [1]: http://google.com
-indented
+          [1]: http://google.com
+    indented
+
     out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
     assert out.include?("[1]: http://google.com")
   end
 
   def test_that_fenced_flag_preserves_references
-    text = <<fenced
-This is normal text
+    text = <<-fenced.strip_heredoc
+      This is normal text
 
-```
-Link to [Google][1]
+      ```
+      Link to [Google][1]
 
-[1]: http://google.com
-```
-fenced
+      [1]: http://google.com
+      ```
+    fenced
+
     out = Redcarpet::Markdown.new(Redcarpet::Render::HTML, :fenced_code_blocks => true).render(text)
     assert out.include?("[1]: http://google.com")
   end
@@ -277,14 +280,14 @@ fenced
   end
 
   def test_that_indented_flag_works
-    text = <<indented
-This is a simple text
+    text = <<-indented.strip_heredoc
+      This is a simple text
 
-    This is some awesome code
-    with shit
+          This is some awesome code
+          with shit
 
-And this is again a simple text
-indented
+      And this is again a simple text
+    indented
 
     assert render_with({}, text) =~ /<code/
     assert render_with({:disable_indented_code_blocks => true}, text) !~ /<code/
@@ -296,9 +299,10 @@ indented
   end
 
   def test_autolinking_with_ent_chars
-    markdown = render_with({:autolink => true}, <<text)
-This a stupid link: https://github.com/rtomayko/tilt/issues?milestone=1&state=open
-text
+    markdown = render_with({:autolink => true}, <<-text.strip_heredoc)
+      This a stupid link: https://github.com/rtomayko/tilt/issues?milestone=1&state=open
+    text
+
     assert_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown
   end
 

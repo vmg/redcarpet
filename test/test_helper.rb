@@ -36,4 +36,12 @@ class Redcarpet::TestCase < Test::Unit::TestCase
   def renderer
     @renderer ||= Redcarpet::Render::HTML
   end
+
+  # Imported from Active Support
+  class ::String
+    def strip_heredoc
+      indent = scan(/^ *(?=\S)/).min.size || 0
+      gsub(/^[ \t]{#{indent}}/, '')
+    end
+  end
 end

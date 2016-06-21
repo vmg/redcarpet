@@ -4,7 +4,12 @@ require 'test_helper'
 class HTMLTOCRenderTest < Redcarpet::TestCase
   def setup
     @renderer = Redcarpet::Render::HTML_TOC
-    @markdown = "# A title \n## A __nice__ subtitle\n## Another one \n### A sub-sub-title"
+    @markdown = <<-Markdown.strip_heredoc
+      # A title
+      ## A __nice__ subtitle
+      ## Another one
+      ### A sub-sub-title
+    Markdown
   end
 
   def test_simple_toc_render
