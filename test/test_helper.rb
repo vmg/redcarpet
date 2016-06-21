@@ -28,7 +28,7 @@ class Redcarpet::TestCase < Test::Unit::TestCase
 
     parser = Redcarpet::Markdown.new(render, options)
 
-    parser.render(markdown)
+    parser.render(markdown).chomp
   end
 
   private

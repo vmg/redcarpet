@@ -8,7 +8,7 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
   end
 
   def test_simple_toc_render
-    output = render(@markdown).strip
+    output = render(@markdown)
 
     assert output.start_with?("<ul>")
     assert output.end_with?("</ul>")
@@ -18,7 +18,7 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
   end
 
   def test_granular_toc_render
-    output = render(@markdown, with: { nesting_level: 2 }).strip
+    output = render(@markdown, with: { nesting_level: 2 })
 
     assert output.start_with?("<ul>")
     assert output.end_with?("</ul>")

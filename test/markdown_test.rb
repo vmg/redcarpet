@@ -358,19 +358,19 @@ text
   end
 
   def test_no_rewind_into_previous_inline
-    result = "<p><em>!dl</em><a href=\"mailto:1@danlec.com\">1@danlec.com</a></p>\n"
+    result = "<p><em>!dl</em><a href=\"mailto:1@danlec.com\">1@danlec.com</a></p>"
     output = render("_!dl_1@danlec.com", with: [:autolink])
 
     assert_equal result, output
 
-    result = "<p>abc123<em><a href=\"http://www.foo.com\">www.foo.com</a></em>@foo.com</p>\n"
+    result = "<p>abc123<em><a href=\"http://www.foo.com\">www.foo.com</a></em>@foo.com</p>"
     output = render("abc123_www.foo.com_@foo.com", with: [:autolink])
 
     assert_equal result, output
   end
 
   def test_autolink_with_period_next_to_url
-    result = %(<p>Checkout a cool site like <a href="https://github.com">https://github.com</a>.</p>\n)
+    result = %(<p>Checkout a cool site like <a href="https://github.com">https://github.com</a>.</p>)
     output = render("Checkout a cool site like https://github.com.", with: [:autolink])
 
     assert_equal result, output

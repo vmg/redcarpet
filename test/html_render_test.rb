@@ -15,7 +15,7 @@ Through <em>NO</em> <script>DOUBLE NO</script>
 
 <img src="/favicon.ico" />
 EOS
-    expected = <<EOE
+    expected = <<EOE.chomp
 <p>Through &lt;em&gt;NO&lt;/em&gt; &lt;script&gt;DOUBLE NO&lt;/script&gt;</p>
 
 <p>&lt;script&gt;BAD&lt;/script&gt;</p>
@@ -30,14 +30,14 @@ EOE
     markdown = 'Through <em>NO</em> <script>DOUBLE NO</script>'
     output   = render(markdown, with: [:filter_html])
 
-    assert_equal "<p>Through NO DOUBLE NO</p>\n", output
+    assert_equal "<p>Through NO DOUBLE NO</p>", output
   end
 
   def test_filter_html_doesnt_break_two_space_hard_break
     markdown = "Lorem,  \nipsum\n"
     output   = render(markdown, with: [:filter_html])
 
-    assert_equal "<p>Lorem,<br>\nipsum</p>\n", output
+    assert_equal "<p>Lorem,<br>\nipsum</p>", output
   end
 
   def test_that_no_image_flag_works
@@ -50,7 +50,7 @@ EOE
   def test_that_links_with_ampersands_work
     markdown = %([/?a=b&c=d](/?a=b&c=d))
     output   = render(markdown)
-    assert_equal "<p><a href=\"/?a=b&c=d\">/?a=b&amp;c=d</a></p>\n", output
+    assert_equal "<p><a href=\"/?a=b&c=d\">/?a=b&amp;c=d</a></p>", output
   end
 
   def test_that_no_links_flag_works
@@ -64,7 +64,7 @@ EOE
     markdown = "[IRC](irc://chat.freenode.org/#freenode)"
     output   = render(markdown, with: [:safe_links_only])
 
-    assert_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>\n", output
+    assert_equal "<p>[IRC](irc://chat.freenode.org/#freenode)</p>", output
   end
 
   def test_that_hard_wrap_works
@@ -88,7 +88,7 @@ EOE
 
   def test_that_link_works_with_quotes
     markdown = %([This'link"is](http://example.net/))
-    expected = %(<p><a href="http://example.net/">This&#39;link&quot;is</a></p>\n)
+    expected = %(<p><a href="http://example.net/">This&#39;link&quot;is</a></p>)
 
     assert_equal expected, render(markdown)
     assert_equal expected, render(markdown, with: [:escape_html])
@@ -103,7 +103,7 @@ However, this should be *`an emphasised codespan`*
 * Foo bar
 MD
 
-    html = <<HTML
+    html = <<HTML.chomp
 <p>This should be <strong><code>a bold codespan</code></strong>
 However, this should be <em><code>an emphasised codespan</code></em></p>
 
@@ -118,7 +118,7 @@ HTML
 
   def test_that_parenthesis_are_handled_into_links
     markdown = %(The [bash man page](man:bash(1))!)
-    expected = %(<p>The <a href="man:bash(1)">bash man page</a>!</p>\n)
+    expected = %(<p>The <a href="man:bash(1)">bash man page</a>!</p>)
 
     assert_equal expected, render(markdown)
   end
@@ -139,7 +139,7 @@ This is a footnote.[^1]
 [^1]: It provides additional information.
 MD
 
-    html = <<HTML
+    html = <<HTML.chomp
 <p>This is a footnote.<sup id="fnref1"><a href="#fn1" rel="footnote">1</a></sup></p>
 
 <div class="footnotes">
@@ -164,7 +164,7 @@ Some text without a marker
 
 [^1] And a trailing definition
 MD
-    html = <<HTML
+    html = <<HTML.chomp
 <p>Some text without a marker</p>
 
 <p>[^1] And a trailing definition</p>
@@ -176,7 +176,7 @@ HTML
 
   def test_footnotes_enabled_but_missing_definition
     markdown = "Some text with a marker[^1] but no definition."
-    expected = "<p>Some text with a marker[^1] but no definition.</p>\n"
+    expected = "<p>Some text with a marker[^1] but no definition.</p>"
 
     output = render(markdown, with: [:footnotes])
     assert_equal expected, output
@@ -247,14 +247,14 @@ HTML
 
   def test_non_ascii_removal_in_header_anchors
     markdown = "# Glühlampe"
-    html = "<h1 id=\"gl-hlampe\">Glühlampe</h1>\n"
+    html = "<h1 id=\"gl-hlampe\">Glühlampe</h1>"
 
     assert_equal html, render(markdown, with: [:with_toc_data])
   end
 
   def test_escape_entities_removal_from_anchor
     output = render("# Foo's & Bar's", with: [:with_toc_data])
-    result = %(<h1 id="foos-bars">Foo&#39;s &amp; Bar&#39;s</h1>\n)
+    result = %(<h1 id="foos-bars">Foo&#39;s &amp; Bar&#39;s</h1>)
 
     assert_equal result, output
   end

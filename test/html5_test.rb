@@ -2,13 +2,13 @@ require 'test_helper'
 
 class HTML5Test < Redcarpet::TestCase
   def test_that_html5_works
-    section = <<EOS
+    section = <<EOS.chomp
 <section>
   <p>The quick brown fox jumps over the lazy dog.</p>
 </section>
 EOS
 
-    figure = <<EOS
+    figure = <<EOS.chomp
 <figure>
   <img src="http://example.org/image.jpg" alt="">
   <figcaption>
@@ -28,7 +28,7 @@ EOS
 \t</section>
 EOS
 
-    section_expected = <<EOE
+    section_expected = <<EOE.chomp
 <pre><code>&lt;section&gt;
     &lt;p&gt;The quick brown fox jumps over the lazy dog.&lt;/p&gt;
 &lt;/section&gt;
@@ -44,7 +44,7 @@ EOE
     </header>
 EOS
 
-    header_expected = <<EOE
+    header_expected = <<EOE.chomp
 <pre><code>&lt;header&gt;
     &lt;hgroup&gt;
         &lt;h1&gt;Section heading&lt;/h1&gt;
@@ -59,7 +59,7 @@ EOE
   end
 
   def test_script_tag_recognition
-    markdown = <<-Md
+    markdown = <<-Md.chomp
 <script type="text/javascript">
   alert('Foo!');
 </script>
