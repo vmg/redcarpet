@@ -392,4 +392,15 @@ class MarkdownTest < Redcarpet::TestCase
 
     assert_equal result, output
   end
+
+  def test_single_dashes_on_table_headers
+    markdown = <<-Markdown.strip_heredoc
+      | a | b |
+      | - | - |
+      | c | d |
+    Markdown
+    output   = render(markdown, with: [:tables])
+
+    assert_match /<table>/, output
+  end
 end

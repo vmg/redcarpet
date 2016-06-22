@@ -1,5 +1,8 @@
 # Changelog
 
+* Table headers don't require a minimum of three dashes anymore; a
+  single one can be used for each row.
+
 * Remove escaped entities from `HTML` render table of contents'
   ids to be consistent with the `HTML_TOC` render.
 
