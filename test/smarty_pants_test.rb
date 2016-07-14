@@ -50,4 +50,9 @@ class SmartyPantsTest < Redcarpet::TestCase
     rd = @pants.render('I am 1/4... of the way to 1/4/2000')
     assert_equal "I am &frac14;&hellip; of the way to 1/4/2000", rd
   end
+
+  def test_that_smart_converts_multiple_single_quotes
+    rd = @pants.render(%(<p>'First' and 'second' and 'third'</p>))
+    assert_equal %(<p>&lsquo;First&rsquo; and &lsquo;second&rsquo; and &lsquo;third&rsquo;</p>), rd
+  end
 end

@@ -1,5 +1,9 @@
 # Changelog
 
+* Multiple single quote pairs are parsed correctly.
+
+  Fix issue [#549](https://github.com/vmg/redcarpet/issues/549).
+
 * Table headers don't require a minimum of three dashes anymore; a
   single one can be used for each row.
 
