@@ -1,8 +1,10 @@
 # Changelog
 
-* Multiple single quote pairs are parsed correctly.
+* Multiple single quote pairs are parsed correctly with SmartyPants.
 
   Fix issue [#549](https://github.com/vmg/redcarpet/issues/549).
+
+  *Jan Jędrychowski*
 
 * Table headers don't require a minimum of three dashes anymore; a
   single one can be used for each row.
