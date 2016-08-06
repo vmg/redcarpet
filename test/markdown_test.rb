@@ -212,12 +212,12 @@ class MarkdownTest < Redcarpet::TestCase
   end
 
   def test_quote_flag_works
-    text   = 'this is "quote"'
+    text   = 'this is a "quote"'
     output = render(text, with: [:quote])
 
     refute render(text).include? '<q>quote</q>'
 
-    assert output.include? '<q>quote</q>'
+    assert_equal '<p>this is a <q>quote</q></p>', output
   end
 
   def test_that_fenced_flag_works

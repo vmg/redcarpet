@@ -47,4 +47,11 @@ class CustomRenderTest < Redcarpet::TestCase
     assert_equal(nil,md.render("Anything"))
   end
 
+  def test_base_render_without_quote_callback
+    # Regression test for https://github.com/vmg/redcarpet/issues/569
+    render = Class.new(Redcarpet::Render::Base)
+    parser = Redcarpet::Markdown.new render.new, quote: true
+
+    assert_equal "", parser.render(%(a "quote"))
+  end
 end
