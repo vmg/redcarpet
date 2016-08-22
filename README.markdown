@@ -200,7 +200,12 @@ built-in renderers, `HTML` and `XHTML` may be extended as such:
 # create a custom renderer that allows highlighting of code blocks
 class HTMLwithPygments < Redcarpet::Render::HTML
   def block_code(code, language)
-    Pygments.highlight(code, lexer: language)
+      begin
+        Pygments.highlight(code, lexer: language)
+      rescue MentosError
+        # when language detection fails
+        Pygments.highlight(code, lexer: 'text')
+      end
   end
 end
 
