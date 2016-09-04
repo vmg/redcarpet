@@ -25,7 +25,7 @@ Starting with Redcarpet 3.0, the minimum required Ruby version is 1.9.2 (or Rubi
 
     $ [sudo] gem install redcarpet
 
-If you need to use it with Ruby 1.8.7, you will need to stick with 2.3.0:
+If you need to use it with Ruby 1.8.7, you will have to stick with 2.3.0:
 
     $ [sudo] gem install redcarpet -v 2.3.0
 
@@ -189,10 +189,13 @@ Redcarpet also includes a plaintext renderer, `Redcarpet::Render::StripDown`, th
 strips out all the formatting:
 
 ~~~~ ruby
+require 'redcarpet'
 require 'redcarpet/render_strip'
+
 markdown = Redcarpet::Markdown.new(Redcarpet::Render::StripDown)
-plaintext = markdown.render("**This** _is_ an [example](http://example.org/).")
-# => "This is an example (http://example.org/).\n"
+
+markdown.render("**This** _is_ an [example](http://example.org/).")
+# => "This is an example (http://example.org/)."
 ~~~~
 
 
