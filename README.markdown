@@ -185,9 +185,15 @@ When instantiating this render object, you can optionally pass a `nesting_level`
 option which takes an integer and allows you to make it render only headers
 until a specific level.
 
-Furthermore, the abstract base class `Redcarpet::Render::Base` can be used
-to write a custom renderer purely in Ruby, or extending an existing renderer.
-See the following section for more information.
+Redcarpet also includes a plaintext renderer, `Redcarpet::Render::StripDown`, that
+strips out all the formatting:
+
+~~~~ ruby
+require 'redcarpet/render_strip'
+markdown = Redcarpet::Markdown.new(Redcarpet::Render::StripDown)
+plaintext = markdown.render("**This** _is_ an [example](http://example.org/).")
+# => "This is an example (http://example.org/).\n"
+~~~~
 
 
 And you can even cook your own
@@ -207,8 +213,9 @@ end
 markdown = Redcarpet::Markdown.new(HTMLwithPygments, fenced_code_blocks: true)
 ~~~~~
 
-But new renderers can also be created from scratch (see `lib/redcarpet/render_man.rb` for
-an example implementation of a Manpage renderer)
+But new renderers can also be created from scratch by extending the abstract
+base class `Redcarpet::Render::Base` (see `lib/redcarpet/render_man.rb` for
+an example implementation of a Manpage renderer):
 
 ~~~~~~ ruby
 class ManPage < Redcarpet::Render::Base
