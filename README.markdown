@@ -319,7 +319,27 @@ But where do I put it? (Handy Tips for Rails Users)
 ------------------------------------
 
 There are a few options for where to include Redcarpet in your Rails app, but one 
-of the most straightforward is in `ApplicationHelper`.
+of the most straightforward is in your `ApplicationHelper`.
+
+For example:
+
+~~~~ ruby
+module ApplicationHelper
+  def as_markdown(text)
+    renderer = Redcarpet::Render::HTML.new(render_options = {})
+    markdown = Redcarpet::Markdown.new(renderer, extensions = {})
+    markdown.render(text)
+  end
+end
+~~~~~
+
+And then include it in your view with the text you want to parse:
+
+~~~~ ruby
+<div>
+  <%= as_markdown(@object.description) %>
+</div>
+~~~~~
 
 Also, now our Pants are much smarter
 ------------------------------------
