@@ -333,9 +333,9 @@ module ApplicationHelper
 end
 ~~~~~
 
-And then include it in your view with the text you want to parse:
+And then call it in your view with the text you want to parse:
 
-~~~~ ruby
+~~~~ erb
 <div>
   <%= as_markdown(@object.description) %>
 </div>
