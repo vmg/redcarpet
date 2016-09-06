@@ -258,4 +258,18 @@ class HTMLRenderTest < Redcarpet::TestCase
 
     assert_equal result, output
   end
+
+  def test_non_ascii_only_header_anchors
+    markdown = "# やあ諸君！"
+    html = "<h1 id=\"TOC_eab963056a69c89770528ba35a338be9\">やあ諸君！</h1>"
+
+    assert_equal html, render(markdown, with: [:with_toc_data])
+  end
+
+  def test_non_alphabet_char_at_first
+    markdown = "# 1foo"
+    html = "<h1 id=\"foo\">1foo</h1>"
+
+    assert_equal html, render(markdown, with: [:with_toc_data])
+  end
 end
