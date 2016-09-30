@@ -67,4 +67,16 @@ class HTML5Test < Redcarpet::TestCase
 
     assert_renders html, html
   end
+
+  def test_new_html5_tags_not_escaped
+    details = <<-HTML.chomp.strip_heredoc
+      <details>
+        log:
+
+      </details>
+    HTML
+
+    assert_renders details, details
+  end
+
 end
