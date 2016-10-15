@@ -1,5 +1,11 @@
 # Changelog
 
+* Added suppport for html5 details & summary tags
+
+  Fix issue [#578](https://github.com/vmg/redcarpet/issues/578).
+
+  *James Edwards-Jones*
+
 * Multiple single quote pairs are parsed correctly with SmartyPants.
 
   Fix issue [#549](https://github.com/vmg/redcarpet/issues/549).
