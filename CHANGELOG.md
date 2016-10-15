@@ -1,6 +1,6 @@
 # Changelog
 
-* Added suppport for html5 details & summary tags
+* Added suppport for HTML 5 `details` and `summary` tags.
 
   Fix issue [#578](https://github.com/vmg/redcarpet/issues/578).
 
