@@ -206,10 +206,10 @@ Custom renderers are created by inheriting from an existing renderer. The
 built-in renderers, `HTML` and `XHTML` may be extended as such:
 
 ~~~~~ ruby
-# create a custom renderer that allows highlighting of code blocks
-class HTMLwithPygments < Redcarpet::Render::HTML
-  def block_code(code, language)
-    Pygments.highlight(code, lexer: language)
+# Create a custom renderer that sets a custom class for block-quotes.
+class CustomRender < Redcarpet::Render::HTML
+  def block_quote(quote)
+    %(<blockquote class="my-custom-class">#{quote}</blockquote>)
   end
 end
 
