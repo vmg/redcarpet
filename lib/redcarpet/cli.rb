@@ -47,7 +47,7 @@ module Redcarpet
         end
 
         opts.on_tail("-v", "--version", "Display the current version") do
-          STDOUT.write "Redcarpet #{Redcarpet::VERSION}"
+          STDOUT.puts "Redcarpet #{Redcarpet::VERSION}"
           exit
         end
 
