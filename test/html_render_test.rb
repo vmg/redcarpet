@@ -252,6 +252,13 @@ class HTMLRenderTest < Redcarpet::TestCase
     assert_equal html, render(markdown, with: [:with_toc_data])
   end
 
+  def test_utf8_only_header_anchors
+    markdown = "# 見出し"
+    html = "<h1 id=\"part-37870bfa194139f\">見出し</h1>"
+
+    assert_equal html, render(markdown, with: [:with_toc_data])
+  end
+
   def test_escape_entities_removal_from_anchor
     output = render("# Foo's & Bar's", with: [:with_toc_data])
     result = %(<h1 id="foos-bars">Foo&#39;s &amp; Bar&#39;s</h1>)
