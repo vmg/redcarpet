@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.4.0
+
 * Rely on djb2 hashing generating anchors with non-ASCII chars.
 
   Fix issue [#538](https://github.com/vmg/redcarpet/issues/538).
