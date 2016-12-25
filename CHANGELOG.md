@@ -2,6 +2,8 @@
 
 * Rely on djb2 hashing generating anchors with non-ASCII chars.
 
+  Fix issue [#538](https://github.com/vmg/redcarpet/issues/538).
+
   *Alexey Kopytko*, *namusyaka*
 
 * Added suppport for HTML 5 `details` and `summary` tags.
