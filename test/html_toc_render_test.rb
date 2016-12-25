@@ -9,6 +9,7 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
       ## A __nice__ subtitle
       ## Another one
       ### A sub-sub-title
+      ### 見出し
     Markdown
   end
 
@@ -19,7 +20,7 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert output.end_with?("</ul>")
 
     assert_equal 3, output.scan("<ul>").length
-    assert_equal 4, output.scan("<li>").length
+    assert_equal 5, output.scan("<li>").length
   end
 
   def test_granular_toc_render
@@ -39,6 +40,7 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert_match /a-nice-subtitle/, output
     assert_match /another-one/, output
     assert_match /a-sub-sub-title/, output
+    assert_match /part-37870bfa194139f/, output
   end
 
   def test_toc_heading_with_hyphen_and_equal
