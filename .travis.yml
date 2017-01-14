@@ -1,4 +1,5 @@
 sudo: false
+dist: trusty
 
 addons:
   apt:
@@ -7,26 +8,17 @@ addons:
       - tcl
       - tk
 
-before_install:
-  - gem uninstall bundler -v 1.6.9
-  - gem install bundler -v 1.11.2
-install: travis_retry bundle install --without=benchmark
+install: bundle install --without=benchmark
 
 rvm:
-  - 1.9.2
   - 1.9.3
   - 2.0.0
   - 2.1
   - 2.2
-  - 2.3.0
-  - rbx-3
-  - rbx
+  - 2.3.3
+  - 2.4.0
+  - rbx-3.69
   - ruby-head
-
-matrix:
-  allow_failures:
-    - rvm: rbx-3
-    - rvm: rbx
 
 notifications:
   email: false
