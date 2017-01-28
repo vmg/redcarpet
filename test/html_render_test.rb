@@ -140,14 +140,14 @@ class HTMLRenderTest < Redcarpet::TestCase
     Markdown
 
     html = <<-HTML.chomp.strip_heredoc
-      <p>This is a footnote.<sup id="fnref1"><a href="#fn1" rel="footnote">1</a></sup></p>
+      <p>This is a footnote.<sup id="fnref1"><a href="#fn1">1</a></sup></p>
 
       <div class="footnotes">
       <hr>
       <ol>
 
       <li id="fn1">
-      <p>It provides additional information.&nbsp;<a href="#fnref1" rev="footnote">&#8617;</a></p>
+      <p>It provides additional information.&nbsp;<a href="#fnref1">&#8617;</a></p>
       </li>
 
       </ol>

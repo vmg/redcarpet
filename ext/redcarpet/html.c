@@ -656,7 +656,7 @@ rndr_footnote_def(struct buf *ob, const struct buf *text, unsigned int num, void
 	bufprintf(ob, "\n<li id=\"fn%d\">\n", num);
 	if (pfound) {
 		bufput(ob, text->data, i);
-		bufprintf(ob, "&nbsp;<a href=\"#fnref%d\" rev=\"footnote\">&#8617;</a>", num);
+		bufprintf(ob, "&nbsp;<a href=\"#fnref%d\">&#8617;</a>", num);
 		bufput(ob, text->data + i, text->size - i);
 	} else if (text) {
 		bufput(ob, text->data, text->size);
@@ -667,7 +667,7 @@ rndr_footnote_def(struct buf *ob, const struct buf *text, unsigned int num, void
 static int
 rndr_footnote_ref(struct buf *ob, unsigned int num, void *opaque)
 {
-	bufprintf(ob, "<sup id=\"fnref%d\"><a href=\"#fn%d\" rel=\"footnote\">%d</a></sup>", num, num, num);
+	bufprintf(ob, "<sup id=\"fnref%d\"><a href=\"#fn%d\">%d</a></sup>", num, num, num);
 	return 1;
 }
 

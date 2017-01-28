@@ -1,5 +1,10 @@
 # Changelog
 
+* Remove the `rel` and `rev` attributes from the output generated
+  for footnotes as they don't pass the HTML 5 validation.
+
+  Fixes #536.
+
 * Automatically enable the `fenced_code_blocks` option passing a
   `HTML_TOC` object to the `Markdown` object's constructor since
   some languages rely on the sharp to comment code.
