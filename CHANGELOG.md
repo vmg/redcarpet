@@ -1,5 +1,9 @@
 # Changelog
 
+* Automatically enable the `fenced_code_blocks` option passing a
+  `HTML_TOC` object to the `Markdown` object's constructor since
+  some languages rely on the sharp to comment code.
+
 * Allow passing `Range` objects to the `nesting_level` option to have
   a higher level of customization for table of contents:
 

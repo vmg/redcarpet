@@ -40,10 +40,10 @@
 }
 
 extern VALUE rb_mRedcarpet;
+extern VALUE rb_cRenderHTML_TOC;
 VALUE rb_mRender;
 VALUE rb_cRenderBase;
 VALUE rb_cRenderHTML;
-VALUE rb_cRenderHTML_TOC;
 VALUE rb_mSmartyPants;
 
 #define buf2str(t) ((t) ? rb_enc_str_new((const char*)(t)->data, (t)->size, opt->active_enc) : Qnil)

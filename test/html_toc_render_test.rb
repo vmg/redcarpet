@@ -93,4 +93,19 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert_match "&lt;strong&gt;", output
     assert_no_match %r{<strong>}, output
   end
+
+  def test_ignoring_fenced_code_blocks_comments
+    markdown = <<-Markdown.strip_heredoc
+    # Hello world !
+
+    ~~~ruby
+    # This is a comment
+    ~~~
+    Markdown
+
+    output = render(markdown)
+
+    assert output.match("Hello world")
+    refute output.match("This is a comment")
+  end
 end

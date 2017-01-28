@@ -24,6 +24,7 @@
 
 VALUE rb_mRedcarpet;
 VALUE rb_cMarkdown;
+VALUE rb_cRenderHTML_TOC;
 
 extern VALUE rb_cRenderBase;
 
@@ -100,6 +101,15 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 
 	if (!rb_obj_is_kind_of(rb_rndr, rb_cRenderBase))
 		rb_raise(rb_eTypeError, "Invalid Renderer instance given");
+
+	/**
+	 * Automatically enable the `fenced_code_blocks` option if
+	 * given a kind of `HTML_TOC` object since many languages
+	 * like Ruby use the sharp to comment code so these comments
+	 * would be processed as titles.
+	 */
+	if (rb_obj_is_kind_of(rb_rndr, rb_cRenderHTML_TOC))
+		extensions |= MKDEXT_FENCED_CODE;
 
 	Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, rndr);
 
