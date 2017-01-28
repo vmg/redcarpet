@@ -182,8 +182,8 @@ which will output a table of contents in HTML based on the headers of the
 Markdown document.
 
 When instantiating this render object, you can optionally pass a `nesting_level`
-option which takes an integer and allows you to make it render only headers
-until a specific level.
+option which takes an integer or a range and allows you to make it render only
+headers at certain levels.
 
 Redcarpet also includes a plaintext renderer, `Redcarpet::Render::StripDown`, that
 strips out all the formatting:

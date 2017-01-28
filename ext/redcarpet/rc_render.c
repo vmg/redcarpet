@@ -511,10 +511,22 @@ static VALUE rb_redcarpet_htmltoc_init(int argc, VALUE *argv, VALUE self)
 	sdhtml_toc_renderer(&rndr->callbacks, (struct html_renderopt *)&rndr->options.html, render_flags);
 	rb_redcarpet__overload(self, rb_cRenderHTML_TOC);
 
-	if (!(NIL_P(nesting_level)))
-		rndr->options.html.toc_data.nesting_level = NUM2INT(nesting_level);
-	else
-		rndr->options.html.toc_data.nesting_level = 6;
+	/* Check whether we are dealing with a Range object by
+	   checking whether the object responds to min and max */
+	if (rb_respond_to(nesting_level, rb_intern("min")) &&
+	    rb_respond_to(nesting_level, rb_intern("max"))) {
+		int min = NUM2INT(rb_funcall(nesting_level, rb_intern("min"), 0));
+		int max = NUM2INT(rb_funcall(nesting_level, rb_intern("max"), 0));
+
+		rndr->options.html.toc_data.nesting_bounds[0] = min;
+		rndr->options.html.toc_data.nesting_bounds[1] = max;
+	} else if (FIXNUM_P(nesting_level)) {
+		rndr->options.html.toc_data.nesting_bounds[0] = 1;
+		rndr->options.html.toc_data.nesting_bounds[1] = NUM2INT(nesting_level);
+	} else {
+		rndr->options.html.toc_data.nesting_bounds[0] = 1;
+		rndr->options.html.toc_data.nesting_bounds[1] = 6;
+	}
 
 	return Qnil;
 }

@@ -35,7 +35,7 @@ struct html_renderopt {
 	struct {
 		int current_level;
 		int level_offset;
-		int nesting_level;
+		int nesting_bounds[2];
 	} toc_data;
 
 	unsigned int flags;

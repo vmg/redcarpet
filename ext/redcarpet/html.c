@@ -326,7 +326,8 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 	if (ob->size)
 		bufputc(ob, '\n');
 
-	if ((options->flags & HTML_TOC) && (level <= options->toc_data.nesting_level)) {
+	if ((options->flags & HTML_TOC) && level >= options->toc_data.nesting_bounds[0] &&
+	     level <= options->toc_data.nesting_bounds[1]) {
 		bufprintf(ob, "<h%d id=\"", level);
 		rndr_header_anchor(ob, text);
 		BUFPUTSL(ob, "\">");
@@ -675,7 +676,8 @@ toc_header(struct buf *ob, const struct buf *text, int level, void *opaque)
 {
 	struct html_renderopt *options = opaque;
 
-	if (level <= options->toc_data.nesting_level) {
+	if (level >= options->toc_data.nesting_bounds[0] &&
+	    level <= options->toc_data.nesting_bounds[1]) {
 		/* set the level offset if this is the first header
 		 * we're parsing for the document */
 		if (options->toc_data.current_level == 0)
@@ -824,7 +826,8 @@ sdhtml_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, 
 	/* Prepare the options pointer */
 	memset(options, 0x0, sizeof(struct html_renderopt));
 	options->flags = render_flags;
-	options->toc_data.nesting_level = 99;
+	options->toc_data.nesting_bounds[0] = 1;
+	options->toc_data.nesting_bounds[1] = 6;
 
 	/* Prepare the callbacks */
 	memcpy(callbacks, &cb_default, sizeof(struct sd_callbacks));

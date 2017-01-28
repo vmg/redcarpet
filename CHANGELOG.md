@@ -1,5 +1,12 @@
 # Changelog
 
+* Allow passing `Range` objects to the `nesting_level` option to have
+  a higher level of customization for table of contents:
+
+  ~~~ruby
+  Redcarpet::Render::HTML_TOC.new(nesting_level: 2..5)
+  ~~~
+
 ## Version 3.4.0
 
 * Rely on djb2 hashing generating anchors with non-ASCII chars.

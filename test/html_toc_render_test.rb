@@ -33,6 +33,20 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert !output.include?("A sub-sub title")
   end
 
+  def test_granular_toc_render_with_range
+    output = render(@markdown, with: { nesting_level: 2..5 }).strip
+
+    assert output.start_with?("<ul>")
+    assert output.end_with?("</ul>")
+
+    assert output.match("Another one")
+    assert output.match("A sub-sub-title")
+    assert output.match("見出し")
+
+    refute output.match("A title")
+    refute output.match("A really tiny title")
+  end
+
   def test_toc_heading_id
     output = render(@markdown)
 
