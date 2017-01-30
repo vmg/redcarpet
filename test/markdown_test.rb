@@ -131,6 +131,18 @@ HTML
     html_equal exp, rd
   end
 
+  def test_auto_linked_www_utf8_issue
+		rd = render_with({ autolink: true }, "www.example.com/码")
+		exp = %{<p><a href="http://www.example.com/%E7%A0%81">www.example.com/码</a></p>\n}
+    assert_equal exp, rd
+  end
+
+  def test_auto_linked_url_utf8_issue
+		rd = render_with({ autolink: true }, "http://example.com/码")
+    exp = %{<p><a href="http://example.com/%E7%A0%81">http://example.com/码</a></p>\n}
+    assert_equal exp, rd
+  end
+
   def test_memory_leak_when_parsing_char_links
     @markdown.render(<<-leaks)
 2. Identify the wild-type cluster and determine all clusters
@@ -241,6 +253,12 @@ fenced
 
     out = Greenmat::Markdown.new(Greenmat::Render::HTML, :fenced_code_blocks => true).render(text)
     assert !out.include?("<pre><code>")
+  end
+
+  def test_that_fenced_flag_works_with_utf8
+    text = "```ム\ncode\n```"
+    out = Greenmat::Markdown.new(Greenmat::Render::HTML, :fenced_code_blocks => true).render(text)
+    assert out.include?(%{<pre><code class="ム">})
   end
 
   def test_that_indented_flag_works

@@ -16,6 +16,7 @@
 
 #include "buffer.h"
 #include "autolink.h"
+#include "houdini.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -169,7 +170,7 @@ sd_autolink__www(
 {
 	size_t link_end;
 
-	if (max_rewind > 0 && !ispunct(data[-1]) && !isspace(data[-1]))
+	if (max_rewind > 0 && !ispunct(data[-1]) && is_non_space(data[-1]))
 		return 0;
 
 	if (size < 4 || memcmp(data, "www.", strlen("www.")) != 0)
@@ -180,7 +181,7 @@ sd_autolink__www(
 	if (link_end == 0)
 		return 0;
 
-	while (link_end < size && !isspace(data[link_end]))
+	while (link_end < size && is_non_space(data[link_end]))
 		link_end++;
 
 	link_end = autolink_delim(data, link_end, max_rewind, size);
@@ -280,7 +281,7 @@ sd_autolink__url(
 		return 0;
 
 	link_end += domain_len;
-	while (link_end < size && !isspace(data[link_end]))
+	while (link_end < size && is_non_space(data[link_end]))
 		link_end++;
 
 	link_end = autolink_delim(data, link_end, max_rewind, size);
