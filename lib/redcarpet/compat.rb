@@ -1,5 +1,3 @@
-require 'redcarpet'
-
 # Creates an instance of Redcarpet with the RedCloth API.
 class RedcarpetCompat
   attr_accessor :text
