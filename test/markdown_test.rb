@@ -143,6 +143,12 @@ HTML
     assert_equal exp, rd
   end
 
+  def test_auto_linked_email_utf8_issue
+    rd = render_with({ autolink: true }, "r@example.comあ")
+    exp = %{<p><a href="mailto:r@example.com">r@example.com</a>あ</p>\n}
+    assert_equal exp, rd
+  end
+
   def test_memory_leak_when_parsing_char_links
     @markdown.render(<<-leaks)
 2. Identify the wild-type cluster and determine all clusters

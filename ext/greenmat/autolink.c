@@ -223,7 +223,7 @@ sd_autolink__email(
 		return 0;
 
 	for (link_end = 0; link_end < size; ++link_end) {
-		uint8_t c = data[link_end];
+		char c = data[link_end];
 
 		if (isalnum(c))
 			continue;
