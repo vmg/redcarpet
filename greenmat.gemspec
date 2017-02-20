@@ -24,6 +24,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "nokogiri", "~> 1.6.0"
   s.add_development_dependency "rake-compiler", "~> 0.8.3"
   s.add_development_dependency "rspec", "~> 3.2"
-  s.add_development_dependency "rubygems-xcodeproj_generator", '~> 0.1'
   s.add_development_dependency "test-unit", "~> 2.5.4"
 end
