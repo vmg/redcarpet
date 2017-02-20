@@ -6,9 +6,9 @@ install: travis_retry bundle install --without=benchmark
 
 rvm:
   - 2.0.0
-  - 2.1
-  - 2.2
-  - ruby-head
-
+  - 2.1.10
+  - 2.2.6
+  - 2.3.3
+  - 2.4.0
 notifications:
   email: false
