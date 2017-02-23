@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v3.2.2.2
+
+* Fix bugs in UTF-8 handling. [#3](https://github.com/increments/greenmat/pull/3) ([@gfx](https://github.com/gfx))
+
 ## v3.2.2.1
 
 * Fix a bug where bad memory access would happen in a document starting with `@`.
