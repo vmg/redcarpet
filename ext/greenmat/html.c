@@ -137,7 +137,7 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 
 			if (i < lang->size) {
 				size_t org = i;
-				while (i < lang->size && !isspace(lang->data[i]))
+				while (i < lang->size && is_non_space(lang->data[i]))
 					i++;
 
 				if (lang->data[org] == '.')

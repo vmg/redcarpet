@@ -1,6 +1,7 @@
 #ifndef HOUDINI_H__
 #define HOUDINI_H__
 
+#include <stdlib.h>
 #include "buffer.h"
 
 #ifdef __cplusplus
@@ -21,6 +22,8 @@ extern "C" {
 extern void houdini_escape_html(struct buf *ob, const uint8_t *src, size_t size);
 extern void houdini_escape_html0(struct buf *ob, const uint8_t *src, size_t size, int secure);
 extern void houdini_escape_href(struct buf *ob, const uint8_t *src, size_t size);
+
+#define is_non_space(c) (!isspace(c) || (c) >= 0x7f)
 
 #ifdef __cplusplus
 }
