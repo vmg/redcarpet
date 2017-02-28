@@ -52,7 +52,7 @@ module Redcarpet
         content + "\n"
       end
 
-      def table_cell(content, alignment)
+      def table_cell(content, alignment, header)
         content + "\t"
       end
     end

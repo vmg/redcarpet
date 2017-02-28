@@ -257,7 +257,7 @@ end
 * paragraph(text)
 * table(header, body)
 * table_row(content)
-* table_cell(content, alignment)
+* table_cell(content, alignment, header)
 
 ### Span-level calls
 

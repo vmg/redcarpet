@@ -114,8 +114,9 @@ static void
 rndr_tablecell(struct buf *ob, const struct buf *text, int align, void *opaque)
 {
 	VALUE rb_align;
+    VALUE rb_header;
 
-	switch (align) {
+    switch (align & MKD_TABLE_ALIGNMASK) {
 	case MKD_TABLE_ALIGN_L:
 		rb_align = CSTR2SYM("left");
 		break;
@@ -133,7 +134,13 @@ rndr_tablecell(struct buf *ob, const struct buf *text, int align, void *opaque)
 		break;
 	}
 
-	BLOCK_CALLBACK("table_cell", 2, buf2str(text), rb_align);
+    if (align & MKD_TABLE_HEADER) {
+        rb_header = INT2NUM(1);
+	} else {
+        rb_header = Qnil;
+	}
+
+	BLOCK_CALLBACK("table_cell", 3, buf2str(text), rb_align, rb_header);
 }
 
 static void
