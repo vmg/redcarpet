@@ -310,7 +310,7 @@ rndr_header_anchor(struct buf *out, const struct buf *anchor)
 
 	// if anchor found empty, use djb2 hash for it
 	if (!inserted && anchor->size) {
-	        unsigned long hash = 5381;
+		unsigned long hash = 5381;
 		for (i = 0; i < size; ++i) {
 			hash = ((hash << 5) + hash) + a[i]; /* h * 33 + c */
 		}
