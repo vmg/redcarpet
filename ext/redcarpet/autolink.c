@@ -306,4 +306,3 @@ sd_autolink__url(
 
 	return link_end;
 }
-

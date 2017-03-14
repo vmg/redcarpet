@@ -86,4 +86,3 @@ void bufprintf(struct buf *, const char *, ...) __attribute__ ((format (printf, 
 #endif
 
 #endif
-

@@ -181,4 +181,3 @@ void Init_redcarpet()
 
 	Init_redcarpet_rndr();
 }
-
