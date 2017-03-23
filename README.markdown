@@ -45,10 +45,10 @@ output.
 The `Redcarpet::Markdown` object is encouraged to be instantiated once with the
 required settings, and reused between parses.
 
-~~~~~ ruby
+~~~~ ruby
 # Initializes a Markdown parser
 markdown = Redcarpet::Markdown.new(renderer, extensions = {})
-~~~~~
+~~~~
 
 Here, the `renderer` variable refers to a renderer object, inheriting
 from `Redcarpet::Render::Base`. If the given object has not been
@@ -59,10 +59,10 @@ Unlike in the RedCloth API, the text to render is passed as an argument
 and not stored inside the `Markdown` instance, to encourage reusability.
 Example:
 
-~~~~~ ruby
+~~~~ ruby
 markdown.render("This is *bongos*, indeed.")
 # => "<p>This is <em>bongos</em>, indeed.</p>"
-~~~~~
+~~~~
 
 You can also specify a hash containing the Markdown extensions which the
 parser will identify. The following extensions are accepted:
@@ -119,9 +119,9 @@ within the document (e.g. `[^1]: This is a footnote.`).
 
 Example:
 
-~~~ruby
+~~~~ ruby
 markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true, tables: true)
- ~~~~~
+~~~~
 
 Darling, I packed you a couple renderers for lunch
 --------------------------------------------------
@@ -136,9 +136,9 @@ All the rendering flags that previously applied only to HTML output have
 now been moved to the `Redcarpet::Render::HTML` class, and may be enabled when
 instantiating the renderer:
 
-~~~~~ ruby
+~~~~ ruby
 Redcarpet::Render::HTML.new(render_options = {})
-~~~~~
+~~~~
 
 Initializes an HTML renderer. The following flags are available:
 
@@ -172,9 +172,9 @@ Markdown document had newlines (by default, Markdown ignores these newlines).
 
 Example:
 
-~~~~~ ruby
+~~~~ ruby
 renderer = Redcarpet::Render::HTML.new(no_links: true, hard_wrap: true)
-~~~~~
+~~~~
 
 
 The `HTML` renderer has an alternate version, `Redcarpet::Render::HTML_TOC`,
@@ -205,7 +205,7 @@ And you can even cook your own
 Custom renderers are created by inheriting from an existing renderer. The
 built-in renderers, `HTML` and `XHTML` may be extended as such:
 
-~~~~~ ruby
+~~~~ ruby
 # Create a custom renderer that sets a custom class for block-quotes.
 class CustomRender < Redcarpet::Render::HTML
   def block_quote(quote)
@@ -214,17 +214,17 @@ class CustomRender < Redcarpet::Render::HTML
 end
 
 markdown = Redcarpet::Markdown.new(HTMLwithPygments, fenced_code_blocks: true)
-~~~~~
+~~~~
 
 But new renderers can also be created from scratch by extending the abstract
 base class `Redcarpet::Render::Base` (see `lib/redcarpet/render_man.rb` for
 an example implementation of a Manpage renderer):
 
-~~~~~~ ruby
+~~~~ ruby
 class ManPage < Redcarpet::Render::Base
   # you get the drill -- keep going from here
 end
-~~~~~
+~~~~
 
 The following instance methods may be implemented by the renderer:
 
@@ -337,7 +337,7 @@ end
 
 # Standalone
 Redcarpet::Render::SmartyPants.render("<p>Oh SmartyPants, you're so crazy...</p>")
-~~~~~
+~~~~
 
 SmartyPants works on top of already-rendered HTML, and will ignore replacements
 inside the content of HTML tags and inside specific HTML blocks such as
@@ -362,16 +362,16 @@ renderer-independent, the results will be completely unreliable!
 Still, if major forces (let's say, tornadoes or other natural disasters) force you
 to keep a Markdown-compatibility layer, Redcarpet also supports this:
 
-~~~~~ ruby
+~~~~ ruby
 require 'redcarpet/compat'
-~~~~~
+~~~~
 
 Requiring the compatibility library will declare a `Markdown` class with the
 classical RedCloth API, e.g.
 
-~~~~~ ruby
+~~~~ ruby
 Markdown.new('this is my text').to_html
-~~~~~
+~~~~
 
 This class renders 100% standards compliant Markdown with 0 extensions. Nada.
 Don't even try to enable extensions with a compatibility layer, because
