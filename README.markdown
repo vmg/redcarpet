@@ -220,11 +220,9 @@ But new renderers can also be created from scratch by extending the abstract
 base class `Redcarpet::Render::Base` (see `lib/redcarpet/render_man.rb` for
 an example implementation of a Manpage renderer):
 
-~~~~~~ ruby
-class ManPage < Redcarpet::Render::Base
-  # you get the drill -- keep going from here
-end
-~~~~~
+    class ManPage < Redcarpet::Render::Base
+      # you get the drill -- keep going from here
+    end
 
 The following instance methods may be implemented by the renderer:
 
