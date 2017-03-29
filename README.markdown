@@ -315,6 +315,32 @@ You can look at
 ["How to extend the Redcarpet 2 Markdown library?"](http://dev.af83.com/2012/02/27/howto-extend-the-redcarpet2-markdown-lib.html)
 for some more explanations.
 
+But where do I put it? (A Handy Tip for Rails Users)
+------------------------------------
+
+There are a few options for where to include Redcarpet in your Rails app, but one 
+of the most straightforward is in your `ApplicationHelper`.
+
+For example:
+
+~~~~ ruby
+module ApplicationHelper
+  def as_markdown(text)
+    renderer = Redcarpet::Render::HTML.new # include render_options as needed
+    markdown = Redcarpet::Markdown.new(renderer) # include extensions as needed
+    markdown.render(text)
+  end
+end
+~~~~~
+
+And then call it in your view with the text you want to parse:
+
+~~~~ erb
+<div>
+  <%= as_markdown(@object.description) %>
+</div>
+~~~~~
+
 Also, now our Pants are much smarter
 ------------------------------------
 
