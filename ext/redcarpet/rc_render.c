@@ -377,7 +377,7 @@ static void rb_redcarpet_rbase_mark(struct rb_redcarpet_rndr *rndr)
 
 static void rndr_deallocate(void *rndr)
 {
-  xfree(rndr);
+	xfree(rndr);
 }
 
 static VALUE rb_redcarpet_rbase_alloc(VALUE klass)

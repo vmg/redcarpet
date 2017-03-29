@@ -2703,7 +2703,7 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 
 static void expand_tabs(struct buf *ob, const uint8_t *line, size_t size)
 {
-	size_t  i = 0, tab = 0;
+	size_t i = 0, tab = 0;
 
 	while (i < size) {
 		size_t org = i;
