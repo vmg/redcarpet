@@ -135,6 +135,12 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
+  def test_auto_linked_argument_error
+    rd = render_with({ autolink: true }, "http://zh.wikipedia.org/wiki/码")
+    exp = %{<p><a href="http://zh.wikipedia.org/wiki/%E7%A0%81">http://zh.wikipedia.org/wiki/码</a></p>\n}
+    html_equal exp, rd
+  end
+
   def test_memory_leak_when_parsing_char_links
     render(<<-leaks.strip_heredoc)
       2. Identify the wild-type cluster and determine all clusters
