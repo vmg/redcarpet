@@ -403,4 +403,20 @@ class MarkdownTest < Redcarpet::TestCase
 
     assert_match /<table>/, output
   end
+
+  # https://github.com/vmg/redcarpet/issues/615
+  def test_inconsistent_indentation
+    markdown = <<-Markdown.strip_heredoc
+ - Item 1
+   - Item 2
+     - Item 3
+       - Item 4
+         - Item 5
+    Markdown
+
+    result = "<ul>\n<li>Item 1\n\n<ul>\n<li>Item 2\n\n<ul>\n<li>Item 3\n\n<ul>\n<li>Item 4\n\n<ul>\n<li>Item 5</li>\n</ul></li>\n</ul></li>\n</ul></li>\n</ul></li>\n</ul>"
+    output = render(markdown)
+
+    assert_equal result, output
+  end
 end
