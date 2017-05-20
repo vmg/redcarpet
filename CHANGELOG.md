@@ -1,5 +1,10 @@
 # Changelog
 
+* Correct an issue where list parsing would improperly handle
+  indentation, causing list elements to not correctly nest.
+
+  Fixes #615.
+
 * Remove the `rel` and `rev` attributes from the output generated
   for footnotes as they don't pass the HTML 5 validation.
 
