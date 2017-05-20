@@ -468,6 +468,9 @@ parse_inline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t siz
 	uint8_t action = 0;
 	struct buf work = { 0, 0, 0, 0 };
 
+	// JD: You can monitor the current nesting status here. If this exceeds max_nesting, there will be problems.
+	// fprintf(stderr, "\nMax Birds in Nest: %lu\n", rndr->work_bufs[BUFFER_SPAN].size + rndr->work_bufs[BUFFER_BLOCK].size);
+
 	if (rndr->work_bufs[BUFFER_SPAN].size +
 		rndr->work_bufs[BUFFER_BLOCK].size > rndr->max_nesting)
 		return;
@@ -1824,8 +1827,9 @@ parse_blockcode(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 static size_t
 parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size, int *flags)
 {
+	// JD: pre has been defined with an initial indent of 4. This is used further down.
 	struct buf *work = 0, *inter = 0;
-	size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
+	size_t beg = 0, end, pre = 4, sublist = 0, orgpre = 0, i;
 	int in_empty = 0, has_inside_empty = 0, in_fence = 0;
 
 	/* keeping track of the first indentation prefix */
@@ -1870,9 +1874,10 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 
 		/* calculating the indentation */
 		i = 0;
-		while (i < 4 && beg + i < end && data[beg + i] == ' ')
+		// JD: We'll check indentation, up to whatever our current level of indentation is (or 4, if it's the first time).
+		while (i < pre && beg + i < end && data[beg + i] == ' ')
 			i++;
-
+		// JD: Once we stop our check, we'll update pre, and use it next time when walking through indentation.
 		pre = i;
 
 		if (rndr->ext_flags & MKDEXT_FENCED_CODE) {
@@ -1899,6 +1904,23 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 		if ((has_next_uli && !is_hrule(data + beg + i, end - beg - i)) || has_next_oli) {
 			if (in_empty)
 				has_inside_empty = 1;
+
+			/*
+			JD: This is where I started observing the system. Placing this code in an otherwise non-modified version allows you to see the difference in handling indentation when the third level is hit.
+			JD: Since work is just a working buffer, and since most of our operations are size-limiting, I'm setting the very last byte to a null terminator to make this print-friendly.
+			JD: This avoids the need to copy to another place im memory during testing.
+			*/
+			/*
+			work->data[work->size] = '\0';
+			fprintf(stderr, "---BEGIN DATA---\n");
+			fprintf(stderr, "Orig. Indent: %lu\n", orgpre);
+			fprintf(stderr, "Curr. Indent: %lu\n", pre);
+			fprintf(stderr, "Curr. Sublist Status: %lu\n", sublist);
+			fprintf(stderr, "Has Next UL: %lu\n", has_next_uli);
+			fprintf(stderr, "Has Next OL: %lu\n", has_next_oli);
+			fprintf(stderr, "%s\n", work->data);
+			fprintf(stderr, "---END DATA---\n");
+			*/
 
 			if (pre == orgpre) /* the following item must have */
 				break;             /* the same indentation */
