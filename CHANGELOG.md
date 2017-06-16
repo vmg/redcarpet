@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.2.2.3
+
 * Change `<code>` attribute for code block metadata (language) from `class` to `data-metadata`.
   Note that this is a breaking change, though you won't face this breakage if you're using greenmat through qiita-markdown gem and updating both gems.
 
