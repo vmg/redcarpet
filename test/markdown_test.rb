@@ -264,7 +264,7 @@ fenced
   def test_that_fenced_flag_works_with_utf8
     text = "```ム\ncode\n```"
     out = Greenmat::Markdown.new(Greenmat::Render::HTML, :fenced_code_blocks => true).render(text)
-    assert out.include?(%{<pre><code class="ム">})
+    assert out.include?(%{<pre><code data-metadata="ム">})
   end
 
   def test_that_indented_flag_works

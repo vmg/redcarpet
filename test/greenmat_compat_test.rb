@@ -15,13 +15,13 @@ class GreenmatCompatTest < Greenmat::TestCase
   def test_compat_api_knows_fenced_code_extension
     text = "```ruby\nx = 'foo'\n```"
     html = GreenmatCompat.new(text, :fenced_code).to_html
-    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>\n", html
+    html_equal "<pre><code data-metadata=\"ruby\">x = 'foo'\n</code></pre>\n", html
   end
 
   def test_compat_api_ignores_gh_blockcode_extension
     text = "```ruby\nx = 'foo'\n```"
     html = GreenmatCompat.new(text, :fenced_code, :gh_blockcode).to_html
-    html_equal "<pre><code class=\"ruby\">x = 'foo'\n</code></pre>\n", html
+    html_equal "<pre><code data-metadata=\"ruby\">x = 'foo'\n</code></pre>\n", html
   end
 
   def test_compat_api_knows_no_intraemphasis_extension

@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.executables = ["greenmat"]
   s.require_paths = ["lib"]
 
+  s.add_development_dependency "activesupport"
   s.add_development_dependency "nokogiri", "~> 1.6.0"
   s.add_development_dependency "rake", "~> 10.0"
   s.add_development_dependency "rake-compiler", "~> 0.8.3"
