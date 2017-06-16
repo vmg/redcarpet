@@ -1,4 +1,5 @@
 require 'greenmat'
+require "active_support/core_ext/string/strip"
 
 module Greenmat
   RSpec.describe Markdown do
@@ -58,6 +59,27 @@ module Greenmat
 
         it 'emphasizes the text' do
           expect(rendered_html).to include('<em>')
+        end
+      end
+    end
+
+    context 'with fenced_code_blocks option' do
+      let(:options) { { fenced_code_blocks: true } }
+
+      context 'with language and filename syntax' do
+        let(:text) do
+          <<-EOS.strip_heredoc
+            ```ruby:example.rb
+            puts :foo
+            ```
+          EOS
+        end
+
+        it 'generates <code> tag with data-metadata attribute' do
+          expect(rendered_html).to eq <<-EOS.strip_heredoc
+            <pre><code data-metadata="ruby:example.rb">puts :foo
+            </code></pre>
+          EOS
         end
       end
     end

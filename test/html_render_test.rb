@@ -218,7 +218,7 @@ Markdown
     renderer = Greenmat::Markdown.new(@rndr[:prettify], fenced_code_blocks: true)
     output = renderer.render(text)
 
-    assert output.include?("<code class=\"prettyprint ruby\">")
+    assert output.include?("<code class=\"prettyprint\" data-metadata=\"ruby\">")
   end
 
   def test_safe_links_only_with_anchors
