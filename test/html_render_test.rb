@@ -254,7 +254,13 @@ class HTMLRenderTest < Redcarpet::TestCase
 
   def test_utf8_only_header_anchors
     markdown = "# 見出し"
-    html = "<h1 id=\"part-37870bfa194139f\">見出し</h1>"
+    if 1.size == 4 # 32-bit architecture
+      html = "<h1 id=\"part-a194139f\">見出し</h1>"
+    elsif 1.size == 8 # 64-bit architecture
+      html = "<h1 id=\"part-37870bfa194139f\">見出し</h1>"
+    else
+      raise "unknown integer size"
+    end
 
     assert_equal html, render(markdown, with: [:with_toc_data])
   end
