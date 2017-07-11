@@ -213,7 +213,7 @@ class CustomRender < Redcarpet::Render::HTML
   end
 end
 
-markdown = Redcarpet::Markdown.new(HTMLwithPygments, fenced_code_blocks: true)
+markdown = Redcarpet::Markdown.new(CustomRender, fenced_code_blocks: true)
 ~~~~
 
 But new renderers can also be created from scratch by extending the abstract
