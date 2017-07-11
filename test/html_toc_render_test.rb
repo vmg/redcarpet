@@ -54,7 +54,8 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert_match /a-nice-subtitle/, output
     assert_match /another-one/, output
     assert_match /a-sub-sub-title/, output
-    assert_match /part-37870bfa194139f/, output
+    # the part number length varies depending on architecture (32b or 64b)
+    assert_match /part-(37870bf)?a194139f/, output
   end
 
   def test_toc_heading_with_hyphen_and_equal
