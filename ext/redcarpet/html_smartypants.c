@@ -341,6 +341,7 @@ smartypants_cb__ltag(struct buf *ob, struct smartypants_data *smrt, uint8_t prev
 	};
 	static const size_t skip_tags_count = 8;
 
+	size_t next_to_closing_a = 0;
 	size_t tag, i = 0;
 
 	while (i < size && text[i] != '>')
@@ -369,7 +370,23 @@ smartypants_cb__ltag(struct buf *ob, struct smartypants_data *smrt, uint8_t prev
 			i++;
 	}
 
+	if (sdhtml_is_tag(text, size, "a") == HTML_TAG_CLOSE) {
+		while (i < size && text[i] != '>')
+			i++;
+
+		next_to_closing_a = 1;
+	}
+
 	bufput(ob, text, i + 1);
+
+	// Pretty tricky: since people may refer to something or someone
+	// with a link but use the possessive form right after it, we need
+	// to check whether a single quote is next to a closing "</a"> tag.
+	if (next_to_closing_a && strncmp("&#39;", text+(i+1), 5) == 0) {
+		bufput(ob, "&rsquo;", 7);
+		i += 5;
+	}
+
 	return i;
 }
 
