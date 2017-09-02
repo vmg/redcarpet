@@ -5,6 +5,16 @@
 
   Fixes #615.
 
+* Fix SmartyPants single quotes right after a link. For example:
+
+  ~~~markdown
+  [John](http://john.doe)'s cat
+  ~~~
+
+  Will now properly converts `'` to a right single quote (i.e. `’`).
+
+  Fixes #624.
+
 * Remove the `rel` and `rev` attributes from the output generated
   for footnotes as they don't pass the HTML 5 validation.
 

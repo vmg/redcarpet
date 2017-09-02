@@ -42,4 +42,10 @@ class SmartyHTMLTest < Redcarpet::TestCase
     expected = "It&#39;s a test of &quot;code&quot;"
     assert rd.include?(expected), "\"#{rd}\" should contain \"#{expected}\""
   end
+
+  def test_that_smartyhtml_ignores_links_for_single_quotes
+    output = render("[John](link)'s cat")
+    expected = %(<p><a href="link">John</a>&rsquo;s cat</p>)
+    assert_equal expected, output
+  end
 end
