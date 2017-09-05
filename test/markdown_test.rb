@@ -45,6 +45,12 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
+  def test_that_backslashes_escape_properly
+    output   = render("visit \\\\server\\path \\**now**")
+    expected = "<p>visit \\\\server\\path *<em>now</em>*</p>"
+    assert_equal expected, output
+  end
+
   # This isn't in the spec but is Markdown.pl behavior.
   def test_block_quotes_preceded_by_spaces
     output = render <<-Markdown.strip_heredoc
