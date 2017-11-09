@@ -22,6 +22,7 @@
 
 #include "stack.h"
 #include <string.h>
+#include <ruby.h>
 
 int
 redcarpet_stack_grow(struct stack *st, size_t new_size)
@@ -31,7 +32,7 @@ redcarpet_stack_grow(struct stack *st, size_t new_size)
 	if (st->asize >= new_size)
 		return 0;
 
-	new_st = realloc(st->item, new_size * sizeof(void *));
+	new_st = ruby_xrealloc(st->item, new_size * sizeof(void *));
 	if (new_st == NULL)
 		return -1;
 
@@ -53,7 +54,7 @@ redcarpet_stack_free(struct stack *st)
 	if (!st)
 		return;
 
-	free(st->item);
+	ruby_xfree(st->item);
 
 	st->item = NULL;
 	st->size = 0;

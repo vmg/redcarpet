@@ -28,6 +28,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <ruby.h>
 
 #if defined(_WIN32)
 #define strncasecmp	_strnicmp
@@ -217,7 +218,7 @@ add_link_ref(
 	struct link_ref **references,
 	const uint8_t *name, size_t name_size)
 {
-	struct link_ref *ref = calloc(1, sizeof(struct link_ref));
+	struct link_ref *ref = ruby_xcalloc(1, sizeof(struct link_ref));
 
 	if (!ref)
 		return NULL;
@@ -260,7 +261,7 @@ free_link_refs(struct link_ref **references)
 			next = r->next;
 			bufrelease(r->link);
 			bufrelease(r->title);
-			free(r);
+			ruby_xfree(r);
 			r = next;
 		}
 	}
@@ -269,7 +270,7 @@ free_link_refs(struct link_ref **references)
 static struct footnote_ref *
 create_footnote_ref(struct footnote_list *list, const uint8_t *name, size_t name_size)
 {
-	struct footnote_ref *ref = calloc(1, sizeof(struct footnote_ref));
+	struct footnote_ref *ref = ruby_xcalloc(1, sizeof(struct footnote_ref));
 	if (!ref)
 		return NULL;
 
@@ -281,7 +282,7 @@ create_footnote_ref(struct footnote_list *list, const uint8_t *name, size_t name
 static int
 add_footnote_ref(struct footnote_list *list, struct footnote_ref *ref)
 {
-	struct footnote_item *item = calloc(1, sizeof(struct footnote_item));
+	struct footnote_item *item = ruby_xcalloc(1, sizeof(struct footnote_item));
 	if (!item)
 		return 0;
 	item->ref = ref;
@@ -318,7 +319,7 @@ static void
 free_footnote_ref(struct footnote_ref *ref)
 {
 	bufrelease(ref->contents);
-	free(ref);
+	ruby_xfree(ref);
 }
 
 static void
@@ -331,7 +332,7 @@ free_footnote_list(struct footnote_list *list, int free_refs)
 		next = item->next;
 		if (free_refs)
 			free_footnote_ref(item->ref);
-		free(item);
+		ruby_xfree(item);
 		item = next;
 	}
 }
@@ -2300,7 +2301,7 @@ parse_table_header(
 		pipes--;
 
 	*columns = pipes + 1;
-	*column_data = calloc(*columns, sizeof(int));
+	*column_data = ruby_xcalloc(*columns, sizeof(int));
 
 	/* Parse the header underline */
 	i++;
@@ -2409,7 +2410,7 @@ parse_table(
 			rndr->cb.table(ob, header_work, body_work, rndr->opaque);
 	}
 
-	free(col_data);
+	ruby_xfree(col_data);
 	rndr_popbuf(rndr, BUFFER_SPAN);
 	rndr_popbuf(rndr, BUFFER_BLOCK);
 	return i;
@@ -2741,7 +2742,7 @@ sd_markdown_new(
 
 	assert(max_nesting > 0 && callbacks);
 
-	md = malloc(sizeof(struct sd_markdown));
+	md = ruby_xmalloc(sizeof(struct sd_markdown));
 	if (!md)
 		return NULL;
 
@@ -2911,5 +2912,5 @@ sd_markdown_free(struct sd_markdown *md)
 	redcarpet_stack_free(&md->work_bufs[BUFFER_SPAN]);
 	redcarpet_stack_free(&md->work_bufs[BUFFER_BLOCK]);
 
-	free(md);
+	ruby_xfree(md);
 }
