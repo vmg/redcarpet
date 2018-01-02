@@ -3,6 +3,7 @@ Redcarpet is written with sugar, spice and everything nice
 
 [![Build Status](https://travis-ci.org/vmg/redcarpet.svg?branch=master)](https://travis-ci.org/vmg/redcarpet)
 [![Dependency Status](https://www.versioneye.com/ruby/redcarpet/badge.svg)](https://www.versioneye.com/ruby/redcarpet)
+[![Help Contribute to Open Source](https://www.codetriage.com/vmg/redcarpet/badges/users.svg)](https://www.codetriage.com/vmg/redcarpet)
 
 Redcarpet is a Ruby library for Markdown processing that smells like
 butterflies and popcorn.
