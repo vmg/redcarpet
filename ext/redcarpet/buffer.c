@@ -76,8 +76,6 @@ bufgrow(struct buf *buf, size_t neosz)
 		neoasz += buf->unit;
 
 	neodata = ruby_xrealloc(buf->data, neoasz);
-	if (!neodata)
-		return BUF_ENOMEM;
 
 	buf->data = neodata;
 	buf->asize = neoasz;

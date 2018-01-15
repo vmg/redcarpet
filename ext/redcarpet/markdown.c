@@ -220,9 +220,6 @@ add_link_ref(
 {
 	struct link_ref *ref = ruby_xcalloc(1, sizeof(struct link_ref));
 
-	if (!ref)
-		return NULL;
-
 	ref->id = hash_link_ref(name, name_size);
 	ref->next = references[ref->id % REF_TABLE_SIZE];
 
@@ -271,8 +268,6 @@ static struct footnote_ref *
 create_footnote_ref(struct footnote_list *list, const uint8_t *name, size_t name_size)
 {
 	struct footnote_ref *ref = ruby_xcalloc(1, sizeof(struct footnote_ref));
-	if (!ref)
-		return NULL;
 
 	ref->id = hash_link_ref(name, name_size);
 
@@ -283,8 +278,6 @@ static int
 add_footnote_ref(struct footnote_list *list, struct footnote_ref *ref)
 {
 	struct footnote_item *item = ruby_xcalloc(1, sizeof(struct footnote_item));
-	if (!item)
-		return 0;
 	item->ref = ref;
 
 	if (list->head == NULL) {
