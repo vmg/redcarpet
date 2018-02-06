@@ -313,7 +313,7 @@ or after the rendering process begins:
 * postprocess(full_document)
 
 You can look at
-["How to extend the Redcarpet 2 Markdown library?"](http://dev.af83.com/2012/02/27/howto-extend-the-redcarpet2-markdown-lib.html)
+["How to extend the Redcarpet 2 Markdown library?"](https://web.archive.org/web/20170505231254/http://dev.af83.com/2012/02/27/howto-extend-the-redcarpet2-markdown-lib.html)
 for some more explanations.
 
 Also, now our Pants are much smarter
