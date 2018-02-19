@@ -64,8 +64,8 @@ class RedcarpetBinTest < Redcarpet::TestCase
 
   def run_bin(*args)
     bin_path = File.expand_path('../../bin/redcarpet', __FILE__)
-    ruby = "ruby " if RUBY_PLATFORM =~ /mswin|mingw/
-    IO.popen("#{ruby}#{bin_path} #{args.join(" ")}") do |stream|
+    ruby = RbConfig.ruby
+    IO.popen("#{ruby} #{bin_path} #{args.join(" ")}") do |stream|
       @output = stream.read
     end
   end
