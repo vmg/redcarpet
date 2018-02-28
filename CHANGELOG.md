@@ -1,5 +1,8 @@
 # Changelog
 
+* Fix `warning: instance variable @options not initialized` when
+  running under verbose mode (`-w`, `$VERBOSE = true`).
+
 * Fix SmartyPants single quotes right after a link. For example:
 
   ~~~markdown
