@@ -18,7 +18,7 @@ rvm:
   - 2.3
   - 2.4
   - 2.5
-  - rbx-3.99
+  - rbx-3.100
   - ruby-head
 
 notifications:
