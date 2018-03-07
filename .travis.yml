@@ -15,10 +15,15 @@ rvm:
   - 2.0.0
   - 2.1
   - 2.2
-  - 2.3.4
-  - 2.4.1
-  - rbx-3.81
+  - 2.3
+  - 2.4
+  - 2.5
+  - rbx-3.100
   - ruby-head
+
+matrix:
+  allow_failures:
+  - rvm: ruby-head
 
 notifications:
   email: false
