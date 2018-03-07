@@ -1,5 +1,10 @@
 # Changelog
 
+* Correct an issue where list parsing would improperly handle
+  indentation, causing list elements to not correctly nest.
+
+  Fixes #615.
+
 * Fix SmartyPants single quotes right after a link. For example:
 
   ~~~markdown
