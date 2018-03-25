@@ -390,6 +390,7 @@ static VALUE rb_redcarpet_rbase_alloc(VALUE klass)
 static void rb_redcarpet__overload(VALUE self, VALUE base_class)
 {
 	struct rb_redcarpet_rndr *rndr;
+	VALUE options_ivar;
 
 	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
 	rndr->options.self = self;
@@ -411,7 +412,8 @@ static void rb_redcarpet__overload(VALUE self, VALUE base_class)
 		}
 	}
 
-	if (rb_iv_get(self, "@options") == Qnil)
+	options_ivar = rb_attr_get(self, rb_intern("@options"));
+	if (options_ivar == Qundef || options_ivar == Qnil)
 		rb_iv_set(self, "@options", rb_hash_new());
 }
 
