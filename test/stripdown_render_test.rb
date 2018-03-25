@@ -58,4 +58,12 @@ class StripDownRender < Redcarpet::TestCase
 
     assert_equal expected, output
   end
+
+  def test_with_quote_option_enabled
+    markdown = %(A common idiom is "Hello world")
+    expected = %(A common idiom is Hello world)
+    output   = render(markdown, with: [:quote])
+
+    assert_equal expected, output
+  end
 end

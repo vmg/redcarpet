@@ -1,5 +1,10 @@
 # Changelog
 
+* Fix a segfault rendering quotes using `StripDown` and the `:quote`
+  option.
+
+  Fixes #639.
+
 * Fix `warning: instance variable @options not initialized` when
   running under verbose mode (`-w`, `$VERBOSE = true`).
 
