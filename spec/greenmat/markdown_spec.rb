@@ -101,7 +101,7 @@ module Greenmat
         EOS
       end
 
-      it 'renders the list up to 5 nesting and then gives up' do
+      it 'renders the list up to 10 nesting and then gives up' do
         expect(rendered_html).to eq <<-EOS.strip_heredoc
           <ul>
           <li>1
@@ -119,7 +119,27 @@ module Greenmat
           <li>5
 
           <ul>
+          <li>6
+
+          <ul>
+          <li>7
+
+          <ul>
+          <li>8
+
+          <ul>
+          <li>9
+
+          <ul>
+          <li>10
+
+          <ul>
           <li></li>
+          </ul></li>
+          </ul></li>
+          </ul></li>
+          </ul></li>
+          </ul></li>
           </ul></li>
           </ul></li>
           </ul></li>
@@ -140,7 +160,7 @@ module Greenmat
         EOS
       end
 
-      it 'gives up rendering it properly' do
+      it 'renders it properly' do
         expect(rendered_html).to eq <<-EOS.strip_heredoc
           <blockquote>
           <blockquote>
@@ -154,7 +174,7 @@ module Greenmat
           <li>3
 
           <ul>
-          <li><a href="https://qiita.com">_**Qiita**_</a></li>
+          <li><a href="https://qiita.com"><em><strong>Qiita</strong></em></a></li>
           </ul></li>
           </ul></li>
           </ul></li>
