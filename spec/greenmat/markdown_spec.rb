@@ -83,5 +83,86 @@ module Greenmat
         end
       end
     end
+
+    context 'with deeply nested list' do
+      let(:text) do
+        <<-EOS.strip_heredoc
+          * 1
+              * 2
+                  * 3
+                      * 4
+                          * 5
+                              * 6
+                                  * 7
+                                      * 8
+                                          * 9
+                                              * 10
+                                                  * 11
+        EOS
+      end
+
+      it 'renders the list up to 5 nesting and then gives up' do
+        expect(rendered_html).to eq <<-EOS.strip_heredoc
+          <ul>
+          <li>1
+
+          <ul>
+          <li>2
+
+          <ul>
+          <li>3
+
+          <ul>
+          <li>4
+
+          <ul>
+          <li>5
+
+          <ul>
+          <li></li>
+          </ul></li>
+          </ul></li>
+          </ul></li>
+          </ul></li>
+          </ul></li>
+          </ul>
+        EOS
+      end
+    end
+
+    context 'with a deeply nested structure that can exist in the wild' do
+      let(:text) do
+        <<-EOS.strip_heredoc
+          > > * 1
+          > >     * 2
+          > >         * 3
+          > >             * [_**Qiita**_](https://qiita.com)
+        EOS
+      end
+
+      it 'gives up rendering it properly' do
+        expect(rendered_html).to eq <<-EOS.strip_heredoc
+          <blockquote>
+          <blockquote>
+          <ul>
+          <li>1
+
+          <ul>
+          <li>2
+
+          <ul>
+          <li>3
+
+          <ul>
+          <li><a href="https://qiita.com">_**Qiita**_</a></li>
+          </ul></li>
+          </ul></li>
+          </ul></li>
+          </ul>
+          </blockquote>
+          </blockquote>
+        EOS
+      end
+    end
   end
 end
