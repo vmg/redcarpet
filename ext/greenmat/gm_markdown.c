@@ -20,6 +20,8 @@ VALUE rb_cMarkdown;
 
 extern VALUE rb_cRenderBase;
 
+static size_t MAX_NESTING = 32;
+
 static void rb_greenmat_md_flags(VALUE hash, unsigned int *enabled_extensions_p)
 {
 	unsigned int extensions = 0;
@@ -99,7 +101,7 @@ static VALUE rb_greenmat_md__new(int argc, VALUE *argv, VALUE klass)
 
 	Data_Get_Struct(rb_rndr, struct rb_greenmat_rndr, rndr);
 
-	markdown = sd_markdown_new(extensions, 16, &rndr->callbacks, &rndr->options);
+	markdown = sd_markdown_new(extensions, MAX_NESTING, &rndr->callbacks, &rndr->options);
 	if (!markdown)
 		rb_raise(rb_eRuntimeError, "Failed to create new Renderer class");
 
