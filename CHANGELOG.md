@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v3.2.2.4
+
+* Relax max nesting.
+
 ## v3.2.2.3
 
 * Change `<code>` attribute for code block metadata (language) from `class` to `data-metadata`.
