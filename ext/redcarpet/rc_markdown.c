@@ -115,8 +115,8 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 
 	/* Merge the current options in the @options hash */
 	if (hash != Qnil) {
-		rndr_options = rb_iv_get(rb_rndr, "@options");
-		rb_funcall(rndr_options, rb_intern("merge!"), 1, hash);
+		rndr_options = rb_funcall(rb_iv_get(rb_rndr, "@options"), rb_intern("merge"), 1, hash);
+		rb_iv_set(rb_rndr, "@options", rndr_options);
 	}
 
 	markdown = sd_markdown_new(extensions, 16, &rndr->callbacks, &rndr->options);
