@@ -651,6 +651,8 @@ parse_emph2(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 
 			if (c == '~')
 				r = rndr->cb.strikethrough(ob, work, rndr->opaque);
+			else if (rndr->ext_flags & MKDEXT_UNDERLINE && c == '_')
+				r = rndr->cb.underline(ob, work, rndr->opaque);
 			else if (c == '=')
 				r = rndr->cb.highlight(ob, work, rndr->opaque);
 			else
