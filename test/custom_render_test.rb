@@ -23,7 +23,7 @@ class CustomRenderTest < Redcarpet::TestCase
   end
 
   def test_renderer_options
-    parser = Redcarpet::Markdown.new(SimpleRender.new({ with_toc_data: true }.freeze), {})
+    parser = Redcarpet::Markdown.new(SimpleRender.new(with_toc_data: true))
     output = parser.render("# A title")
 
     assert_match "My little poney", output
@@ -34,6 +34,16 @@ class CustomRenderTest < Redcarpet::TestCase
     output = parser.render("*foo*")
 
     assert_match "no_intra_emphasis", output
+  end
+
+  def test_original_options_hash_is_not_mutated
+    options = { with_toc_data: true }
+    render  = SimpleRender.new(options)
+    parser  = Redcarpet::Markdown.new(render, tables: true)
+
+    computed_options = render.instance_variable_get(:"@options")
+
+    refute_equal computed_options.object_id, options.object_id
   end
 
   class NilPreprocessRenderer < Redcarpet::Render::HTML

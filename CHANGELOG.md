@@ -1,5 +1,11 @@
 # Changelog
 
+* Avoid mutating the options hash passed to a render object.
+
+  Refs #663.
+
+  *Max Schwenk*
+
 * Fix a segfault rendering quotes using `StripDown` and the `:quote`
   option.
 
