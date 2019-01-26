@@ -23,7 +23,7 @@ class CustomRenderTest < Redcarpet::TestCase
   end
 
   def test_renderer_options
-    parser = Redcarpet::Markdown.new(SimpleRender.new(with_toc_data: true))
+    parser = Redcarpet::Markdown.new(SimpleRender.new({ with_toc_data: true }.freeze), {})
     output = parser.render("# A title")
 
     assert_match "My little poney", output
