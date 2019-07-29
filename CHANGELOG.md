@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.5.0
+
 * Avoid mutating the options hash passed to a render object.
 
   Refs #663.
