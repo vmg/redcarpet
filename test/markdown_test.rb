@@ -403,4 +403,25 @@ class MarkdownTest < Redcarpet::TestCase
 
     assert_match /<table>/, output
   end
+
+  def test_double_space_inserts_linebreak
+    result = %(<p>here comes a break:<br>\nThere it was.</p>)
+    output = render("here comes a break:  \nThere it was.")
+
+    assert_equal result, output
+  end
+
+  def test_backslash_escapes_linebreak
+    result = %(<p>here comes a break:<br>\nThere it was.</p>)
+    output = render("here comes a break:\\\nThere it was.")
+
+    assert_equal result, output
+  end
+
+  def test_double_backslash_does_not_escape_linebreak
+    result = %(<p>here comes a backslash, not a break:\\There it was.</p>)
+    output = render("here comes a backslash, not a break:\\There it was.")
+
+    assert_equal result, output
+  end
 end
