@@ -286,6 +286,28 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal "<pre><code class=\"rust,no_run\">x = &#39;foo&#39;\n</code></pre>", html
   end
 
+  def test_that_fenced_flag_considers_fence_type_and_length
+    text = <<-fenced.strip_heredoc
+      This is a normal text
+
+      ~~~~
+      This is some code containing a fence string
+      ~~~
+      protected by extending the enclosing fence
+      ~~~~
+      ```
+      This is some code containing a fence string
+      ~~~
+      protected by using the other fence type
+      ```
+    fenced
+
+    html = render(text, with: [:fenced_code_blocks])
+    tokens = html.scan %r{<code|</code|[`~]+}
+    expected = ['<code', '~~~', '</code'] * 2
+    assert_equal expected, tokens
+  end
+
   def test_that_indented_flag_works
     text = <<-indented.strip_heredoc
       This is a simple text

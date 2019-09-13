@@ -1,5 +1,11 @@
 # Changelog
 
+* Match fence char and length when matching closing fence in fenced code blocks.
+
+  Fixes #208.
+
+  *Martin Cizek, Orchitech*
+
 ## Version 3.5.0
 
 * Avoid mutating the options hash passed to a render object.
