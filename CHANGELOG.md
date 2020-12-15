@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 3.5.1 (Security)
+
+* Fix a security vulnerability using `:quote` in combination with the
+  `:escape_html` option.
+
+  Reported by *Johan Smits*.
+
 ## Version 3.5.0
 
 * Avoid mutating the options hash passed to a render object.

@@ -220,6 +220,16 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal '<p>this is a <q>quote</q></p>', output
   end
 
+  def test_quote_flag_honors_escape_html
+    text = 'We are not "<svg/onload=pwned>"'
+
+    output_enabled  = render(text, with: [:quote, :escape_html])
+    output_disabled = render(text, with: [:quote])
+
+    assert_equal "<p>We are not <q>&lt;svg/onload=pwned&gt;</q></p>", output_enabled
+    assert_equal "<p>We are not <q><svg/onload=pwned></q></p>", output_disabled
+  end
+
   def test_that_fenced_flag_works
     text = <<-fenced.strip_heredoc
       This is a simple test
