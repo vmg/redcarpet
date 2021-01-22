@@ -168,7 +168,7 @@ rndr_newbuf(struct sd_markdown *rndr, int type)
 		work->size = 0;
 	} else {
 		work = bufnew(buf_size[type]);
-		redcarpet_stack_push(pool, work);
+		greenmat_stack_push(pool, work);
 	}
 
 	return work;
@@ -2747,8 +2747,8 @@ sd_markdown_new(
 
 	memcpy(&md->cb, callbacks, sizeof(struct sd_callbacks));
 
-	redcarpet_stack_init(&md->work_bufs[BUFFER_BLOCK], 4);
-	redcarpet_stack_init(&md->work_bufs[BUFFER_SPAN], 8);
+	greenmat_stack_init(&md->work_bufs[BUFFER_BLOCK], 4);
+	greenmat_stack_init(&md->work_bufs[BUFFER_SPAN], 8);
 
 	memset(md->active_char, 0x0, 256);
 
@@ -2908,8 +2908,8 @@ sd_markdown_free(struct sd_markdown *md)
 	for (i = 0; i < (size_t)md->work_bufs[BUFFER_BLOCK].asize; ++i)
 		bufrelease(md->work_bufs[BUFFER_BLOCK].item[i]);
 
-	redcarpet_stack_free(&md->work_bufs[BUFFER_SPAN]);
-	redcarpet_stack_free(&md->work_bufs[BUFFER_BLOCK]);
+	greenmat_stack_free(&md->work_bufs[BUFFER_SPAN]);
+	greenmat_stack_free(&md->work_bufs[BUFFER_BLOCK]);
 
 	free(md);
 }

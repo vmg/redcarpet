@@ -1,8 +1,8 @@
 require 'test_helper'
 
-class SafeRenderTest < Redcarpet::TestCase
+class SafeRenderTest < Greenmat::TestCase
   def setup
-    @renderer = Redcarpet::Render::Safe
+    @renderer = Greenmat::Render::Safe
   end
 
   def test_safe_links_only_is_enabled_by_default

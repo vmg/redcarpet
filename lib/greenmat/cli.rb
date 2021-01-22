@@ -1,13 +1,13 @@
-require 'redcarpet'
+require 'greenmat'
 require 'optparse'
 
-module Redcarpet
+module Greenmat
   # This class aims at easing the creation of custom
   # binary for your needs. For example, you can add new
   # options or change the existing ones. The parsing
   # is handled by Ruby's OptionParser. For instance:
   #
-  #   class Custom::CLI < Redcarpet::CLI
+  #   class Custom::CLI < Greenmat::CLI
   #     def self.options_parser
   #       super.tap do |opts|
   #         opts.on("--rainbow") do
@@ -29,7 +29,7 @@ module Redcarpet
       }
 
       OptionParser.new do |opts|
-        opts.banner = "Usage: redcarpet [--parse <extension>...] " \
+        opts.banner = "Usage: greenmat [--parse <extension>...] " \
                       "[--render <extension>...] [--smarty] <file>..."
 
         opts.on("--parse EXTENSION", "Enable a parsing extension") do |ext|
@@ -47,7 +47,7 @@ module Redcarpet
         end
 
         opts.on_tail("-v", "--version", "Display the current version") do
-          STDOUT.puts "Redcarpet #{Redcarpet::VERSION}"
+          STDOUT.puts "Greenmat #{Greenmat::VERSION}"
           exit
         end
 
@@ -70,7 +70,7 @@ module Redcarpet
 
     def self.parser_object
       renderer = render_object.new(@@options[:render_extensions])
-      Redcarpet::Markdown.new(renderer, @@options[:parse_extensions])
+      Greenmat::Markdown.new(renderer, @@options[:parse_extensions])
     end
 
     def self.legacy_parse!(args) # :nodoc:

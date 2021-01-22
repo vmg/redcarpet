@@ -1,9 +1,9 @@
 # coding: UTF-8
 require 'test_helper'
 
-class HTMLTOCRenderTest < Redcarpet::TestCase
+class HTMLTOCRenderTest < Greenmat::TestCase
   def setup
-    @renderer = Redcarpet::Render::HTML_TOC
+    @renderer = Greenmat::Render::HTML_TOC
     @markdown = <<-Markdown.strip_heredoc
       # A title
       ## A __nice__ subtitle

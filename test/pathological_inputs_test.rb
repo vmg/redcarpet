@@ -3,9 +3,9 @@ require 'test_helper'
 
 # Disabled by default
 # (these are the easy ones -- the evil ones are not disclosed)
-class PathologicalInputsTest # < Redcarpet::TestCase
+class PathologicalInputsTest # < Greenmat::TestCase
   def setup
-    @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    @markdown = Greenmat::Markdown.new(Greenmat::Render::HTML)
   end
 
   def test_pathological_1

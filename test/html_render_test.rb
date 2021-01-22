@@ -1,9 +1,9 @@
 # coding: UTF-8
 require 'test_helper'
 
-class HTMLRenderTest < Redcarpet::TestCase
+class HTMLRenderTest < Greenmat::TestCase
   def setup
-    @renderer = Redcarpet::Render::HTML
+    @renderer = Greenmat::Render::HTML
   end
 
   # Hint: overrides filter_html, no_images and no_links
@@ -81,8 +81,8 @@ class HTMLRenderTest < Redcarpet::TestCase
   end
 
   def test_that_link_attributes_work
-    rndr = Redcarpet::Render::HTML.new(:link_attributes => {:rel => 'blank'})
-    md = Redcarpet::Markdown.new(rndr)
+    rndr = Greenmat::Render::HTML.new(:link_attributes => {:rel => 'blank'})
+    md = Greenmat::Markdown.new(rndr)
     assert md.render('This is a [simple](http://test.com) test.').include?('rel="blank"')
   end
 

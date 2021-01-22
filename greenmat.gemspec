@@ -1,12 +1,12 @@
 # encoding: utf-8
 Gem::Specification.new do |s|
-  s.name = 'redcarpet'
+  s.name = 'greenmat'
   s.version = '3.5.1'
   s.summary = "Markdown that smells nice"
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
   s.date = '2020-12-15'
   s.email = 'vicent@github.com'
-  s.homepage = 'http://github.com/vmg/redcarpet'
+  s.homepage = 'http://github.com/vmg/greenmat'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
   s.required_ruby_version = '>= 1.9.2'
@@ -16,32 +16,32 @@ Gem::Specification.new do |s|
     Gemfile
     README.markdown
     Rakefile
-    bin/redcarpet
-    ext/redcarpet/autolink.c
-    ext/redcarpet/autolink.h
-    ext/redcarpet/buffer.c
-    ext/redcarpet/buffer.h
-    ext/redcarpet/extconf.rb
-    ext/redcarpet/houdini.h
-    ext/redcarpet/houdini_href_e.c
-    ext/redcarpet/houdini_html_e.c
-    ext/redcarpet/html.c
-    ext/redcarpet/html.h
-    ext/redcarpet/html_blocks.h
-    ext/redcarpet/html_smartypants.c
-    ext/redcarpet/markdown.c
-    ext/redcarpet/markdown.h
-    ext/redcarpet/rc_markdown.c
-    ext/redcarpet/rc_render.c
-    ext/redcarpet/redcarpet.h
-    ext/redcarpet/stack.c
-    ext/redcarpet/stack.h
-    lib/redcarpet.rb
-    lib/redcarpet/cli.rb
-    lib/redcarpet/compat.rb
-    lib/redcarpet/render_man.rb
-    lib/redcarpet/render_strip.rb
-    redcarpet.gemspec
+    bin/greenmat
+    ext/greenmat/autolink.c
+    ext/greenmat/autolink.h
+    ext/greenmat/buffer.c
+    ext/greenmat/buffer.h
+    ext/greenmat/extconf.rb
+    ext/greenmat/houdini.h
+    ext/greenmat/houdini_href_e.c
+    ext/greenmat/houdini_html_e.c
+    ext/greenmat/html.c
+    ext/greenmat/html.h
+    ext/greenmat/html_blocks.h
+    ext/greenmat/html_smartypants.c
+    ext/greenmat/markdown.c
+    ext/greenmat/markdown.h
+    ext/greenmat/gm_markdown.c
+    ext/greenmat/gm_render.c
+    ext/greenmat/greenmat.h
+    ext/greenmat/stack.c
+    ext/greenmat/stack.h
+    lib/greenmat.rb
+    lib/greenmat/cli.rb
+    lib/greenmat/compat.rb
+    lib/greenmat/render_man.rb
+    lib/greenmat/render_strip.rb
+    greenmat.gemspec
     test/benchmark.rb
     test/custom_render_test.rb
     test/fixtures/benchmark.md
@@ -50,8 +50,8 @@ Gem::Specification.new do |s|
     test/html_toc_render_test.rb
     test/markdown_test.rb
     test/pathological_inputs_test.rb
-    test/redcarpet_bin_test.rb
-    test/redcarpet_compat_test.rb
+    test/greenmat_bin_test.rb
+    test/greenmat_compat_test.rb
     test/safe_render_test.rb
     test/smarty_html_test.rb
     test/smarty_pants_test.rb
@@ -61,8 +61,8 @@ Gem::Specification.new do |s|
   # = MANIFEST =
   s.test_files = s.files.grep(%r{^test/})
   s.extra_rdoc_files = ["COPYING"]
-  s.extensions = ["ext/redcarpet/extconf.rb"]
-  s.executables = ["redcarpet"]
+  s.extensions = ["ext/greenmat/extconf.rb"]
+  s.executables = ["greenmat"]
   s.require_paths = ["lib"]
 
   s.add_development_dependency "rake", "~> 12.2.1"

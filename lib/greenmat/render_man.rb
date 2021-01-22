@@ -1,4 +1,4 @@
-module Redcarpet
+module Greenmat
   module Render
     class ManPage < Base
 

@@ -1,8 +1,8 @@
 # coding: UTF-8
 require 'test_helper'
 
-class CustomRenderTest < Redcarpet::TestCase
-  class SimpleRender < Redcarpet::Render::HTML
+class CustomRenderTest < Greenmat::TestCase
+  class SimpleRender < Greenmat::Render::HTML
     def emphasis(text)
       if @options[:no_intra_emphasis]
         return %(<em class="no_intra_emphasis">#{text}</em>)
@@ -17,20 +17,20 @@ class CustomRenderTest < Redcarpet::TestCase
   end
 
   def test_simple_overload
-    md = Redcarpet::Markdown.new(SimpleRender)
+    md = Greenmat::Markdown.new(SimpleRender)
     assert_equal "<p>This is <em class=\"cool\">just</em> a test</p>\n",
       md.render("This is *just* a test")
   end
 
   def test_renderer_options
-    parser = Redcarpet::Markdown.new(SimpleRender.new(with_toc_data: true))
+    parser = Greenmat::Markdown.new(SimpleRender.new(with_toc_data: true))
     output = parser.render("# A title")
 
     assert_match "My little poney", output
   end
 
   def test_markdown_options
-    parser = Redcarpet::Markdown.new(SimpleRender, no_intra_emphasis: true)
+    parser = Greenmat::Markdown.new(SimpleRender, no_intra_emphasis: true)
     output = parser.render("*foo*")
 
     assert_match "no_intra_emphasis", output
@@ -39,28 +39,28 @@ class CustomRenderTest < Redcarpet::TestCase
   def test_original_options_hash_is_not_mutated
     options = { with_toc_data: true }
     render  = SimpleRender.new(options)
-    parser  = Redcarpet::Markdown.new(render, tables: true)
+    parser  = Greenmat::Markdown.new(render, tables: true)
 
     computed_options = render.instance_variable_get(:"@options")
 
     refute_equal computed_options.object_id, options.object_id
   end
 
-  class NilPreprocessRenderer < Redcarpet::Render::HTML
+  class NilPreprocessRenderer < Greenmat::Render::HTML
     def preprocess(fulldoc)
       nil
     end
   end
 
   def test_preprocess_returning_nil
-    md = Redcarpet::Markdown.new(NilPreprocessRenderer)
+    md = Greenmat::Markdown.new(NilPreprocessRenderer)
     assert_equal(nil,md.render("Anything"))
   end
 
   def test_base_render_without_quote_callback
-    # Regression test for https://github.com/vmg/redcarpet/issues/569
-    render = Class.new(Redcarpet::Render::Base)
-    parser = Redcarpet::Markdown.new render.new, quote: true
+    # Regression test for https://github.com/vmg/greenmat/issues/569
+    render = Class.new(Greenmat::Render::Base)
+    parser = Greenmat::Markdown.new render.new, quote: true
 
     assert_equal "", parser.render(%(a "quote"))
   end

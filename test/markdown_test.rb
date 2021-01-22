@@ -1,9 +1,9 @@
 # coding: UTF-8
 require 'test_helper'
 
-class MarkdownTest < Redcarpet::TestCase
+class MarkdownTest < Greenmat::TestCase
   def setup
-    @renderer = Redcarpet::Render::HTML
+    @renderer = Greenmat::Render::HTML
   end
 
   def test_that_simple_one_liner_goes_to_html
@@ -71,7 +71,7 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
-  # https://github.com/vmg/redcarpet/issues/111
+  # https://github.com/vmg/greenmat/issues/111
   def test_p_with_less_than_4space_indent_should_not_be_part_of_last_list_item
     text = <<-Markdown
   * a

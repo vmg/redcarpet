@@ -35,11 +35,11 @@ struct stack {
 	size_t asize;
 };
 
-void redcarpet_stack_free(struct stack *);
-int redcarpet_stack_grow(struct stack *, size_t);
-int redcarpet_stack_init(struct stack *, size_t);
+void greenmat_stack_free(struct stack *);
+int greenmat_stack_grow(struct stack *, size_t);
+int greenmat_stack_init(struct stack *, size_t);
 
-int redcarpet_stack_push(struct stack *, void *);
+int greenmat_stack_push(struct stack *, void *);
 
 #ifdef __cplusplus
 }

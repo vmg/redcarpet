@@ -20,15 +20,15 @@
  * THE SOFTWARE.
  */
 
-#include "redcarpet.h"
+#include "greenmat.h"
 
-VALUE rb_mRedcarpet;
+VALUE rb_mGreenmat;
 VALUE rb_cMarkdown;
 VALUE rb_cRenderHTML_TOC;
 
 extern VALUE rb_cRenderBase;
 
-static void rb_redcarpet_md_flags(VALUE hash, unsigned int *enabled_extensions_p)
+static void rb_greenmat_md_flags(VALUE hash, unsigned int *enabled_extensions_p)
 {
 	unsigned int extensions = 0;
 
@@ -80,21 +80,21 @@ static void rb_redcarpet_md_flags(VALUE hash, unsigned int *enabled_extensions_p
 }
 
 static void
-rb_redcarpet_md__free(void *markdown)
+rb_greenmat_md__free(void *markdown)
 {
 	sd_markdown_free((struct sd_markdown *)markdown);
 }
 
-static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
+static VALUE rb_greenmat_md__new(int argc, VALUE *argv, VALUE klass)
 {
 	VALUE rb_markdown, rb_rndr, hash, rndr_options;
 	unsigned int extensions = 0;
 
-	struct rb_redcarpet_rndr *rndr;
+	struct rb_greenmat_rndr *rndr;
 	struct sd_markdown *markdown;
 
 	if (rb_scan_args(argc, argv, "11", &rb_rndr, &hash) == 2)
-		rb_redcarpet_md_flags(hash, &extensions);
+		rb_greenmat_md_flags(hash, &extensions);
 
 	if (rb_obj_is_kind_of(rb_rndr, rb_cClass))
 		rb_rndr = rb_funcall(rb_rndr, rb_intern("new"), 0);
@@ -111,7 +111,7 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 	if (rb_obj_is_kind_of(rb_rndr, rb_cRenderHTML_TOC))
 		extensions |= MKDEXT_FENCED_CODE;
 
-	Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, rndr);
+	Data_Get_Struct(rb_rndr, struct rb_greenmat_rndr, rndr);
 
 	/* Merge the current options in the @options hash */
 	if (hash != Qnil) {
@@ -123,13 +123,13 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 	if (!markdown)
 		rb_raise(rb_eRuntimeError, "Failed to create new Renderer class");
 
-	rb_markdown = Data_Wrap_Struct(klass, NULL, rb_redcarpet_md__free, markdown);
+	rb_markdown = Data_Wrap_Struct(klass, NULL, rb_greenmat_md__free, markdown);
 	rb_iv_set(rb_markdown, "@renderer", rb_rndr);
 
 	return rb_markdown;
 }
 
-static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
+static VALUE rb_greenmat_md_render(VALUE self, VALUE text)
 {
 	VALUE rb_rndr;
 	struct buf *output_buf;
@@ -145,8 +145,8 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 	if (NIL_P(text))
 		return Qnil;
 
-	struct rb_redcarpet_rndr *renderer;
-	Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, renderer);
+	struct rb_greenmat_rndr *renderer;
+	Data_Get_Struct(rb_rndr, struct rb_greenmat_rndr, renderer);
 	renderer->options.active_enc = rb_enc_get(text);
 
 	/* initialize buffers */
@@ -171,13 +171,13 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 }
 
 __attribute__((visibility("default")))
-void Init_redcarpet()
+void Init_greenmat()
 {
-	rb_mRedcarpet = rb_define_module("Redcarpet");
+	rb_mGreenmat = rb_define_module("Greenmat");
 
-	rb_cMarkdown = rb_define_class_under(rb_mRedcarpet, "Markdown", rb_cObject);
-	rb_define_singleton_method(rb_cMarkdown, "new", rb_redcarpet_md__new, -1);
-	rb_define_method(rb_cMarkdown, "render", rb_redcarpet_md_render, 1);
+	rb_cMarkdown = rb_define_class_under(rb_mGreenmat, "Markdown", rb_cObject);
+	rb_define_singleton_method(rb_cMarkdown, "new", rb_greenmat_md__new, -1);
+	rb_define_method(rb_cMarkdown, "render", rb_greenmat_md_render, 1);
 
-	Init_redcarpet_rndr();
+	Init_greenmat_rndr();
 }

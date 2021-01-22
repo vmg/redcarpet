@@ -1,9 +1,9 @@
 # coding: UTF-8
 require 'test_helper'
 
-class SmartyHTMLTest < Redcarpet::TestCase
+class SmartyHTMLTest < Greenmat::TestCase
   def setup
-    @renderer = Redcarpet::Render::SmartyHTML
+    @renderer = Greenmat::Render::SmartyHTML
   end
 
   def test_that_smartyhtml_converts_single_quotes

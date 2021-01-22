@@ -2,7 +2,7 @@
 # Thanks Kramdown for the inspiration!
 require 'benchmark/ips'
 
-require 'redcarpet'
+require 'greenmat'
 require 'bluecloth'
 require 'kramdown'
 
@@ -10,8 +10,8 @@ markdown = File.read(File.join(File.dirname(__FILE__), "fixtures/benchmark.md"))
 
 # Let's bench!
 Benchmark.ips do |bench|
-  bench.report("Redcarpet") do
-    Redcarpet::Markdown.new(Redcarpet::Render::HTML).render(markdown)
+  bench.report("Greenmat") do
+    Greenmat::Markdown.new(Greenmat::Render::HTML).render(markdown)
   end
 
   bench.report("BlueCloth") do
