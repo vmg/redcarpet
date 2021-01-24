@@ -1,6 +1,5 @@
-/* C code produced by gperf version 3.0.3 */
+/* ANSI-C code produced by gperf version 3.1 */
 /* Command-line: gperf -N find_block_tag -H hash_block_tag -C -c -E --ignore-case html_block_names.txt  */
-/* See https://git.io/vPLqa for the list of recognized elements */
 /* Computed positions: -k'1-2' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -27,10 +26,10 @@
       && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
       && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
-error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
+#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
 #endif
 
-/* maximum key range = 72, duplicates = 0 */
+/* maximum key range = 73, duplicates = 0 */
 
 #ifndef GPERF_DOWNCASE
 #define GPERF_DOWNCASE 1
@@ -60,10 +59,7 @@ static unsigned char gperf_downcase[256] =
 #ifndef GPERF_CASE_STRNCMP
 #define GPERF_CASE_STRNCMP 1
 static int
-gperf_case_strncmp (s1, s2, n)
-     register const char *s1;
-     register const char *s2;
-     register unsigned int n;
+gperf_case_strncmp (register const char *s1, register const char *s2, register size_t n)
 {
   for (; n > 0;)
     {
@@ -88,38 +84,36 @@ inline
 #endif
 #endif
 static unsigned int
-hash_block_tag (str, len)
-     register const char *str;
-     register unsigned int len;
+hash_block_tag (register const char *str, register size_t len)
 {
   static const unsigned char asso_values[] =
     {
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      26, 60, 55, 45, 40, 35, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 20, 15, 15,  0, 35,
-       0, 25, 10, 10,  5, 73, 73,  0, 15, 15,
-       0, 73, 73, 15, 20, 10, 10, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 20, 15, 15,
-       0, 35,  0, 25, 10, 10,  5, 73, 73,  0,
-      15, 15,  0, 73, 73, 15, 20, 10, 10, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      16, 60, 55, 50, 45, 40, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 30, 15, 20, 15, 15,
+       5, 20, 15, 25,  0, 78, 78,  5, 10, 40,
+       5, 78, 78,  0, 25, 35,  0, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 30, 15, 20,
+      15, 15,  5, 20, 15, 25,  0, 78, 78,  5,
+      10, 40,  5, 78, 78,  0, 25, 35,  0, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78, 78, 78, 78,
+      78, 78, 78, 78, 78, 78, 78
     };
   register unsigned int hval = len;
 
@@ -136,75 +130,73 @@ hash_block_tag (str, len)
 }
 
 const char *
-find_block_tag (str, len)
-     register const char *str;
-     register unsigned int len;
+find_block_tag (register const char *str, register size_t len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 43,
+      TOTAL_KEYWORDS = 42,
       MIN_WORD_LENGTH = 1,
       MAX_WORD_LENGTH = 10,
-      MIN_HASH_VALUE = 1,
-      MAX_HASH_VALUE = 72
+      MIN_HASH_VALUE = 5,
+      MAX_HASH_VALUE = 77
     };
 
   static const char * const wordlist[] =
     {
-      "",
+      "", "", "", "", "",
+      "video",
       "p",
-      "dl",
-      "del",
-      "form",
-      "",
-      "footer",
-      "details",
-      "div",
+      "summary",
+      "pre",
       "", "",
       "figure",
-      "ul",
-      "fieldset",
-      "",
-      "figcaption",
-      "header",
-      "ol",
-      "pre",
-      "math",
-      "video",
-      "script",
       "section",
-      "noscript",
-      "",
-      "blockquote",
-      "hgroup",
+      "fieldset",
+      "form",
+      "figcaption",
+      "footer",
       "hr",
-      "ins",
+      "div",
+      "", "",
+      "script",
+      "dl",
+      "noscript",
+      "math",
       "",
-      "style",
-      "output",
-      "summary",
+      "header",
+      "details",
       "nav",
       "",
-      "audio",
-      "canvas",
+      "blockquote",
+      "center",
       "dd",
       "h1",
-      "abbr",
-      "table",
-      "iframe",
+      "",
+      "audio",
+      "hgroup",
       "article",
       "", "",
-      "aside",
-      "",
-      "h6",
+      "style",
+      "canvas",
+      "ul",
+      "", "",
+      "table",
+      "output",
+      "ol",
       "", "",
       "tfoot",
+      "iframe",
+      "address",
+      "",
+      "abbr",
+      "", "",
+      "h6",
+      "", "",
+      "aside",
       "",
       "h5",
       "", "", "", "",
       "h4",
-      "", "", "", "",
-      "address",
       "", "", "", "",
       "h3",
       "", "", "", "",
@@ -213,7 +205,7 @@ find_block_tag (str, len)
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      unsigned int key = hash_block_tag (str, len);
+      register unsigned int key = hash_block_tag (str, len);
 
       if (key <= MAX_HASH_VALUE)
         {
@@ -225,3 +217,4 @@ find_block_tag (str, len)
     }
   return 0;
 }
+
