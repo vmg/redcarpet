@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2015, Vicent Marti
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -22,10 +44,10 @@
  * have its native function (i.e. as an URL 
  * component/separator) and hence needs no escaping.
  *
- * There are two exceptions: the chacters & (amp)
- * and ' (single quote) do not appear in the table.
- * They are meant to appear in the URL as components,
- * yet they require special HTML-entity escaping
+ * There is one exception: the ' (single quote) 
+ * character does not appear in the table.
+ * It is meant to appear in the URL as components,
+ * however it require special HTML-entity escaping
  * to generate valid HTML markup.
  *
  * All other characters will be escaped to %XX.
@@ -34,7 +56,7 @@
 static const char HREF_SAFE[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 
+	0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 
@@ -73,12 +95,6 @@ houdini_escape_href(struct buf *ob, const uint8_t *src, size_t size)
 			break;
 
 		switch (src[i]) {
-		/* amp appears all the time in URLs, but needs
-		 * HTML-entity escaping to be inside an href */
-		case '&': 
-			BUFPUTSL(ob, "&amp;");
-			break;
-
 		/* the single quote is a valid URL character
 		 * according to the standard; it needs HTML
 		 * entity escaping too */

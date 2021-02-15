@@ -1,8 +1,3 @@
-require 'greenmat'
-
-# Deprecated: Please use the default API to parse Markdown
-# documents ; this layer will be removed in Greenmat 4.0.
-#
 # Creates an instance of Greenmat with the RedCloth API.
 class GreenmatCompat
   attr_accessor :text
