@@ -1,21 +1,28 @@
 /*
  * Copyright (c) 2008, Natacha Porté
- * Copyright (c) 2011, Vicent Martí
+ * Copyright (c) 2015, Vicent Marti
  *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 #define BUFFER_MAX_ALLOC_SIZE (1024 * 1024 * 16) //16mb
+#define __USE_MINGW_ANSI_STDIO 1
 
 #include "buffer.h"
 
@@ -94,14 +101,14 @@ bufnew(size_t unit)
 
 /* bufnullterm: NULL-termination of the string array */
 const char *
-bufcstr(struct buf *buf)
+bufcstr(const struct buf *buf)
 {
 	assert(buf && buf->unit);
 
 	if (buf->size < buf->asize && buf->data[buf->size] == 0)
 		return (char *)buf->data;
 
-	if (buf->size + 1 <= buf->asize || bufgrow(buf, buf->size + 1) == 0) {
+	if (buf->size + 1 <= buf->asize || bufgrow(buf, buf->size + 1) == BUF_OK) {
 		buf->data[buf->size] = 0;
 		return (char *)buf->data;
 	}
@@ -118,7 +125,7 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 
 	assert(buf && buf->unit);
 
-	if (buf->size >= buf->asize && bufgrow(buf, buf->size + 1) < 0)
+	if (buf->size >= buf->asize && bufgrow(buf, buf->size + 1) < BUF_OK)
 		return;
 
 	va_start(ap, fmt);
@@ -136,7 +143,7 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 	}
 
 	if ((size_t)n >= buf->asize - buf->size) {
-		if (bufgrow(buf, buf->size + n + 1) < 0)
+		if (bufgrow(buf, buf->size + n + 1) < BUF_OK)
 			return;
 
 		va_start(ap, fmt);
@@ -156,7 +163,7 @@ bufput(struct buf *buf, const void *data, size_t len)
 {
 	assert(buf && buf->unit);
 
-	if (buf->size + len > buf->asize && bufgrow(buf, buf->size + len) < 0)
+	if (buf->size + len > buf->asize && bufgrow(buf, buf->size + len) < BUF_OK)
 		return;
 
 	memcpy(buf->data + buf->size, data, len);
@@ -177,7 +184,7 @@ bufputc(struct buf *buf, int c)
 {
 	assert(buf && buf->unit);
 
-	if (buf->size + 1 > buf->asize && bufgrow(buf, buf->size + 1) < 0)
+	if (buf->size + 1 > buf->asize && bufgrow(buf, buf->size + 1) < BUF_OK)
 		return;
 
 	buf->data[buf->size] = c;

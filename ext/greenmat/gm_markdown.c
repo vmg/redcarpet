@@ -1,22 +1,30 @@
 /*
- * Copyright (c) 2011, Vicent Marti
+ * Copyright (c) 2015, Vicent Marti
  *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
+
 #include "greenmat.h"
 
 VALUE rb_mGreenmat;
 VALUE rb_cMarkdown;
+VALUE rb_cRenderHTML_TOC;
 
 extern VALUE rb_cRenderBase;
 
@@ -84,7 +92,7 @@ rb_greenmat_md__free(void *markdown)
 
 static VALUE rb_greenmat_md__new(int argc, VALUE *argv, VALUE klass)
 {
-	VALUE rb_markdown, rb_rndr, hash;
+	VALUE rb_markdown, rb_rndr, hash, rndr_options;
 	unsigned int extensions = 0;
 
 	struct rb_greenmat_rndr *rndr;
@@ -99,7 +107,22 @@ static VALUE rb_greenmat_md__new(int argc, VALUE *argv, VALUE klass)
 	if (!rb_obj_is_kind_of(rb_rndr, rb_cRenderBase))
 		rb_raise(rb_eTypeError, "Invalid Renderer instance given");
 
+	/**
+	 * Automatically enable the `fenced_code_blocks` option if
+	 * given a kind of `HTML_TOC` object since many languages
+	 * like Ruby use the sharp to comment code so these comments
+	 * would be processed as titles.
+	 */
+	if (rb_obj_is_kind_of(rb_rndr, rb_cRenderHTML_TOC))
+		extensions |= MKDEXT_FENCED_CODE;
+
 	Data_Get_Struct(rb_rndr, struct rb_greenmat_rndr, rndr);
+
+	/* Merge the current options in the @options hash */
+	if (hash != Qnil) {
+		rndr_options = rb_funcall(rb_iv_get(rb_rndr, "@options"), rb_intern("merge"), 1, hash);
+		rb_iv_set(rb_rndr, "@options", rndr_options);
+	}
 
 	markdown = sd_markdown_new(extensions, MAX_NESTING, &rndr->callbacks, &rndr->options);
 	if (!markdown)
@@ -167,4 +190,3 @@ void Init_greenmat()
 
 	Init_greenmat_rndr();
 }
-

@@ -1,20 +1,24 @@
-/* markdown.c - generic markdown parser */
-
 /*
  * Copyright (c) 2009, Natacha Porté
- * Copyright (c) 2011, Vicent Marti
+ * Copyright (c) 2015, Vicent Marti
  *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 #include "markdown.h"
@@ -88,7 +92,6 @@ typedef size_t
 
 static size_t char_emphasis(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_underline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
-static size_t char_highlight(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_linebreak(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
 static size_t char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size);
@@ -467,7 +470,7 @@ tag_length(uint8_t *data, size_t size, enum mkd_autolink *autolink)
 static void
 parse_inline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size)
 {
-	size_t i = 0, end = 0;
+	size_t i = 0, end = 0, consumed = 0;
 	uint8_t action = 0;
 	struct buf work = { 0, 0, 0, 0 };
 
@@ -492,12 +495,13 @@ parse_inline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t siz
 		if (end >= size) break;
 		i = end;
 
-		end = markdown_char_ptrs[(int)action](ob, rndr, data + i, i, size - i);
+		end = markdown_char_ptrs[(int)action](ob, rndr, data + i, i - consumed, size - i);
 		if (!end) /* no action from the callback */
 			end = i + 1;
 		else {
 			i += end;
 			end = i;
+			consumed = i;
 		}
 	}
 }
@@ -646,7 +650,7 @@ parse_emph1(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 		if (data[i] == c && !_isspace(data[i - 1])) {
 
 			if (rndr->ext_flags & MKDEXT_NO_INTRA_EMPHASIS) {
-				if (i + i < size && _isalnum(data[i + 1]))
+				if (i + 1 < size && _isalnum(data[i + 1]))
 					continue;
 			}
 
@@ -897,7 +901,6 @@ char_quote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offse
 
 	return end;
 }
-
 
 /* char_escape • '\\' backslash escape */
 static size_t
@@ -1176,7 +1179,7 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 				title_e--;
 
 			/* checking for closing quote presence */
-			if (data[title_e] != '\'' &&  data[title_e] != '"') {
+			if (data[title_e] != '\'' && data[title_e] != '"') {
 				title_b = title_e = 0;
 				link_e = i;
 			}
@@ -1605,7 +1608,7 @@ prefix_oli(uint8_t *data, size_t size)
 	return i + 2;
 }
 
-/* prefix_uli • returns ordered list item prefix */
+/* prefix_uli • returns unordered list item prefix */
 static size_t
 prefix_uli(uint8_t *data, size_t size)
 {
@@ -1677,7 +1680,7 @@ parse_blockquote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 static size_t
 parse_htmlblock(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size, int do_render);
 
-/* parse_blockquote • handles parsing of a regular paragraph */
+/* parse_paragraph • handles parsing of a regular paragraph */
 static size_t
 parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size)
 {
@@ -2392,7 +2395,7 @@ parse_table_header(
 		if (i < under_end && data[i] != '|' && data[i] != '+')
 			break;
 
-		if (dashes < 3)
+		if (dashes < 1)
 			break;
 
 		i++;
@@ -2810,10 +2813,13 @@ sd_markdown_new(
 	if (md->cb.emphasis || md->cb.double_emphasis || md->cb.triple_emphasis) {
 		md->active_char['*'] = MD_CHAR_EMPHASIS;
 		md->active_char['_'] = MD_CHAR_EMPHASIS;
+
 		if (extensions & MKDEXT_STRIKETHROUGH)
 			md->active_char['~'] = MD_CHAR_EMPHASIS;
 		if (extensions & MKDEXT_HIGHLIGHT)
 			md->active_char['='] = MD_CHAR_EMPHASIS;
+		if (extensions & MKDEXT_QUOTE)
+			md->active_char['"'] = MD_CHAR_QUOTE;
 	}
 
 	if (md->cb.codespan)
@@ -2838,9 +2844,6 @@ sd_markdown_new(
 	if (extensions & MKDEXT_SUPERSCRIPT)
 		md->active_char['^'] = MD_CHAR_SUPERSCRIPT;
 
-	if (extensions & MKDEXT_QUOTE)
-		md->active_char['"'] = MD_CHAR_QUOTE;
-
 	/* Extension data */
 	md->ext_flags = extensions;
 	md->opaque = opaque;
@@ -2858,6 +2861,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	struct buf *text;
 	size_t beg, end;
+	int in_fence = 0;
 
 	text = bufnew(64);
 	if (!text)
@@ -2869,7 +2873,8 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	/* reset the references table */
 	memset(&md->refs, 0x0, REF_TABLE_SIZE * sizeof(void *));
 
-	int footnotes_enabled = md->ext_flags & MKDEXT_FOOTNOTES;
+	int footnotes_enabled  = md->ext_flags & MKDEXT_FOOTNOTES;
+	int codefences_enabled = md->ext_flags & MKDEXT_FENCED_CODE;
 
 	/* reset the footnotes lists */
 	if (footnotes_enabled) {
@@ -2885,10 +2890,13 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	if (doc_size >= 3 && memcmp(document, UTF8_BOM, 3) == 0)
 		beg += 3;
 
-	while (beg < doc_size) /* iterating over lines */
-		if (footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
+	while (beg < doc_size) { /* iterating over lines */
+		if (codefences_enabled && (is_codefence(document + beg, doc_size - beg, NULL) != 0))
+			in_fence = !in_fence;
+
+		if (!in_fence && footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
 			beg = end;
-		else if (is_ref(document, beg, doc_size, &end, md->refs))
+		else if (!in_fence && is_ref(document, beg, doc_size, &end, md->refs))
 			beg = end;
 		else { /* skipping to the next line */
 			end = beg;
@@ -2908,6 +2916,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 			beg = end;
 		}
+	}
 
 	/* pre-grow the output buffer to minimize allocations */
 	bufgrow(ob, MARKDOWN_GROW(text->size));
@@ -2918,7 +2927,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	if (text->size) {
 		/* adding a final newline if not already present */
-		if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r')
+		if (text->data[text->size - 1] != '\n' && text->data[text->size - 1] != '\r')
 			bufputc(text, '\n');
 
 		parse_block(ob, md, text->data, text->size);
@@ -2930,6 +2939,9 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	if (md->cb.doc_footer)
 		md->cb.doc_footer(ob, md->opaque);
+
+	/* Null-terminate the buffer */
+	bufcstr(ob);
 
 	/* clean-up */
 	bufrelease(text);

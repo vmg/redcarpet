@@ -1,5 +1,6 @@
 # coding: UTF-8
-Encoding.default_internal = 'UTF-8' if defined? Encoding
+$:.unshift(File.expand_path('../../lib', __FILE__))
+Encoding.default_internal = 'UTF-8'
 
 gem 'test-unit', '>= 2' # necessary when not using bundle exec
 
@@ -9,21 +10,41 @@ require 'nokogiri'
 require 'greenmat'
 require 'greenmat/render_strip'
 require 'greenmat/render_man'
-require 'greenmat/compat'
 
 class Greenmat::TestCase < Test::Unit::TestCase
-  def html_equal(html_a, html_b)
-    assert_equal Nokogiri::HTML::DocumentFragment.parse(html_a).to_html,
-      Nokogiri::HTML::DocumentFragment.parse(html_b).to_html
+  def assert_renders(html, markdown)
+    assert_equal html, render(markdown)
   end
 
-  def assert_renders(html, markdown)
-    html_equal html, parser.render(markdown)
+  def render(markdown, options = {})
+    options = options.fetch(:with, {})
+
+    if options.kind_of?(Array)
+      options = Hash[options.map {|o| [o, true]}]
+    end
+
+    render = begin
+      renderer.new(options)
+    rescue ArgumentError
+      renderer.new
+    end
+
+    parser = Greenmat::Markdown.new(render, options)
+
+    parser.render(markdown).chomp
   end
 
   private
 
-  def parser
-    @parser ||= Greenmat::Markdown.new(Greenmat::Render::HTML)
+  def renderer
+    @renderer ||= Greenmat::Render::HTML
+  end
+
+  # Imported from Active Support
+  class ::String
+    def strip_heredoc
+      indent = scan(/^ *(?=\S)/).min.size || 0
+      gsub(/^[ \t]{#{indent}}/, '')
+    end
   end
 end

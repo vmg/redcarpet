@@ -1,3 +1,3 @@
 module Greenmat
-  VERSION = '3.2.2.4'
+  VERSION = '3.5.1.0'
 end
