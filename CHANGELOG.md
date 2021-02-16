@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v3.5.1.0
+
+* Update base Redcarpet version to 3.5.1.
+
 ## v3.2.2.4
 
 * Relax max nesting.
