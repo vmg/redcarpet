@@ -68,15 +68,24 @@ class HTML5Test < Greenmat::TestCase
     assert_renders html, html
   end
 
-  def test_new_html5_tags_not_escaped
+  def test_details_tags_ignoring
     details = <<-HTML.chomp.strip_heredoc
-      <details>
-        log:
+      <details><summary>Folding sample</summary><div>
 
-      </details>
+      ```rb
+      puts 'Hello, World'
+      ```
+      </div></details>
+    HTML
+    html = <<-HTML.chomp.strip_heredoc
+      <p><details><summary>Folding sample</summary><div></p>
+
+      <p><code>rb
+      puts &#39;Hello, World&#39;
+      </code>
+      </div></details></p>
     HTML
 
-    assert_renders details, details
+    assert_renders html, details
   end
-
 end
