@@ -1,5 +1,9 @@
 # Changelog
 
+* Fix anchor generation on titles with ampersands.
+
+  Fixes #696.
+
 ## Version 3.5.1 (Security)
 
 * Fix a security vulnerability using `:quote` in combination with the

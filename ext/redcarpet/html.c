@@ -277,6 +277,22 @@ rndr_linebreak(struct buf *ob, void *opaque)
 	return 1;
 }
 
+static int html_entity_ahead(const uint8_t *text, size_t start, size_t size) {
+	size_t i = start;
+
+	if (text[i] != '&')
+		return 0;
+
+	for (; i < size; ++i) {
+		if (text[i] == ' ')
+			return 0;
+		else if (text[i] == ';')
+			return 1;
+	}
+
+	return 0;
+}
+
 static void
 rndr_header_anchor(struct buf *out, const struct buf *anchor)
 {
@@ -293,10 +309,11 @@ rndr_header_anchor(struct buf *out, const struct buf *anchor)
 			while (i < size && a[i] != '>')
 				i++;
 		// skip html entities
-		} else if (a[i] == '&') {
+		} else if (a[i] == '&' && html_entity_ahead(a, i, size)) {
 			while (i < size && a[i] != ';')
 				i++;
 		}
+
 		// replace non-ascii or invalid characters with dashes
 		else if (!isascii(a[i]) || strchr(STRIPPED, a[i])) {
 			if (inserted && !stripped)
