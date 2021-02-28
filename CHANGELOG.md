@@ -1,5 +1,14 @@
 # Changelog
 
+* Properly provide a third argument to the `table_cell` callback indicating
+  whether the current cell is part of the header or not.
+
+  The previous implementation with two parameters is still supported.
+
+  Fixes #604, Refs #605.
+
+  *Mark Lambley*
+
 * Fix anchor generation on titles with ampersands.
 
   Fixes #696.

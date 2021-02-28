@@ -113,9 +113,10 @@ rndr_tablerow(struct buf *ob, const struct buf *text, void *opaque)
 static void
 rndr_tablecell(struct buf *ob, const struct buf *text, int align, void *opaque)
 {
-	VALUE rb_align;
+	VALUE rb_align, rb_header;
+	VALUE rb_callback, rb_callback_arity;
 
-	switch (align) {
+	switch (align & MKD_TABLE_ALIGNMASK) {
 	case MKD_TABLE_ALIGN_L:
 		rb_align = CSTR2SYM("left");
 		break;
@@ -133,7 +134,25 @@ rndr_tablecell(struct buf *ob, const struct buf *text, int align, void *opaque)
 		break;
 	}
 
-	BLOCK_CALLBACK("table_cell", 2, buf2str(text), rb_align);
+	if (align & MKD_TABLE_HEADER) {
+		rb_header = Qtrue;
+	} else {
+		rb_header = Qfalse;
+	}
+
+	struct redcarpet_renderopt *opt = opaque;
+
+	rb_callback = rb_funcall(opt->self, rb_intern("method"), 1, CSTR2SYM("table_cell"));
+
+	rb_callback_arity = rb_funcall(rb_callback, rb_intern("arity"), 0);
+
+	/* For backward compatibility, let's ensure that the erasure with
+	   only two parameters is still supported. */
+	if (FIX2SHORT(rb_callback_arity) == 3) {
+		BLOCK_CALLBACK("table_cell", 3, buf2str(text), rb_align, rb_header);
+	} else {
+		BLOCK_CALLBACK("table_cell", 2, buf2str(text), rb_align);
+	}
 }
 
 static void
