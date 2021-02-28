@@ -148,7 +148,7 @@ rndr_tablecell(struct buf *ob, const struct buf *text, int align, void *opaque)
 
 	/* For backward compatibility, let's ensure that the erasure with
 	   only two parameters is still supported. */
-	if (FIX2SHORT(rb_callback_arity) == 3) {
+	if (FIX2INT(rb_callback_arity) == 3) {
 		BLOCK_CALLBACK("table_cell", 3, buf2str(text), rb_align, rb_header);
 	} else {
 		BLOCK_CALLBACK("table_cell", 2, buf2str(text), rb_align);
