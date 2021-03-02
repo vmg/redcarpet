@@ -1,6 +1,6 @@
-/* C code produced by gperf version 3.0.3 */
+/* C code produced by gperf version 3.0.4 */
 /* Command-line: gperf -N find_block_tag -H hash_block_tag -C -c -E --ignore-case html_block_names.txt  */
-/* See https://git.io/vPLqa for the list of recognized elements */
+/* See http://git.io/RN0ncw for the list of recognized elements */
 /* Computed positions: -k'1-2' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -30,7 +30,7 @@
 error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
 #endif
 
-/* maximum key range = 72, duplicates = 0 */
+/* maximum key range = 67, duplicates = 0 */
 
 #ifndef GPERF_DOWNCASE
 #define GPERF_DOWNCASE 1
@@ -94,34 +94,34 @@ hash_block_tag (str, len)
 {
   static const unsigned char asso_values[] =
     {
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      26, 60, 55, 45, 40, 35, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 20, 15, 15,  0, 35,
-       0, 25, 10, 10,  5, 73, 73,  0, 15, 15,
-       0, 73, 73, 15, 20, 10, 10, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 20, 15, 15,
-       0, 35,  0, 25, 10, 10,  5, 73, 73,  0,
-      15, 15,  0, 73, 73, 15, 20, 10, 10, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      55, 50, 45, 40, 35, 30, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 15, 10, 15, 15, 15,
+       0, 20, 10, 10,  5, 68, 68,  0, 20, 25,
+       0, 68, 68,  0, 25,  0, 15, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 15, 10, 15,
+      15, 15,  0, 20, 10, 10,  5, 68, 68,  0,
+      20, 25,  0, 68, 68,  0, 25,  0, 15, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+      68, 68, 68, 68, 68, 68, 68
     };
-  register unsigned int hval = len;
+  register int hval = len;
 
   switch (hval)
     {
@@ -135,6 +135,12 @@ hash_block_tag (str, len)
   return hval;
 }
 
+#ifdef __GNUC__
+__inline
+#if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__
+__attribute__ ((__gnu_inline__))
+#endif
+#endif
 const char *
 find_block_tag (str, len)
      register const char *str;
@@ -142,80 +148,76 @@ find_block_tag (str, len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 43,
+      TOTAL_KEYWORDS = 41,
       MIN_WORD_LENGTH = 1,
       MAX_WORD_LENGTH = 10,
       MIN_HASH_VALUE = 1,
-      MAX_HASH_VALUE = 72
+      MAX_HASH_VALUE = 67
     };
 
   static const char * const wordlist[] =
     {
       "",
       "p",
-      "dl",
-      "del",
-      "form",
-      "",
-      "footer",
-      "details",
-      "div",
-      "", "",
-      "figure",
       "ul",
+      "pre",
+      "form",
+      "style",
+      "footer",
+      "section",
+      "", "", "",
+      "figure",
+      "hr",
       "fieldset",
-      "",
+      "math",
       "figcaption",
       "header",
-      "ol",
-      "pre",
-      "math",
-      "video",
-      "script",
-      "section",
-      "noscript",
+      "dl",
+      "del",
       "",
       "blockquote",
+      "script",
+      "article",
+      "div",
+      "",
+      "video",
       "hgroup",
-      "hr",
-      "ins",
-      "",
-      "style",
-      "output",
-      "summary",
-      "nav",
-      "",
-      "audio",
+      "ol",
+      "noscript",
+      "", "",
       "canvas",
       "dd",
-      "h1",
+      "nav",
       "abbr",
-      "table",
+      "audio",
       "iframe",
-      "article",
-      "", "",
-      "aside",
+      "address",
+      "ins",
+      "",
+      "table",
       "",
       "h6",
       "", "",
+      "aside",
+      "output",
+      "h5",
+      "", "",
       "tfoot",
       "",
-      "h5",
-      "", "", "", "",
       "h4",
-      "", "", "", "",
-      "address",
       "", "", "", "",
       "h3",
       "", "", "", "",
-      "h2"
+      "h2",
+      "", "", "", "",
+      "h1"
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      unsigned int key = hash_block_tag (str, len);
+      register int key = hash_block_tag (str, len);
 
-      if (key <= MAX_HASH_VALUE)
+      if (key <= MAX_HASH_VALUE && key >= 0)
         {
           register const char *s = wordlist[key];
 
