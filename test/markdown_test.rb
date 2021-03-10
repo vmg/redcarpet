@@ -45,13 +45,6 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
-  def test_simple_inline_html_ins
-    output   = render("<ins>after</ins>")
-    expected = "<p><ins>after</ins></p>"
-
-    assert_equal expected, output
-  end
-
  def test_simple_inline_html_i
     output   = render("<i>after</i>")
     expected = "<p><i>after</i></p>"

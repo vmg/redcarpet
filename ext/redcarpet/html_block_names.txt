@@ -7,6 +7,7 @@ blockquote
 canvas
 center
 dd
+del
 details
 div
 dl
@@ -25,6 +26,7 @@ header
 hgroup
 hr
 iframe
+ins
 math
 nav
 noscript
