@@ -1,5 +1,11 @@
 # Changelog
 
+* Consider `<center>` as a block-level element.
+
+  Refs #702.
+
+  *momijizukamori*
+
 * Properly provide a third argument to the `table_cell` callback indicating
   whether the current cell is part of the header or not.
 
