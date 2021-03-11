@@ -38,6 +38,20 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
+  def test_simple_inline_html_center
+    output   = render("before\n\n<center>\n  foo\n</center>\n\nafter")
+    expected = "<p>before</p>\n\n<center>\n  foo\n</center>\n\n<p>after</p>"
+
+    assert_equal expected, output
+  end
+
+ def test_simple_inline_html_i
+    output   = render("<i>after</i>")
+    expected = "<p><i>after</i></p>"
+
+    assert_equal expected, output
+  end
+
   def test_that_html_blocks_do_not_require_their_own_end_tag_line
     output   = render("Para 1\n\n<div><pre>HTML block\n</pre></div>\n\nPara 2 [Link](#anchor)")
     expected = "<p>Para 1</p>\n\n<div><pre>HTML block\n</pre></div>\n\n<p>Para 2 <a href=\"#anchor\">Link</a></p>"

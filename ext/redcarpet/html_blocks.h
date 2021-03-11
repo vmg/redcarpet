@@ -1,6 +1,5 @@
-/* C code produced by gperf version 3.0.3 */
+/* ANSI-C code produced by gperf version 3.1 */
 /* Command-line: gperf -N find_block_tag -H hash_block_tag -C -c -E --ignore-case html_block_names.txt  */
-/* See https://git.io/vPLqa for the list of recognized elements */
 /* Computed positions: -k'1-2' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -27,7 +26,7 @@
       && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
       && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
-error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
+#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
 #endif
 
 /* maximum key range = 72, duplicates = 0 */
@@ -60,10 +59,7 @@ static unsigned char gperf_downcase[256] =
 #ifndef GPERF_CASE_STRNCMP
 #define GPERF_CASE_STRNCMP 1
 static int
-gperf_case_strncmp (s1, s2, n)
-     register const char *s1;
-     register const char *s2;
-     register unsigned int n;
+gperf_case_strncmp (register const char *s1, register const char *s2, register size_t n)
 {
   for (; n > 0;)
     {
@@ -88,9 +84,7 @@ inline
 #endif
 #endif
 static unsigned int
-hash_block_tag (str, len)
-     register const char *str;
-     register unsigned int len;
+hash_block_tag (register const char *str, register size_t len)
 {
   static const unsigned char asso_values[] =
     {
@@ -99,13 +93,13 @@ hash_block_tag (str, len)
       73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
       73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
       73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      26, 60, 55, 45, 40, 35, 73, 73, 73, 73,
-      73, 73, 73, 73, 73, 20, 15, 15,  0, 35,
-       0, 25, 10, 10,  5, 73, 73,  0, 15, 15,
+      16, 55, 50, 45, 40,  5, 73, 73, 73, 73,
+      73, 73, 73, 73, 73, 20, 15, 25,  0, 45,
+       0, 30, 10,  0,  5, 73, 73,  0, 15, 35,
        0, 73, 73, 15, 20, 10, 10, 73, 73, 73,
-      73, 73, 73, 73, 73, 73, 73, 20, 15, 15,
-       0, 35,  0, 25, 10, 10,  5, 73, 73,  0,
-      15, 15,  0, 73, 73, 15, 20, 10, 10, 73,
+      73, 73, 73, 73, 73, 73, 73, 20, 15, 25,
+       0, 45,  0, 30, 10,  0,  5, 73, 73,  0,
+      15, 35,  0, 73, 73, 15, 20, 10, 10, 73,
       73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
       73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
       73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
@@ -136,13 +130,11 @@ hash_block_tag (str, len)
 }
 
 const char *
-find_block_tag (str, len)
-     register const char *str;
-     register unsigned int len;
+find_block_tag (register const char *str, register size_t len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 43,
+      TOTAL_KEYWORDS = 44,
       MIN_WORD_LENGTH = 1,
       MAX_WORD_LENGTH = 10,
       MIN_HASH_VALUE = 1,
@@ -167,7 +159,7 @@ find_block_tag (str, len)
       "",
       "figcaption",
       "header",
-      "ol",
+      "h6",
       "pre",
       "math",
       "video",
@@ -178,42 +170,45 @@ find_block_tag (str, len)
       "blockquote",
       "hgroup",
       "hr",
-      "ins",
+      "h1",
       "",
       "style",
-      "output",
+      "center",
       "summary",
       "nav",
       "",
       "audio",
-      "canvas",
-      "dd",
-      "h1",
-      "abbr",
-      "table",
       "iframe",
+      "ol",
+      "ins",
+      "",
+      "table",
+      "",
       "article",
       "", "",
       "aside",
+      "canvas",
+      "dd",
       "",
-      "h6",
+      "abbr",
+      "",
+      "output",
+      "h5",
       "", "",
       "tfoot",
       "",
-      "h5",
-      "", "", "", "",
       "h4",
-      "", "", "", "",
-      "address",
       "", "", "", "",
       "h3",
       "", "", "", "",
-      "h2"
+      "h2",
+      "", "", "", "",
+      "address"
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      unsigned int key = hash_block_tag (str, len);
+      register unsigned int key = hash_block_tag (str, len);
 
       if (key <= MAX_HASH_VALUE)
         {
