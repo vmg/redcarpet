@@ -427,4 +427,11 @@ class MarkdownTest < Redcarpet::TestCase
 
     assert_match /<table>/, output
   end
+
+  def test_newline_between_closing_tags
+    result = "<div><div></div>\n\nbar</div>"
+    output = render("<div><div></div>\nbar</div>")
+
+    assert_equal result, output
+  end
 end
