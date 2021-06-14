@@ -76,7 +76,7 @@ redcarpet_stack_init(struct stack *st, size_t initial_size)
 int
 redcarpet_stack_push(struct stack *st, void *item)
 {
-	if (redcarpet_stack_grow(st, st->size * 2) < 0)
+	if (st->size == st->asize && redcarpet_stack_grow(st, st->size * 2) < 0)
 		return -1;
 
 	st->item[st->size++] = item;
