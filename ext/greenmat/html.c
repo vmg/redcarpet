@@ -121,6 +121,52 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 }
 
 static void
+rndr_blockcustom(struct buf *ob, const struct buf *text, const struct buf *type, void *opaque)
+{
+	struct html_renderopt *options = opaque;
+
+	if (ob->size) bufputc(ob, '\n');
+
+	if (type && type->size) {
+		size_t i, cls;
+		if (options->flags & HTML_PRETTIFY) {
+			BUFPUTSL(ob, "<div data-type=\"customblock prettyprint\" data-metadata=\"");
+			cls++;
+		} else {
+			BUFPUTSL(ob, "<div data-type=\"customblock\" data-metadata=\"");
+		}
+
+		for (i = 0, cls = 0; i < type->size; ++i, ++cls) {
+			while (i < type->size && isspace(type->data[i]))
+				i++;
+
+			if (i < type->size) {
+				size_t org = i;
+				while (i < type->size && is_non_space(type->data[i]))
+					i++;
+
+				if (type->data[org] == '.')
+					org++;
+
+				if (cls) bufputc(ob, ' ');
+				escape_html(ob, type->data + org, i - org);
+			}
+		}
+
+		BUFPUTSL(ob, "\">");
+	} else if (options->flags & HTML_PRETTIFY) {
+		BUFPUTSL(ob, "<div data-type=\"customblock prettyprint\">");
+	} else {
+		BUFPUTSL(ob, "<div data-type=\"customblock\">");
+	}
+
+	if (text)
+		escape_html(ob, text->data, text->size);
+
+	BUFPUTSL(ob, "</div>\n");
+}
+
+static void
 rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque)
 {
 	struct html_renderopt *options = opaque;
@@ -749,6 +795,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 		NULL,
 		NULL,
 		NULL,
+		NULL,
 		toc_header,
 		NULL,
 		NULL,
@@ -794,6 +841,7 @@ sdhtml_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, 
 {
 	static const struct sd_callbacks cb_default = {
 		rndr_blockcode,
+		rndr_blockcustom,
 		rndr_blockquote,
 		rndr_raw_block,
 		rndr_header,

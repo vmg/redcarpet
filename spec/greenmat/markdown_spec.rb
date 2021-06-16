@@ -184,5 +184,48 @@ module Greenmat
         EOS
       end
     end
+
+    context 'with fenced_custom_blocks option' do
+      let(:options) { { fenced_custom_blocks: true } }
+
+      context 'with custom block with any metadata' do
+        let(:text) do
+          <<-EOS.strip_heredoc
+            :::foo bar
+            message
+            :::
+          EOS
+        end
+
+        it 'renders text with <div> tag that have customblock class & metadata in a data-metadata attribute' do
+          expect(rendered_html).to eq <<-EOS.strip_heredoc
+            <div data-type="customblock" data-metadata="foo bar">message
+            </div>
+          EOS
+        end
+      end
+    end
+
+    context 'without fenced_custom_blocks option' do
+      let(:options) { {} }
+
+      context 'with custom block with any metadata' do
+        let(:text) do
+          <<-EOS.strip_heredoc
+            :::foo bar
+            message
+            :::
+          EOS
+        end
+
+        it 'renders text with p tag' do
+          expect(rendered_html).to eq <<-EOS.strip_heredoc
+            <p>:::foo bar
+            message
+            :::</p>
+          EOS
+        end
+      end
+    end
   end
 end
