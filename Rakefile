@@ -4,6 +4,7 @@ require 'rake/extensiontask'
 require 'digest/md5'
 
 task :default => [:test, :spec]
+task :spec => [:compile]
 
 # Gem Spec
 gem_spec = Gem::Specification.load('greenmat.gemspec')
