@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v3.5.1.2
+
 * Support custom block notation.
   * It starts with `:::` and ends with `:::`.
   * Output a `<div data-type="customblock" data-metadata="">` element.
