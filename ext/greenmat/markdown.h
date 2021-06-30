@@ -64,13 +64,15 @@ enum mkd_extensions {
 	MKDEXT_HIGHLIGHT = (1 << 10),
 	MKDEXT_FOOTNOTES = (1 << 11),
 	MKDEXT_QUOTE = (1 << 12),
-	MKDEXT_NO_MENTION_EMPHASIS = (1 << 13)
+	MKDEXT_NO_MENTION_EMPHASIS = (1 << 13),
+	MKDEXT_FENCED_CUSTOM = (1 << 14)
 };
 
 /* sd_callbacks - functions for rendering parsed data */
 struct sd_callbacks {
 	/* block level callbacks - NULL skips the block */
 	void (*blockcode)(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque);
+	void (*blockcustom)(struct buf *ob, const struct buf *text, const struct buf *type, void *opaque);
 	void (*blockquote)(struct buf *ob, const struct buf *text, void *opaque);
 	void (*blockhtml)(struct buf *ob,const  struct buf *text, void *opaque);
 	void (*header)(struct buf *ob, const struct buf *text, int level, void *opaque);

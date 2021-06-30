@@ -55,6 +55,12 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 }
 
 static void
+rndr_blockcustom(struct buf *ob, const struct buf *text, const struct buf *type, void *opaque)
+{
+	BLOCK_CALLBACK("block_custom", 2, buf2str(text), buf2str(type));
+}
+
+static void
 rndr_blockquote(struct buf *ob, const struct buf *text, void *opaque)
 {
 	BLOCK_CALLBACK("block_quote", 1, buf2str(text));
@@ -293,6 +299,7 @@ rndr_link_attributes(struct buf *ob, const struct buf *url, void *opaque)
 
 static struct sd_callbacks rb_greenmat_callbacks = {
 	rndr_blockcode,
+	rndr_blockcustom,
 	rndr_blockquote,
 	rndr_raw_block,
 	rndr_header,
@@ -331,6 +338,7 @@ static struct sd_callbacks rb_greenmat_callbacks = {
 
 static const char *rb_greenmat_method_names[] = {
 	"block_code",
+	"block_custom",
 	"block_quote",
 	"block_html",
 	"header",
