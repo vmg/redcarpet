@@ -66,14 +66,17 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
   end
 
   def test_anchor_generation_with_edge_cases
-    # Imported from ActiveSupport::Inflector#parameterize's tests
+    # Mostly imported from ActiveSupport::Inflector#parameterize's tests
     titles = {
       "Donald E. Knuth"                     => "donald-e-knuth",
       "Random text with *(bad)* characters" => "random-text-with-bad-characters",
       "!@#Surrounding bad characters!@#"    => "surrounding-bad-characters",
       "Squeeze   separators"                => "squeeze-separators",
       "Test with + sign"                    => "test-with-sign",
-      "Test with a Namespaced::Class"       => "test-with-a-namespaced-class"
+      "Test with a Namespaced::Class"       => "test-with-a-namespaced-class",
+      "Foo & Bar"                           => "foo-bar",
+      "Foo&Bar"                             => "foo-bar",
+      "Foo &amp; Bar"                       => "foo-bar"
     }
 
     titles.each do |title, anchor|

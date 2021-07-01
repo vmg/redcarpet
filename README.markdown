@@ -2,8 +2,8 @@ Redcarpet is written with sugar, spice and everything nice
 ============================================================
 
 [![Build Status](https://travis-ci.org/vmg/redcarpet.svg?branch=master)](https://travis-ci.org/vmg/redcarpet)
-[![Dependency Status](https://www.versioneye.com/ruby/redcarpet/badge.svg)](https://www.versioneye.com/ruby/redcarpet)
 [![Help Contribute to Open Source](https://www.codetriage.com/vmg/redcarpet/badges/users.svg)](https://www.codetriage.com/vmg/redcarpet)
+[![Gem Version](https://badge.fury.io/rb/redcarpet.svg)](https://badge.fury.io/rb/redcarpet)
 
 Redcarpet is a Ruby library for Markdown processing that smells like
 butterflies and popcorn.
@@ -258,7 +258,7 @@ end
 * paragraph(text)
 * table(header, body)
 * table_row(content)
-* table_cell(content, alignment)
+* table_cell(content, alignment, header)
 
 ### Span-level calls
 

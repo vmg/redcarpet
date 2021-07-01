@@ -1,10 +1,38 @@
 # Changelog
 
+
 * Match fence char and length when matching closing fence in fenced code blocks.
 
   Fixes #208.
 
   *Martin Cizek, Orchitech*
+
+* Consider `<center>` as a block-level element.
+
+  Refs #702.
+
+  *momijizukamori*
+
+* Properly provide a third argument to the `table_cell` callback indicating
+  whether the current cell is part of the header or not.
+
+  The previous implementation with two parameters is still supported.
+
+  Fixes #604, Refs #605.
+
+  *Mark Lambley*
+
+* Fix anchor generation on titles with ampersands.
+
+  Fixes #696.
+
+## Version 3.5.1 (Security)
+
+* Fix a security vulnerability using `:quote` in combination with the
+  `:escape_html` option.
+
+  Reported by *Johan Smits*.
+
 
 ## Version 3.5.0
 
