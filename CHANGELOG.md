@@ -1,5 +1,12 @@
 # Changelog
 
+
+* Match fence char and length when matching closing fence in fenced code blocks.
+
+  Fixes #208.
+
+  *Martin Cizek, Orchitech*
+
 * Consider `<center>` as a block-level element.
 
   Refs #702.
@@ -25,6 +32,7 @@
   `:escape_html` option.
 
   Reported by *Johan Smits*.
+
 
 ## Version 3.5.0
 

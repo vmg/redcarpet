@@ -1353,13 +1353,13 @@ is_hrule(uint8_t *data, size_t size)
 	return n >= 3;
 }
 
-/* check if a line begins with a code fence; return the
- * width of the code fence */
+/* check if a line begins with a code fence matching optional opendelim;
+   return the width of the code fence and store the delimiter string  */
 static size_t
-prefix_codefence(uint8_t *data, size_t size)
+prefix_codefence(uint8_t *data, size_t size, struct buf *delim, struct buf *opendelim)
 {
-	size_t i = 0, n = 0;
-	uint8_t c;
+	size_t i = 0, n = 0, min_n = 3;
+	uint8_t c, *delim_start;
 
 	/* skipping initial spaces */
 	if (size < 3) return 0;
@@ -1367,31 +1367,46 @@ prefix_codefence(uint8_t *data, size_t size)
 	if (data[1] == ' ') { i++;
 	if (data[2] == ' ') { i++; } } }
 
+	delim_start = data + i;
+
 	/* looking at the hrule uint8_t */
 	if (i + 2 >= size || !(data[i] == '~' || data[i] == '`'))
 		return 0;
 
-	c = data[i];
+	if (opendelim && opendelim->size) {
+		c = opendelim->data[0];
+		min_n = opendelim->size;
+	} else {
+		c = data[i];
+	}
 
 	/* the whole line must be the uint8_t or whitespace */
 	while (i < size && data[i] == c) {
 		n++; i++;
 	}
 
-	if (n < 3)
+	if (n < min_n)
 		return 0;
+
+	if (delim) {
+		delim->data = delim_start;
+		delim->size = n;
+	}
 
 	return i;
 }
 
 /* check if a line is a code fence; return its size if it is */
+/* checking is done in fence-pair matching mode if curdelim is provided */
 static size_t
-is_codefence(uint8_t *data, size_t size, struct buf *syntax)
+is_codefence(uint8_t *data, size_t size, struct buf *curdelim, struct buf *syntax)
 {
 	size_t i = 0, syn_len = 0;
 	uint8_t *syn_start;
+	struct buf delim = { 0, 0, 0, 0 };
 
-	i = prefix_codefence(data, size);
+	i = prefix_codefence(data, size, &delim, curdelim);
+
 	if (i == 0)
 		return 0;
 
@@ -1426,16 +1441,30 @@ is_codefence(uint8_t *data, size_t size, struct buf *syntax)
 		}
 	}
 
-	if (syntax) {
-		syntax->data = syn_start;
-		syntax->size = syn_len;
-	}
+	/* info string must not be present at the closing fence */
+	if (curdelim && curdelim->size && syn_len)
+		return 0;
 
 	while (i < size && data[i] != '\n') {
 		if (!_isspace(data[i]))
 			return 0;
 
 		i++;
+	}
+
+	if (curdelim) {
+		if (curdelim->size) {
+			curdelim->data = NULL;
+			curdelim->size = 0;
+		} else {
+			curdelim->data = delim.data;
+			curdelim->size = delim.size;
+		}
+	}
+
+	if (syntax) {
+		syntax->data = syn_start;
+		syntax->size = syn_len;
 	}
 
 	return i + 1;
@@ -1673,7 +1702,7 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 
 			/* see if a code fence starts here */
 			if ((rndr->ext_flags & MKDEXT_FENCED_CODE) != 0 &&
-				is_codefence(data + i, size - i, NULL) != 0) {
+				is_codefence(data + i, size - i, NULL, NULL) != 0) {
 				end = i;
 				break;
 			}
@@ -1739,19 +1768,19 @@ parse_fencedcode(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 {
 	size_t beg, end;
 	struct buf *work = 0;
+	struct buf delim = { 0, 0, 0, 0 };
 	struct buf lang = { 0, 0, 0, 0 };
 
-	beg = is_codefence(data, size, &lang);
+	beg = is_codefence(data, size, &delim, &lang);
 	if (beg == 0) return 0;
 
 	work = rndr_newbuf(rndr, BUFFER_BLOCK);
 
 	while (beg < size) {
 		size_t fence_end;
-		struct buf fence_trail = { 0, 0, 0, 0 };
 
-		fence_end = is_codefence(data + beg, size - beg, &fence_trail);
-		if (fence_end != 0 && fence_trail.size == 0) {
+		fence_end = is_codefence(data + beg, size - beg, &delim, NULL);
+		if (fence_end != 0) {
 			beg += fence_end;
 			break;
 		}
@@ -1827,6 +1856,7 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 	struct buf *work = 0, *inter = 0;
 	size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
 	int in_empty = 0, has_inside_empty = 0, in_fence = 0;
+	struct buf fence_delim = { 0, 0, 0, 0 };
 
 	/* keeping track of the first indentation prefix */
 	while (orgpre < 3 && orgpre < size && data[orgpre] == ' ')
@@ -1876,7 +1906,7 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 		pre = i;
 
 		if (rndr->ext_flags & MKDEXT_FENCED_CODE) {
-			if (is_codefence(data + beg + i, end - beg - i, NULL) != 0)
+			if (is_codefence(data + beg + i, end - beg - i, &fence_delim, NULL) != 0)
 				in_fence = !in_fence;
 		}
 
@@ -2804,6 +2834,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	struct buf *text;
 	size_t beg, end;
 	int in_fence = 0;
+	struct buf fence_delim = { 0, 0, 0, 0 };
 
 	text = bufnew(64);
 	if (!text)
@@ -2833,7 +2864,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 		beg += 3;
 
 	while (beg < doc_size) { /* iterating over lines */
-		if (codefences_enabled && (is_codefence(document + beg, doc_size - beg, NULL) != 0))
+		if (codefences_enabled && (is_codefence(document + beg, doc_size - beg, &fence_delim, NULL) != 0))
 			in_fence = !in_fence;
 
 		if (!in_fence && footnotes_enabled && is_footnote(document, beg, doc_size, &end, &md->footnotes_found))
