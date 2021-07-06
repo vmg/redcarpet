@@ -125,17 +125,22 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 
 	rb_markdown = Data_Wrap_Struct(klass, NULL, rb_redcarpet_md__free, markdown);
 	rb_iv_set(rb_markdown, "@renderer", rb_rndr);
+	rb_iv_set(rb_markdown, "@render_lock", rb_mutex_new());
 
 	return rb_markdown;
 }
 
-static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
+static VALUE rb_redcarpet_md_render_begin(VALUE rb_args)
 {
+	VALUE self;
+	VALUE text;
 	VALUE rb_rndr;
+	VALUE rb_render_lock;
 	struct buf *output_buf;
 	struct sd_markdown *markdown;
 
-	Check_Type(text, T_STRING);
+	self = rb_ary_entry(rb_args, 0);
+	text = rb_ary_entry(rb_args, 1);
 
 	rb_rndr = rb_iv_get(self, "@renderer");
 	Data_Get_Struct(self, struct sd_markdown, markdown);
@@ -168,6 +173,29 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 		text = rb_funcall(rb_rndr, rb_intern("postprocess"), 1, text);
 
 	return text;
+}
+
+static VALUE rb_redcarpet_md_ensure(VALUE rb_args)
+{
+	VALUE self;
+
+	self = rb_ary_entry(rb_args, 0);
+	rb_mutex_unlock(rb_iv_get(self, "@render_lock"));
+	rb_ary_free(rb_args);
+	return Qnil;
+}
+
+static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
+{
+	VALUE rb_args;
+
+	Check_Type(text, T_STRING);
+	// rb_ensure requires a single VALUE to the callbacks so we turn our two arguments into an array
+	rb_args = rb_ary_new_from_args(2, self, text);
+
+	// sd_markdown and the rendering methods are not thread safe so wrap all rendering in a lock
+	rb_mutex_lock(rb_iv_get(self, "@render_lock"));
+	return rb_ensure(&rb_redcarpet_md_render_begin, rb_args, &rb_redcarpet_md_ensure, rb_args);
 }
 
 __attribute__((visibility("default")))
