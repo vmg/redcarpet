@@ -230,7 +230,7 @@ sd_autolink__email(
 	for (link_end = 0; link_end < size; ++link_end) {
 		uint8_t c = data[link_end];
 
-		if (isalnum(c))
+		if (isalnum(c) && c < 0x7f)
 			continue;
 
 		if (c == '@')
