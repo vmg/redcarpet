@@ -35,7 +35,7 @@ task 'test:conformance' => :compile do |t|
   lib_dir = "#{pwd}/lib"
 
   chdir("test/MarkdownTest_#{version}") do
-    sh "RUBYLIB=#{lib_dir} ./MarkdownTest.pl --script='#{script}' --tidy"
+    sh "RUBYLIB=\"$RUBYLIB:#{lib_dir}\" ./MarkdownTest.pl --script='#{script}' --tidy"
   end
 end
 
