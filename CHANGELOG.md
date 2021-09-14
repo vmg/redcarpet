@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Change ci platform to Github Actions
+
 ## v3.5.1.2
 
 * Support custom block notation.

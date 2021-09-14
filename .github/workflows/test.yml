@@ -1,0 +1,47 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['ubuntu-18.04', 'macos-latest']
+        ruby: ['2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.7']
+        experimental: [false]
+        include:
+          - os: 'ubuntu-18.04'
+            ruby: 'head'
+            experimental: true
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+    env:
+      BUNDLE_WITHOUT: benchmark
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install prerequirements
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install tidy
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Build
+        run: bundle exec rake compile
+      - name: Check prerequirements
+        run: |
+          tidy --version
+          bin/greenmat --version
+      - name: Run test
+        run: bundle exec rake
