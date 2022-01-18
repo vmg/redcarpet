@@ -176,6 +176,7 @@ void Init_redcarpet()
 	rb_mRedcarpet = rb_define_module("Redcarpet");
 
 	rb_cMarkdown = rb_define_class_under(rb_mRedcarpet, "Markdown", rb_cObject);
+	rb_undef_alloc_func(rb_cMarkdown);
 	rb_define_singleton_method(rb_cMarkdown, "new", rb_redcarpet_md__new, -1);
 	rb_define_method(rb_cMarkdown, "render", rb_redcarpet_md_render, 1);
 
