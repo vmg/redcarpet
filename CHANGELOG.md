@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Bump nokogiri from 1.6.0 to 1.11.7
+  * Support cpu archtecture for arm64/aarch64 systems (like Apple's M1)
 * Change ci platform to Github Actions
 
 ## v3.5.1.2
