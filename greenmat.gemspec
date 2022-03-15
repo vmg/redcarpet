@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/increments/greenmat'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
-  s.required_ruby_version = '>= 2.0.0'
+  s.required_ruby_version = '>= 2.5.0'
 
   s.files = `git ls-files -z`.split("\x0")
   s.test_files = s.files.grep(%r{^(test|spec|features)/})
@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_development_dependency "activesupport"
-  s.add_development_dependency "nokogiri", "~> 1.6.0"
+  s.add_development_dependency "nokogiri", "~> 1.11.7"
   s.add_development_dependency "rake", "~> 12.2.1"
   s.add_development_dependency "rake-compiler", "~> 1.0.3"
   s.add_development_dependency "rspec", "~> 3.2"
