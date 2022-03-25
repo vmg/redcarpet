@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description = 'A fast, safe and extensible Markdown to (X)HTML parser'
   s.date = '2020-12-15'
   s.email = 'vicent@github.com'
-  s.homepage = 'http://github.com/vmg/redcarpet'
+  s.homepage = 'https://github.com/vmg/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
   s.required_ruby_version = '>= 1.9.2'
