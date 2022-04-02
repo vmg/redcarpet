@@ -12,6 +12,8 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 1.9.2'
   # = MANIFEST =
   s.files = %w[
+    CHANGELOG.md
+    CONTRIBUTING.md
     COPYING
     Gemfile
     README.markdown
@@ -27,6 +29,7 @@ Gem::Specification.new do |s|
     ext/redcarpet/houdini_html_e.c
     ext/redcarpet/html.c
     ext/redcarpet/html.h
+    ext/redcarpet/html_block_names.txt
     ext/redcarpet/html_blocks.h
     ext/redcarpet/html_smartypants.c
     ext/redcarpet/markdown.c
