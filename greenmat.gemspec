@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/increments/greenmat'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
-  s.required_ruby_version = '>= 2.5.0'
+  s.required_ruby_version = '>= 2.6.0'
 
   s.files = `git ls-files -z`.split("\x0")
   s.test_files = s.files.grep(%r{^(test|spec|features)/})
