@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Support ruby version for 3.0, 3.1
+
 ## v3.5.1.3
 
 * Remove support for ruby 2.5 and below

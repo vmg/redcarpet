@@ -22,9 +22,9 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_development_dependency "activesupport"
-  s.add_development_dependency "nokogiri", "~> 1.11.7"
-  s.add_development_dependency "rake", "~> 12.2.1"
+  s.add_development_dependency "nokogiri", "~> 1.13.0"
+  s.add_development_dependency "rake", "~> 13"
   s.add_development_dependency "rake-compiler", "~> 1.0.3"
   s.add_development_dependency "rspec", "~> 3.2"
-  s.add_development_dependency "test-unit", "~> 3.2.3"
+  s.add_development_dependency "test-unit", "~> 3.5.3"
 end
