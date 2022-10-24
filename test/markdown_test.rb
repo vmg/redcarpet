@@ -26,6 +26,13 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
+  def test_that_nested_strong_emphasis_does_not_terminate_emphasis
+    output = render('*foo **bar** baz*')
+    expected = "<p><em>foo <strong>bar</strong> baz</em></p>"
+
+    assert_equal expected, output
+  end
+
   def test_that_urls_are_not_doubly_escaped
     output = render('[Page 2](/search?query=Markdown+Test&page=2)')
     assert_equal "<p><a href=\"/search?query=Markdown+Test&page=2\">Page 2</a></p>", output

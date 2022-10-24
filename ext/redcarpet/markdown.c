@@ -609,7 +609,9 @@ parse_emph1(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 		i += len;
 		if (i >= size) return 0;
 
-		if (data[i] == c && !_isspace(data[i - 1])) {
+		if (data[i] == c && !_isspace(data[i - 1]) && data[i - 1] != c) {
+		    if (i + 1 < size && data[i + 1] == c)
+                continue;
 
 			if (rndr->ext_flags & MKDEXT_NO_INTRA_EMPHASIS) {
 				if (i + 1 < size && _isalnum(data[i + 1]))
