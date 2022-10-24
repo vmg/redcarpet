@@ -1,5 +1,10 @@
 # Changelog
 
+* Fix nested emphases, e.g.: `*foo **bar** baz*`
+
+  Fixes #396
+
+  *Matthew Jorgensen*
 
 * Match fence char and length when matching closing fence in fenced code blocks.
 
