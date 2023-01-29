@@ -1,5 +1,10 @@
 # Changelog
 
+* Avoid warnings running on Ruby 3.2+.
+
+  Refs #721.
+
+  *Jean Boussier*
 
 * Match fence char and length when matching closing fence in fenced code blocks.
 
