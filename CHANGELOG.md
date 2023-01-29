@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.6.0
+
 * Avoid warnings running on Ruby 3.2+.
 
   Refs #721.
