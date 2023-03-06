@@ -1718,8 +1718,29 @@ parse_paragraph(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 	if (!level) {
 		struct buf *tmp = rndr_newbuf(rndr, BUFFER_BLOCK);
 		parse_inline(tmp, rndr, work.data, work.size);
-		if (rndr->cb.paragraph)
-			rndr->cb.paragraph(ob, tmp, rndr->opaque);
+
+		// If the next tag in content is a closing tag, don't wrap content in a 
+		// <p> block, or the generated html will be invalid
+		int has_orphaned_closing_tag = 0;
+		size_t i;
+		for (i = 0; i < work.size; i++) {
+		if (work.data[i] == '<') {
+			// allow ](</ as a special case to support angle-bracket relative links
+			if ((sizeof(work.data) > i && work.data[i+1] == '/') &&
+				!(i >= 2 && work.data[i-1] == '(' && work.data[i-2] == ']')) {
+				has_orphaned_closing_tag = 1;
+			}
+			break;
+		}
+	}
+
+	if (has_orphaned_closing_tag) {
+		if (rndr->cb.blockhtml)
+			rndr->cb.blockhtml(ob, tmp, rndr->opaque);
+		} else {
+			if (rndr->cb.paragraph)
+				rndr->cb.paragraph(ob, tmp, rndr->opaque);
+		}
 		rndr_popbuf(rndr, BUFFER_BLOCK);
 	} else {
 		struct buf *header_work;
