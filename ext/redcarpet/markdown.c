@@ -1848,6 +1848,24 @@ parse_blockcode(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 	return beg;
 }
 
+/* extract_prefix_number • Extracts '12' from '12. foo' */
+/* Useful for list items of ordered lists */
+static int
+extract_prefix_number(uint8_t *data, size_t size)
+{
+	size_t i = 0;
+	int prefix_num = 0;
+
+	while (i < size && data[i] == ' ') i++;
+
+	while (i < size && data[i] >= '0' && data[i] <= '9') {
+		prefix_num = prefix_num * 10 + (data[i] - '0');
+		i++;
+	}
+
+	return prefix_num;
+}
+
 /* parse_listitem • parsing of a single list item */
 /*	assuming initial prefix is already removed */
 static size_t
@@ -1862,12 +1880,16 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 	while (orgpre < 3 && orgpre < size && data[orgpre] == ' ')
 		orgpre++;
 
+	int prefix_num = 0;
+
 	beg = prefix_uli(data, size);
 	if (!beg)
 		beg = prefix_oli(data, size);
 
 	if (!beg)
 		return 0;
+
+	prefix_num = extract_prefix_number(data, size);
 
 	/* skipping to the beginning of the following line */
 	end = beg;
@@ -1977,7 +1999,7 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 
 	/* render of li itself */
 	if (rndr->cb.listitem)
-		rndr->cb.listitem(ob, inter, *flags, rndr->opaque);
+		rndr->cb.listitem(ob, inter, *flags, rndr->opaque, prefix_num);
 
 	rndr_popbuf(rndr, BUFFER_SPAN);
 	rndr_popbuf(rndr, BUFFER_SPAN);

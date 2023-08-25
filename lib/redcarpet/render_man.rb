@@ -52,10 +52,10 @@ module Redcarpet
         end
       end
 
-      def list_item(content, list_type)
+      def list_item(content, list_type, step)
         case list_type
         when :ordered
-          ".IP \\n+[step]\n#{content.strip}\n"
+          ".IP \\n+[#{step}]\n#{content.strip}\n"
         when :unordered
           ".IP \\[bu] 2 \n#{content.strip}\n"
         end

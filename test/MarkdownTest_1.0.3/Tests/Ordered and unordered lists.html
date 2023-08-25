@@ -57,44 +57,52 @@
 <p>Tight:</p>
 
 <ol>
-<li>First</li>
-<li>Second</li>
-<li>Third</li>
+<li data-step="1">First</li>
+<li data-step="2">Second</li>
+<li data-step="3">Third</li>
 </ol>
 
 <p>and:</p>
 
 <ol>
-<li>One</li>
-<li>Two</li>
-<li>Three</li>
+<li data-step="1">One</li>
+<li data-step="2">Two</li>
+<li data-step="3">Three</li>
 </ol>
 
 <p>Loose using tabs:</p>
 
 <ol>
-<li><p>First</p></li>
-<li><p>Second</p></li>
-<li><p>Third</p></li>
+<li data-step="1"><p>First</p></li>
+<li data-step="2"><p>Second</p></li>
+<li data-step="3"><p>Third</p></li>
 </ol>
 
 <p>and using spaces:</p>
 
 <ol>
-<li><p>One</p></li>
-<li><p>Two</p></li>
-<li><p>Three</p></li>
+<li data-step="1"><p>One</p></li>
+<li data-step="2"><p>Two</p></li>
+<li data-step="3"><p>Three</p></li>
 </ol>
 
 <p>Multiple paragraphs:</p>
 
 <ol>
-<li><p>Item 1, graf one.</p>
+<li data-step="1"><p>Item 1, graf one.</p>
 
 <p>Item 2. graf two. The quick brown fox jumped over the lazy dog's
 back.</p></li>
-<li><p>Item 2.</p></li>
-<li><p>Item 3.</p></li>
+<li data-step="2"><p>Item 2.</p></li>
+<li data-step="3"><p>Item 3.</p></li>
+</ol>
+
+<p>Custom steps:</p>
+
+<ol>
+<li data-step="2">Two</li>
+<li data-step="5">Five</li>
+<li data-step="13">Thirteen</li>
 </ol>
 
 <h2>Nested</h2>
@@ -112,28 +120,28 @@ back.</p></li>
 <p>Here's another:</p>
 
 <ol>
-<li>First</li>
-<li>Second:
+<li data-step="1">First</li>
+<li data-step="2">Second:
 <ul>
 <li>Fee</li>
 <li>Fie</li>
 <li>Foe</li>
 </ul></li>
-<li>Third</li>
+<li data-step="3">Third</li>
 </ol>
 
 <p>Same thing but with paragraphs:</p>
 
 <ol>
-<li><p>First</p></li>
-<li><p>Second:</p>
+<li data-step="1"><p>First</p></li>
+<li data-step="2"><p>Second:</p>
 
 <ul>
 <li>Fee</li>
 <li>Fie</li>
 <li>Foe</li>
 </ul></li>
-<li><p>Third</p></li>
+<li data-step="3"><p>Third</p></li>
 </ol>
 
 
@@ -145,4 +153,27 @@ back.</p></li>
 <ul><li>sub</li></ul>
 
 <p>that</p></li>
+</ul>
+
+<p>Nested custom steps:</p>
+<ol>
+<li data-step="1">First</li>
+<li data-step="2">Second
+<ol>
+<li data-step="5">Nested fifth</li>
+<li data-step="7">Nested seventh</li>
+</ol>
+</li>
+<li data-step="3">Third</li>
+</ol>
+
+<p>Nested custom steps within unordered:</p>
+<ul>
+<li>Foo
+<ol>
+<li data-step="3">Nested third</li>
+<li data-step="7">Nested seventh</li>
+</ol>
+</li>
+<li>Bar</li>
 </ul>

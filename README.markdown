@@ -254,7 +254,7 @@ end
 * header(text, header_level)
 * hrule()
 * list(contents, list_type)
-* list_item(text, list_type)
+* list_item(text, list_type, step)
 * paragraph(text)
 * table(header, body)
 * table_row(content)
