@@ -404,9 +404,14 @@ rndr_list(struct buf *ob, const struct buf *text, int flags, void *opaque)
 }
 
 static void
-rndr_listitem(struct buf *ob, const struct buf *text, int flags, void *opaque)
+rndr_listitem(struct buf *ob, const struct buf *text, int flags, void *opaque, int step)
 {
-	BUFPUTSL(ob, "<li>");
+	if (flags & MKD_LIST_ORDERED) {
+		bufprintf(ob, "<li data-step=\"%d\">", step);
+	} else {
+		BUFPUTSL(ob, "<li>");
+	}
+
 	if (text) {
 		size_t size = text->size;
 		while (size && text->data[size - 1] == '\n')

@@ -93,7 +93,11 @@ Multiple paragraphs:
 
 3.	Item 3.
 
+Custom steps:
 
+2. Two
+5. Five
+13. Thirteen
 
 ## Nested
 
@@ -129,3 +133,18 @@ This was an error in Markdown 1.0.1:
 	*	sub
 
 	that
+
+Nested custom steps:
+
+1. First
+2. Second
+	5. Nested fifth
+	7. Nested seventh
+3. Third
+
+Nested custom steps within unordered:
+
+* Foo
+	3. Nested third
+	7. Nested seventh
+* Bar
