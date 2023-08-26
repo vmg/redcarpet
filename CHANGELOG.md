@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 3.7.0
+## Version 4.0.0
 
 * Unobtrusively support the breaking up of ordered lists without resetting their indices/steps.
 
