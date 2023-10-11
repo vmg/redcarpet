@@ -57,7 +57,8 @@ class StripDownRender < Redcarpet::TestCase
                "| :------------ |:---------------:| -----:|\n" \
                "| col 3 is      | some wordy text | $1600 |\n" \
                "| col 2 is      | centered        |   $12 |"
-    expected = "Left-Aligned\tCentre Aligned\tRight Aligned\t\n" \
+    expected = "Caption Goes Here\n" \
+               "Left-Aligned\tCentre Aligned\tRight Aligned\t\n" \
                "col 3 is\tsome wordy text\t$1600\t\n" \
                "col 2 is\tcentered\t$12\t"
     output   = render(markdown, with: [:tables])

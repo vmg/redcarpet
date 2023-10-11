@@ -570,10 +570,10 @@ static void
 rndr_table(struct buf *ob, const struct buf *caption, const struct buf *header, const struct buf *body, void *opaque)
 {
 	if (ob->size) bufputc(ob, '\n');
-	BUFPUTSL(ob, "<table><caption>\n");
+	BUFPUTSL(ob, "<table>\n");
 	if (caption)
 		bufput(ob, caption->data, caption->size);
-	BUFPUTSL(ob, "</caption><thead>\n");
+	BUFPUTSL(ob, "<thead>\n");
 	if (header)
 		bufput(ob, header->data, header->size);
 	BUFPUTSL(ob, "</thead><tbody>\n");

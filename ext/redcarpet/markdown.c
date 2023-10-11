@@ -2394,43 +2394,39 @@ parse_table_caption(
 	uint8_t *data,
 	size_t size)
 {
-	int pipes = 0;
-	int hashes = 0;
-	size_t i = 0, caption_end;
+	size_t i = 0, caption_start, caption_end;
 	struct buf *caption_work = 0;
 
-	while (i < size && data[i] != '\n')
-	{
-		if (data[i] == '|')
-			pipes++;
-
-		if (data[i] == '#')
-			hashes++;
-
+	while (i < size && (_isspace(data[i]) || data[i] == '|'))
 		i++;
-	}
 
-	if (i == size || pipes == 0 || hashes == 0)
+	if (i == size || data[i] != '#')
 		return 0;
 
-	caption_end = i;
+	while (i < size && (_isspace(data[i]) || data[i] == '#'))
+		i++;
 
-	while (caption_end > 0 && _isspace(data[caption_end - 1]))
-		caption_end--;
+	caption_start = i;
 
-	if (data[0] == '|')
-		pipes--;
+	while (i < size && data[i] != '\n')
+		i++;
 
-	if (caption_end && data[caption_end - 1] == '|')
-		pipes--;
+	caption_end = i + 1;
+
+	if (i == size)
+		return 0;
+
+	while (i > 0 && (_isspace(data[i - 1]) || data[i - 1] == '|'))
+		i--;
 
 	caption_work = rndr_newbuf(rndr, BUFFER_SPAN);
-	
+
+	bufput(caption_work, data + caption_start, i - caption_start);
 	rndr->cb.table_caption(ob, caption_work, rndr->opaque);
 
 	rndr_popbuf(rndr, BUFFER_SPAN);
 
-	return caption_end + 1;
+	return caption_end;
 }
 
 static size_t
@@ -2455,7 +2451,6 @@ parse_table(
 	body_work = rndr_newbuf(rndr, BUFFER_BLOCK);
 
 	caption_len = parse_table_caption(caption_work, rndr, data, size);
-	printf("CAPTION LEN %ld\n", caption_len);
 	i = parse_table_header(header_work, rndr, data + caption_len, size - caption_len, &columns, &col_data);
 	
 	if (i > 0)
