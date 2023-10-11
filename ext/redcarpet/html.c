@@ -567,16 +567,28 @@ rndr_raw_html(struct buf *ob, const struct buf *text, void *opaque)
 }
 
 static void
-rndr_table(struct buf *ob, const struct buf *header, const struct buf *body, void *opaque)
+rndr_table(struct buf *ob, const struct buf *caption, const struct buf *header, const struct buf *body, void *opaque)
 {
 	if (ob->size) bufputc(ob, '\n');
-	BUFPUTSL(ob, "<table><thead>\n");
+	BUFPUTSL(ob, "<table><caption>\n");
+	if (caption)
+		bufput(ob, caption->data, caption->size);
+	BUFPUTSL(ob, "</caption><thead>\n");
 	if (header)
 		bufput(ob, header->data, header->size);
 	BUFPUTSL(ob, "</thead><tbody>\n");
 	if (body)
 		bufput(ob, body->data, body->size);
 	BUFPUTSL(ob, "</tbody></table>\n");
+}
+
+static void
+rndr_tablecaption(struct buf *ob, const struct buf *text, void *opaque)
+{
+	BUFPUTSL(ob, "<caption>\n");
+	if (text)
+		bufput(ob, text->data, text->size);
+	BUFPUTSL(ob, "</caption>\n");
 }
 
 static void
@@ -774,6 +786,7 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 		NULL,
 		NULL,
 		NULL,
+		NULL,
 		rndr_footnotes,
 		rndr_footnote_def,
 
@@ -819,6 +832,7 @@ sdhtml_renderer(struct sd_callbacks *callbacks, struct html_renderopt *options, 
 		rndr_listitem,
 		rndr_paragraph,
 		rndr_table,
+		rndr_tablecaption,
 		rndr_tablerow,
 		rndr_tablecell,
 		rndr_footnotes,

@@ -99,9 +99,15 @@ rndr_paragraph(struct buf *ob, const struct buf *text, void *opaque)
 }
 
 static void
-rndr_table(struct buf *ob, const struct buf *header, const struct buf *body, void *opaque)
+rndr_table(struct buf *ob, const struct buf *caption, const struct buf *header, const struct buf *body, void *opaque)
 {
-	BLOCK_CALLBACK("table", 2, buf2str(header), buf2str(body));
+	BLOCK_CALLBACK("table", 3, buf2str(caption), buf2str(header), buf2str(body));
+}
+
+static void
+rndr_tablecaption(struct buf *ob, const struct buf *text, void *opaque)
+{
+	BLOCK_CALLBACK("table_caption", 1, buf2str(text));
 }
 
 static void
@@ -320,6 +326,7 @@ static struct sd_callbacks rb_redcarpet_callbacks = {
 	rndr_listitem,
 	rndr_paragraph,
 	rndr_table,
+	rndr_tablecaption,
 	rndr_tablerow,
 	rndr_tablecell,
 	rndr_footnotes,
@@ -358,6 +365,7 @@ static const char *rb_redcarpet_method_names[] = {
 	"list_item",
 	"paragraph",
 	"table",
+	"table_caption",
 	"table_row",
 	"table_cell",
 	"footnotes",
@@ -383,8 +391,7 @@ static const char *rb_redcarpet_method_names[] = {
 	"normal_text",
 
 	"doc_header",
-	"doc_footer"
-};
+	"doc_footer"};
 
 static const size_t rb_redcarpet_method_count = sizeof(rb_redcarpet_method_names)/sizeof(char *);
 
