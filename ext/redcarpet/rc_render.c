@@ -299,17 +299,6 @@ cb_link_attribute(VALUE key, VALUE val, VALUE payload)
 	return 0;
 }
 
-static void
-rndr_link_attributes(struct buf *ob, const struct buf *url, void *opaque)
-{
-	struct redcarpet_renderopt *opt = opaque;
-	struct rb_redcarpet_rndr *rndr;
-
-	Data_Get_Struct(opt->self, struct rb_redcarpet_rndr, rndr);
-	Check_Type(opt->link_attributes, T_HASH);
-	rb_hash_foreach(opt->link_attributes, &cb_link_attribute, (VALUE)ob);
-}
-
 static struct sd_callbacks rb_redcarpet_callbacks = {
 	rndr_blockcode,
 	rndr_blockquote,
@@ -388,22 +377,47 @@ static const char *rb_redcarpet_method_names[] = {
 
 static const size_t rb_redcarpet_method_count = sizeof(rb_redcarpet_method_names)/sizeof(char *);
 
-static void rb_redcarpet_rbase_mark(struct rb_redcarpet_rndr *rndr)
+static void rb_redcarpet_rbase_mark(void *data)
 {
+	struct rb_redcarpet_rndr *rndr = (struct rb_redcarpet_rndr *)data;
 	if (rndr->options.link_attributes)
 		rb_gc_mark(rndr->options.link_attributes);
 }
 
-static void rndr_deallocate(void *rndr)
+static const rb_data_type_t rb_redcarpet_rndr_type = {
+	"Redcarpet/rndr",
+	{
+		rb_redcarpet_rbase_mark,
+		RUBY_TYPED_DEFAULT_FREE,
+	},
+	0,
+	0,
+	RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
+};
+
+struct rb_redcarpet_rndr * rb_redcarpet_rndr_unwrap(VALUE self)
 {
-  xfree(rndr);
+	struct rb_redcarpet_rndr *rndr;
+	TypedData_Get_Struct(self, struct rb_redcarpet_rndr, &rb_redcarpet_rndr_type, rndr);
+	return rndr;
 }
 
 static VALUE rb_redcarpet_rbase_alloc(VALUE klass)
 {
 	struct rb_redcarpet_rndr *rndr = ALLOC(struct rb_redcarpet_rndr);
 	memset(rndr, 0x0, sizeof(struct rb_redcarpet_rndr));
-	return Data_Wrap_Struct(klass, rb_redcarpet_rbase_mark, rndr_deallocate, rndr);
+	return TypedData_Wrap_Struct(klass, &rb_redcarpet_rndr_type, rndr);
+}
+
+static void
+rndr_link_attributes(struct buf *ob, const struct buf *url, void *opaque)
+{
+	struct redcarpet_renderopt *opt = opaque;
+	struct rb_redcarpet_rndr *rndr;
+
+	TypedData_Get_Struct(opt->self, struct rb_redcarpet_rndr, &rb_redcarpet_rndr_type, rndr);
+	Check_Type(opt->link_attributes, T_HASH);
+	rb_hash_foreach(opt->link_attributes, &cb_link_attribute, (VALUE)ob);
 }
 
 static void rb_redcarpet__overload(VALUE self, VALUE base_class)
@@ -411,7 +425,7 @@ static void rb_redcarpet__overload(VALUE self, VALUE base_class)
 	struct rb_redcarpet_rndr *rndr;
 	VALUE options_ivar;
 
-	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
+	TypedData_Get_Struct(self, struct rb_redcarpet_rndr, &rb_redcarpet_rndr_type, rndr);
 	rndr->options.self = self;
 	rndr->options.base_class = base_class;
 
@@ -448,7 +462,7 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 	unsigned int render_flags = 0;
 	VALUE hash, link_attr = Qnil;
 
-	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
+	TypedData_Get_Struct(self, struct rb_redcarpet_rndr, &rb_redcarpet_rndr_type, rndr);
 
 	if (rb_scan_args(argc, argv, "01", &hash) == 1) {
 		Check_Type(hash, T_HASH);
@@ -500,7 +514,7 @@ static VALUE rb_redcarpet_html_init(int argc, VALUE *argv, VALUE self)
 	rb_redcarpet__overload(self, rb_cRenderHTML);
 
 	if (!NIL_P(link_attr)) {
-		rndr->options.link_attributes = link_attr;
+		RB_OBJ_WRITE(self, &rndr->options.link_attributes, link_attr);
 		rndr->options.html.link_attributes = &rndr_link_attributes;
 	}
 
@@ -513,7 +527,7 @@ static VALUE rb_redcarpet_htmltoc_init(int argc, VALUE *argv, VALUE self)
 	unsigned int render_flags = HTML_TOC;
 	VALUE hash, nesting_level = Qnil;
 
-	Data_Get_Struct(self, struct rb_redcarpet_rndr, rndr);
+	TypedData_Get_Struct(self, struct rb_redcarpet_rndr, &rb_redcarpet_rndr_type, rndr);
 
 	if (rb_scan_args(argc, argv, "01", &hash) == 1) {
 		Check_Type(hash, T_HASH);

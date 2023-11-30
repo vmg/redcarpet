@@ -85,6 +85,17 @@ rb_redcarpet_md__free(void *markdown)
 	sd_markdown_free((struct sd_markdown *)markdown);
 }
 
+static const rb_data_type_t rb_redcarpet_md__type = {
+	"Redcarpet/md",
+	{
+		NULL, // Nothing to mark
+		rb_redcarpet_md__free,
+	},
+	0,
+	0,
+	RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
+};
+
 static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 {
 	VALUE rb_markdown, rb_rndr, hash, rndr_options;
@@ -111,7 +122,7 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 	if (rb_obj_is_kind_of(rb_rndr, rb_cRenderHTML_TOC))
 		extensions |= MKDEXT_FENCED_CODE;
 
-	Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, rndr);
+	rndr = rb_redcarpet_rndr_unwrap(rb_rndr);
 
 	/* Merge the current options in the @options hash */
 	if (hash != Qnil) {
@@ -123,7 +134,7 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 	if (!markdown)
 		rb_raise(rb_eRuntimeError, "Failed to create new Renderer class");
 
-	rb_markdown = Data_Wrap_Struct(klass, NULL, rb_redcarpet_md__free, markdown);
+	rb_markdown = TypedData_Wrap_Struct(klass, &rb_redcarpet_md__type, markdown);
 	rb_iv_set(rb_markdown, "@renderer", rb_rndr);
 
 	return rb_markdown;
@@ -138,15 +149,14 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 	Check_Type(text, T_STRING);
 
 	rb_rndr = rb_iv_get(self, "@renderer");
-	Data_Get_Struct(self, struct sd_markdown, markdown);
+	TypedData_Get_Struct(self, struct sd_markdown, &rb_redcarpet_md__type, markdown);
 
 	if (rb_respond_to(rb_rndr, rb_intern("preprocess")))
 		text = rb_funcall(rb_rndr, rb_intern("preprocess"), 1, text);
 	if (NIL_P(text))
 		return Qnil;
 
-	struct rb_redcarpet_rndr *renderer;
-	Data_Get_Struct(rb_rndr, struct rb_redcarpet_rndr, renderer);
+	struct rb_redcarpet_rndr *renderer = rb_redcarpet_rndr_unwrap(rb_rndr);
 	renderer->options.active_enc = rb_enc_get(text);
 
 	/* initialize buffers */
