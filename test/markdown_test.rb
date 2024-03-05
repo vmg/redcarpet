@@ -86,13 +86,13 @@ class MarkdownTest < Redcarpet::TestCase
   end
 
   # https://github.com/vmg/redcarpet/issues/111
-  def test_p_with_less_than_4space_indent_should_not_be_part_of_last_list_item
+  def test_p_with_less_than_2space_indent_should_not_be_part_of_last_list_item
     text = <<-Markdown
   * a
   * b
   * c
 
-  This paragraph is not part of the list.
+ This paragraph is not part of the list.
     Markdown
     expected = <<-HTML.chomp.strip_heredoc
       <ul>

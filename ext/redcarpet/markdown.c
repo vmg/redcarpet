@@ -1937,7 +1937,8 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 				sublist = work->size;
 		}
 		/* joining only indented stuff after empty lines */
-		else if (in_empty && i < 4 && data[beg] != '\t') {
+		/* Indentation must be by 2 spaces or more */
+		else if (in_empty && i < 2 && data[beg] != '\t') {
 			*flags |= MKD_LI_END;
 			break;
 		}
