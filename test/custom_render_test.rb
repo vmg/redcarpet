@@ -36,6 +36,16 @@ class CustomRenderTest < Redcarpet::TestCase
     assert_match "no_intra_emphasis", output
   end
 
+  def test_original_options_hash_is_not_mutated
+    options = { with_toc_data: true }
+    render  = SimpleRender.new(options)
+    parser  = Redcarpet::Markdown.new(render, tables: true)
+
+    computed_options = render.instance_variable_get(:"@options")
+
+    refute_equal computed_options.object_id, options.object_id
+  end
+
   class NilPreprocessRenderer < Redcarpet::Render::HTML
     def preprocess(fulldoc)
       nil
@@ -53,5 +63,44 @@ class CustomRenderTest < Redcarpet::TestCase
     parser = Redcarpet::Markdown.new render.new, quote: true
 
     assert_equal "", parser.render(%(a "quote"))
+  end
+
+  def test_table_cell_callback_having_either_two_or_three_args
+    two = Class.new(Redcarpet::Render::HTML) do
+      def table_cell(content, alignment)
+        %(<td>#{content}</td>)
+      end
+    end
+
+    three = Class.new(Redcarpet::Render::HTML) do
+      def table_cell(content, alignment, header)
+        tag = header ? "th" : "td"
+
+        %(<#{tag}>#{content}</#{tag}>)
+      end
+    end
+
+    markdown = <<-Md.chomp.strip_heredoc
+      | A | B |
+      |---|---|
+      | C | D |
+    Md
+
+    first_parser = Redcarpet::Markdown.new(two.new, tables: true)
+    second_parser = Redcarpet::Markdown.new(three.new, tables: true)
+
+    first_output = first_parser.render(markdown)
+    second_output = second_parser.render(markdown)
+
+    assert { first_output.include?("<td>A</td>") }
+    assert { first_output.include?("<td>B</td>") }
+
+    assert { second_output.include?("<th>A</th>") }
+    assert { second_output.include?("<th>B</th>") }
+
+    [first_output, second_output].each do |output|
+      assert { output.include?("<td>C</td>") }
+      assert { output.include?("<td>D</td>") }
+    end
   end
 end

@@ -38,6 +38,20 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
+  def test_simple_inline_html_center
+    output   = render("before\n\n<center>\n  foo\n</center>\n\nafter")
+    expected = "<p>before</p>\n\n<center>\n  foo\n</center>\n\n<p>after</p>"
+
+    assert_equal expected, output
+  end
+
+ def test_simple_inline_html_i
+    output   = render("<i>after</i>")
+    expected = "<p><i>after</i></p>"
+
+    assert_equal expected, output
+  end
+
   def test_that_html_blocks_do_not_require_their_own_end_tag_line
     output   = render("Para 1\n\n<div><pre>HTML block\n</pre></div>\n\nPara 2 [Link](#anchor)")
     expected = "<p>Para 1</p>\n\n<div><pre>HTML block\n</pre></div>\n\n<p>Para 2 <a href=\"#anchor\">Link</a></p>"
@@ -220,6 +234,16 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal '<p>this is a <q>quote</q></p>', output
   end
 
+  def test_quote_flag_honors_escape_html
+    text = 'We are not "<svg/onload=pwned>"'
+
+    output_enabled  = render(text, with: [:quote, :escape_html])
+    output_disabled = render(text, with: [:quote])
+
+    assert_equal "<p>We are not <q>&lt;svg/onload=pwned&gt;</q></p>", output_enabled
+    assert_equal "<p>We are not <q><svg/onload=pwned></q></p>", output_disabled
+  end
+
   def test_that_fenced_flag_works
     text = <<-fenced.strip_heredoc
       This is a simple test
@@ -284,6 +308,28 @@ class MarkdownTest < Redcarpet::TestCase
     html = render(text, with: [:fenced_code_blocks])
 
     assert_equal "<pre><code class=\"rust,no_run\">x = &#39;foo&#39;\n</code></pre>", html
+  end
+
+  def test_that_fenced_flag_considers_fence_type_and_length
+    text = <<-fenced.strip_heredoc
+      This is a normal text
+
+      ~~~~
+      This is some code containing a fence string
+      ~~~
+      protected by extending the enclosing fence
+      ~~~~
+      ```
+      This is some code containing a fence string
+      ~~~
+      protected by using the other fence type
+      ```
+    fenced
+
+    html = render(text, with: [:fenced_code_blocks])
+    tokens = html.scan %r{<code|</code|[`~]+}
+    expected = ['<code', '~~~', '</code'] * 2
+    assert_equal expected, tokens
   end
 
   def test_that_indented_flag_works

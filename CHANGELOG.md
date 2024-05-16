@@ -1,5 +1,54 @@
 # Changelog
 
+## Version 3.6.0
+
+* Avoid warnings running on Ruby 3.2+.
+
+  Refs #721.
+
+  *Jean Boussier*
+
+* Match fence char and length when matching closing fence in fenced code blocks.
+
+  Fixes #208.
+
+  *Martin Cizek, Orchitech*
+
+* Consider `<center>` as a block-level element.
+
+  Refs #702.
+
+  *momijizukamori*
+
+* Properly provide a third argument to the `table_cell` callback indicating
+  whether the current cell is part of the header or not.
+
+  The previous implementation with two parameters is still supported.
+
+  Fixes #604, Refs #605.
+
+  *Mark Lambley*
+
+* Fix anchor generation on titles with ampersands.
+
+  Fixes #696.
+
+## Version 3.5.1 (Security)
+
+* Fix a security vulnerability using `:quote` in combination with the
+  `:escape_html` option.
+
+  Reported by *Johan Smits*.
+
+
+## Version 3.5.0
+
+* Avoid mutating the options hash passed to a render object.
+
+  Refs #663.
+
+  *Max Schwenk*
+
 * Fix a segfault rendering quotes using `StripDown` and the `:quote`
   option.
 
