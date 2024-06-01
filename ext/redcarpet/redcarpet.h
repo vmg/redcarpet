@@ -49,4 +49,6 @@ struct rb_redcarpet_rndr {
 	struct redcarpet_renderopt options;
 };
 
+struct rb_redcarpet_rndr * rb_redcarpet_rndr_unwrap(VALUE);
+
 #endif
