@@ -341,8 +341,8 @@ Redcarpet::Render::SmartyPants.render("<p>Oh SmartyPants, you're so crazy...</p>
 ~~~~
 
 SmartyPants works on top of already-rendered HTML, and will ignore replacements
-inside the content of HTML tags and inside specific HTML blocks such as
-`<code>` or `<pre>`.
+inside the content of HTML tags and inside specific HTML blocks (`pre`, `code`,
+`var`, `samp`, `kbd`, `math`, `script`, `style`).
 
 What? You really want to mix Markdown renderers?
 ------------------------------------------------
