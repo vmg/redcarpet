@@ -3,7 +3,7 @@
 1. [Fork the repository.][fork]
 2. [Create a topic branch.][branch]
 3. Check which version of Ruby is installed on your machine with `ruby -v`.
-   The list of supported Ruby versions is listed in [.travis.yml][travis_yml].
+   The list of supported Ruby versions is listed in [.github/workflows/test.yml][gh_test_yml].
    Set up one of these versions; use of [RVM][rvm] is recommended to switch
    easily between different versions.
 4. [Install bundler.][bundler]
@@ -30,4 +30,4 @@
 [fork]: https://help.github.com/articles/fork-a-repo
 [pr]: https://help.github.com/articles/using-pull-requests
 [rvm]: https://rvm.io
-[travis_yml]: https://github.com/vmg/redcarpet/blob/master/.travis.yml
+[gh_test_yml]: https://github.com/vmg/redcarpet/blob/master/.github/workflows/test.yml
