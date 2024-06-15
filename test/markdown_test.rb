@@ -398,8 +398,23 @@ class MarkdownTest < Redcarpet::TestCase
   def test_ordered_lists_with_lax_spacing
     output = render("Foo:\n1. Foo\n2. Bar", with: [:lax_spacing])
 
-    assert_match /<ol>/, output
-    assert_match /<li>Foo<\/li>/, output
+    assert_equal %{<p>Foo:</p>
+
+<ol>
+<li data-step="1">Foo</li>
+<li data-step="2">Bar</li>
+</ol>}, output
+  end
+
+  def test_ordered_lists_with_lax_spacing_and_custom_start
+    output = render("Foo:\n2. Foo\n5. Bar", with: [:lax_spacing])
+
+    assert_equal %{<p>Foo:</p>
+
+<ol>
+<li data-step="2">Foo</li>
+<li data-step="5">Bar</li>
+</ol>}, output
   end
 
   def test_references_with_tabs_after_colon

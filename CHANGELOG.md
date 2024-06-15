@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 4.0.0
+
+* Unobtrusively support the breaking up of ordered lists without resetting their indices/steps.
+
+  Fixes #740.
+
+  *Dennis Hackethal*
+
 ## Version 3.6.0
 
 * Avoid warnings running on Ruby 3.2+.

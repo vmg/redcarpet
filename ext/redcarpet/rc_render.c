@@ -86,10 +86,10 @@ rndr_list(struct buf *ob, const struct buf *text, int flags, void *opaque)
 }
 
 static void
-rndr_listitem(struct buf *ob, const struct buf *text, int flags, void *opaque)
+rndr_listitem(struct buf *ob, const struct buf *text, int flags, void *opaque, int step)
 {
-	BLOCK_CALLBACK("list_item", 2, buf2str(text),
-			(flags & MKD_LIST_ORDERED) ? CSTR2SYM("ordered") : CSTR2SYM("unordered"));
+	BLOCK_CALLBACK("list_item", 3, buf2str(text),
+			(flags & MKD_LIST_ORDERED) ? CSTR2SYM("ordered") : CSTR2SYM("unordered"), INT2NUM(step));
 }
 
 static void
