@@ -149,6 +149,12 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
+  def test_auto_linked_email_utf8_issue
+    output   = render("a@b.c」\nd@example.coü", with: [:autolink])
+    expected = %{<p><a href="mailto:a@b.c">a@b.c</a>」\n<a href="mailto:d@example.co">d@example.co</a>ü</p>\n}
+    assert_equal expected, output
+  end
+
   def test_memory_leak_when_parsing_char_links
     render(<<-leaks.strip_heredoc)
       2. Identify the wild-type cluster and determine all clusters
