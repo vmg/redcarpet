@@ -745,12 +745,16 @@ char_emphasis(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t of
 }
 
 
-/* char_linebreak • '\n' preceded by two spaces (assuming linebreak != 0) */
+/* char_linebreak • '\n' preceded by two spaces or backslash (assuming linebreak != 0) */
 static size_t
 char_linebreak(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
 {
-	if (offset < 2 || data[-1] != ' ' || data[-2] != ' ')
+	if (!(offset >= 1 && data[-1] == '\\') && !(offset >= 2 && data[-1] == ' ' && data[-2] == ' '))
 		return 0;
+
+	/* removing escaping backslash if there was any */
+	if (ob->size && ob->data[ob->size - 1] == '\\')
+		ob->size--;
 
 	/* removing the last space from ob and rendering */
 	while (ob->size && ob->data[ob->size - 1] == ' ')
