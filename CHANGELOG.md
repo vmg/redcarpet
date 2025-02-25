@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 3.6.1
+
 * Migrate Markdown objects to the `TypedData` API.
 
   Refs #785.
