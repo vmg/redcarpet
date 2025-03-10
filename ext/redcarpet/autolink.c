@@ -186,7 +186,7 @@ sd_autolink__www(
 	if (link_end == 0)
 		return 0;
 
-	while (link_end < size && !isspace(data[link_end]))
+	while (link_end < size && (!isspace(data[link_end]) || data[link_end] >= 0x7f))
 		link_end++;
 
 	link_end = autolink_delim(data, link_end, max_rewind, size);
@@ -286,7 +286,7 @@ sd_autolink__url(
 		return 0;
 
 	link_end += domain_len;
-	while (link_end < size && !isspace(data[link_end]))
+	while (link_end < size && (!isspace(data[link_end]) || data[link_end] >= 0x7f))
 		link_end++;
 
 	link_end = autolink_delim(data, link_end, max_rewind, size);
