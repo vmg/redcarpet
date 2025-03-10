@@ -2388,6 +2388,48 @@ parse_table_header(
 }
 
 static size_t
+parse_table_caption(
+	struct buf *ob,
+	struct sd_markdown *rndr,
+	uint8_t *data,
+	size_t size)
+{
+	size_t i = 0, caption_start, caption_end;
+	struct buf *caption_work = 0;
+
+	while (i < size && (_isspace(data[i]) || data[i] == '|'))
+		i++;
+
+	if (i == size || data[i] != '#')
+		return 0;
+
+	while (i < size && (_isspace(data[i]) || data[i] == '#'))
+		i++;
+
+	caption_start = i;
+
+	while (i < size && data[i] != '\n')
+		i++;
+
+	caption_end = i + 1;
+
+	if (i == size)
+		return 0;
+
+	while (i > 0 && (_isspace(data[i - 1]) || data[i - 1] == '|'))
+		i--;
+
+	caption_work = rndr_newbuf(rndr, BUFFER_SPAN);
+
+	bufput(caption_work, data + caption_start, i - caption_start);
+	rndr->cb.table_caption(ob, caption_work, rndr->opaque);
+
+	rndr_popbuf(rndr, BUFFER_SPAN);
+
+	return caption_end;
+}
+
+static size_t
 parse_table(
 	struct buf *ob,
 	struct sd_markdown *rndr,
@@ -2395,18 +2437,25 @@ parse_table(
 	size_t size)
 {
 	size_t i;
+	size_t caption_len;
 
+	struct buf *caption_work = 0;
 	struct buf *header_work = 0;
 	struct buf *body_work = 0;
 
 	size_t columns;
 	int *col_data = NULL;
 
+	caption_work = rndr_newbuf(rndr, BUFFER_SPAN);
 	header_work = rndr_newbuf(rndr, BUFFER_SPAN);
 	body_work = rndr_newbuf(rndr, BUFFER_BLOCK);
 
-	i = parse_table_header(header_work, rndr, data, size, &columns, &col_data);
-	if (i > 0) {
+	caption_len = parse_table_caption(caption_work, rndr, data, size);
+	i = parse_table_header(header_work, rndr, data + caption_len, size - caption_len, &columns, &col_data);
+	
+	if (i > 0)
+	{
+		i += caption_len;
 
 		while (i < size) {
 			size_t row_start;
@@ -2436,10 +2485,11 @@ parse_table(
 		}
 
 		if (rndr->cb.table)
-			rndr->cb.table(ob, header_work, body_work, rndr->opaque);
+			rndr->cb.table(ob, caption_work, header_work, body_work, rndr->opaque);
 	}
 
 	free(col_data);
+	rndr_popbuf(rndr, BUFFER_SPAN);
 	rndr_popbuf(rndr, BUFFER_SPAN);
 	rndr_popbuf(rndr, BUFFER_BLOCK);
 	return i;
