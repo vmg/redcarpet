@@ -1,5 +1,13 @@
 # Changelog
 
+## Master (Unreleased)
+
+* Add missing gemspec metadata.
+
+  Refs #800.
+
+  *Nate Eizenga*
+
 ## Version 3.6.1
 
 * Migrate Markdown objects to the `TypedData` API.

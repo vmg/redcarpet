@@ -7,6 +7,13 @@ Gem::Specification.new do |s|
   s.date = '2025-02-25'
   s.email = 'vicent@github.com'
   s.homepage = 'https://github.com/vmg/redcarpet'
+  s.metadata = {
+    "bug_tracker_uri"   => "https://github.com/vmg/redcarpet/issues",
+    "changelog_uri"     => "https://github.com/vmg/redcarpet/blob/master/CHANGELOG.md",
+    "homepage_uri"      => "https://github.com/vmg/redcarpet",
+    "source_code_uri"   => "https://github.com/vmg/redcarpet",
+    "wiki_uri"          => "https://github.com/vmg/redcarpet/wiki",
+  }
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
   s.required_ruby_version = '>= 1.9.2'
