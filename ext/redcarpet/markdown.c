@@ -1624,11 +1624,13 @@ parse_blockquote(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 		if (pre)
 			beg += pre; /* skipping prefix */
 
-		/* empty line followed by non-quote line */
-		else if (is_empty(data + beg, end - beg) &&
-				(end >= size || (prefix_quote(data + end, size - end) == 0 &&
-				!is_empty(data + end, size - end))))
-			break;
+    /* empty line - terminate the blockquote */
+    else if (is_empty(data + beg, end - beg))
+      break;
+
+    /* non-quote line - also terminate the blockquote */
+    else if (end < size && prefix_quote(data + end, size - end) == 0)
+      break;
 
 		if (beg < end) { /* copy into the in-place working buffer */
 			/* bufput(work, data + beg, end - beg); */
