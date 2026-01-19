@@ -384,11 +384,31 @@ static void rb_redcarpet_rbase_mark(void *data)
 		rb_gc_mark(rndr->options.link_attributes);
 }
 
+#ifdef HAVE_RB_GC_LOCATION
+/* Update VALUE references after GC compaction (Ruby 2.7+) */
+static void rb_redcarpet_rbase_compact(void *data)
+{
+	struct rb_redcarpet_rndr *rndr = (struct rb_redcarpet_rndr *)data;
+	if (rndr->options.link_attributes)
+		rndr->options.link_attributes = rb_gc_location(rndr->options.link_attributes);
+	if (rndr->options.self)
+		rndr->options.self = rb_gc_location(rndr->options.self);
+	if (rndr->options.base_class)
+		rndr->options.base_class = rb_gc_location(rndr->options.base_class);
+}
+#endif
+
 static const rb_data_type_t rb_redcarpet_rndr_type = {
 	"Redcarpet/rndr",
 	{
 		rb_redcarpet_rbase_mark,
 		RUBY_TYPED_DEFAULT_FREE,
+		NULL, /* dsize */
+#ifdef HAVE_RB_GC_LOCATION
+		rb_redcarpet_rbase_compact,
+#else
+		NULL, /* dcompact not available */
+#endif
 	},
 	0,
 	0,
