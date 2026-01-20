@@ -140,6 +140,42 @@ static VALUE rb_redcarpet_md__new(int argc, VALUE *argv, VALUE klass)
 	return rb_markdown;
 }
 
+/*
+ * Arguments for sd_markdown_render, passed through rb_ensure.
+ */
+struct render_args {
+	struct buf *output_buf;
+	const uint8_t *doc;
+	size_t doc_size;
+	struct sd_markdown *markdown;
+};
+
+/*
+ * Wrapper for sd_markdown_render, called by rb_ensure.
+ */
+static VALUE do_sd_markdown_render(VALUE arg)
+{
+	struct render_args *args = (struct render_args *)arg;
+	sd_markdown_render(args->output_buf, args->doc, args->doc_size, args->markdown);
+	return Qnil;
+}
+
+/*
+ * Cleanup function called by rb_ensure after rendering.
+ *
+ * This ALWAYS runs, even if a Ruby exception occurred during a callback.
+ * Ruby exceptions use longjmp which bypasses C cleanup code, so without
+ * rb_ensure the work_bufs would be left in an inconsistent state.
+ *
+ * See: https://docs.ruby-lang.org/en/2.4.0/extension_rdoc.html
+ *      (search for "rb_ensure" - equivalent to Ruby's ensure block)
+ */
+static VALUE cleanup_sd_markdown(VALUE arg)
+{
+	sd_markdown_cleanup((struct sd_markdown *)arg);
+	return Qnil;
+}
+
 static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 {
 	VALUE rb_rndr;
@@ -162,12 +198,23 @@ static VALUE rb_redcarpet_md_render(VALUE self, VALUE text)
 	/* initialize buffers */
 	output_buf = bufnew(128);
 
-	/* render the magic */
-	sd_markdown_render(
+	/* render the magic, with guaranteed cleanup via rb_ensure */
+	struct render_args args = {
 		output_buf,
 		(const uint8_t*)RSTRING_PTR(text),
 		RSTRING_LEN(text),
-		markdown);
+		markdown
+	};
+	rb_ensure(do_sd_markdown_render, (VALUE)&args, cleanup_sd_markdown, (VALUE)markdown);
+
+	/* If render completed but work_bufs were imbalanced, that's a bug. */
+	if (sd_markdown_had_imbalance(markdown)) {
+		bufrelease(output_buf);
+		rb_raise(rb_eRuntimeError,
+			"Redcarpet: work buffer imbalance detected. "
+			"This may indicate concurrent use from multiple threads. "
+			"Use a separate Markdown instance per thread.");
+	}
 
 	/* build the Ruby string */
 	text = rb_enc_str_new((const char*)output_buf->data, output_buf->size, rb_enc_get(text));
