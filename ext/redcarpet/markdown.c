@@ -362,6 +362,15 @@ _isspace(int c)
 	return c == ' ' || c == '\n';
 }
 
+/*
+ * Check whether a char is a clausal stop punctuation mark.
+ */
+static inline int
+_isstop(int c)
+{
+    return c == '.' || c == ',' || c == '?' || c == '!' || c == ':' || c == ';';
+}
+
 /****************************
  * INLINE PARSING FUNCTIONS *
  ****************************/
@@ -1290,7 +1299,7 @@ char_superscript(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 	} else {
 		sup_start = sup_len = 1;
 
-		while (sup_len < size && !_isspace(data[sup_len]))
+		while (sup_len < size && !_isspace(data[sup_len]) && !_isstop(data[sup_len]))
 			sup_len++;
 	}
 
