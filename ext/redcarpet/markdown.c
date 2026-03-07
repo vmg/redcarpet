@@ -23,11 +23,19 @@
 
 #include "markdown.h"
 #include "stack.h"
-
+#include "siphash.h"
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+
+#if __GLIBC__ >= 2 && __GLIBC_MINOR >= 25
+#include <sys/random.h>
+#else
+# define getrandom backport_getrandom
+# include <sys/syscall.h>
+#endif
+
 
 #if defined(_WIN32)
 #define strncasecmp	_strnicmp
@@ -54,6 +62,7 @@ struct link_ref {
 	unsigned int id;
 
 	struct buf *link;
+	struct buf *label;
 	struct buf *title;
 
 	struct link_ref *next;
@@ -151,9 +160,17 @@ struct sd_markdown {
 	int in_link_body;
 };
 
+int sip_hash_key_init = 0;
+uint8_t sip_hash_key[SIP_HASH_KEY_LEN];
+
 /***************************
  * HELPER FUNCTIONS *
  ***************************/
+
+int backport_getrandom(void *buf, size_t buflen, unsigned int flags)
+{
+	return (int)syscall(SYS_getrandom, buf, buflen, flags);
+}
 
 static inline struct buf *
 rndr_newbuf(struct sd_markdown *rndr, int type)
@@ -203,13 +220,7 @@ unscape_text(struct buf *ob, struct buf *src)
 static unsigned int
 hash_link_ref(const uint8_t *link_ref, size_t length)
 {
-	size_t i;
-	unsigned int hash = 0;
-
-	for (i = 0; i < length; ++i)
-		hash = tolower(link_ref[i]) + (hash << 6) + (hash << 16) - hash;
-
-	return hash;
+	return siphash_nocase(link_ref, length, sip_hash_key);
 }
 
 static struct link_ref *
@@ -217,12 +228,29 @@ add_link_ref(
 	struct link_ref **references,
 	const uint8_t *name, size_t name_size)
 {
-	struct link_ref *ref = calloc(1, sizeof(struct link_ref));
+	unsigned int hash;
+	struct link_ref *ref;
+	hash = hash_link_ref(name, name_size);
+	ref = references[hash % REF_TABLE_SIZE];
+	while (ref != NULL) {
+		/* If a reference with the same label exists already, replace it with the new reference */
+		if (ref->id == hash && ref->label->size == name_size) {
+			if (strncasecmp((char *)ref->label->data, (char *) name, name_size) == 0) {
+				bufrelease(ref->label);
+				bufrelease(ref->link);
+				bufrelease(ref->title);
+				return ref;
+			}
+		}
+
+		ref = ref->next;
+	}
+	ref = calloc(1, sizeof(struct link_ref));
 
 	if (!ref)
 		return NULL;
 
-	ref->id = hash_link_ref(name, name_size);
+	ref->id = hash;
 	ref->next = references[ref->id % REF_TABLE_SIZE];
 
 	references[ref->id % REF_TABLE_SIZE] = ref;
@@ -238,8 +266,11 @@ find_link_ref(struct link_ref **references, uint8_t *name, size_t length)
 	ref = references[hash % REF_TABLE_SIZE];
 
 	while (ref != NULL) {
-		if (ref->id == hash)
-			return ref;
+		if (ref->id == hash && ref->label->size == length) {
+			if (strncasecmp((char *)ref->label->data, (char *) name, length) == 0) {
+				return ref;
+			}
+		}
 
 		ref = ref->next;
 	}
@@ -258,6 +289,7 @@ free_link_refs(struct link_ref **references)
 
 		while (r) {
 			next = r->next;
+			bufrelease(r->label);
 			bufrelease(r->link);
 			bufrelease(r->title);
 			free(r);
@@ -2719,6 +2751,8 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 		if (!ref)
 			return 0;
 
+		ref->label = bufnew(id_end - id_offset);
+		bufput(ref->label, data + id_offset, id_end - id_offset);
 		ref->link = bufnew(link_end - link_offset);
 		bufput(ref->link, data + link_offset, link_end - link_offset);
 
@@ -2774,6 +2808,12 @@ sd_markdown_new(
 	md = malloc(sizeof(struct sd_markdown));
 	if (!md)
 		return NULL;
+
+	if (!sip_hash_key_init) {
+		if (getrandom(sip_hash_key, SIP_HASH_KEY_LEN, 0) < SIP_HASH_KEY_LEN)
+			return NULL;
+		sip_hash_key_init = 1;
+	}
 
 	memcpy(&md->cb, callbacks, sizeof(struct sd_callbacks));
 
