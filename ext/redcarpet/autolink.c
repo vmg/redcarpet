@@ -215,7 +215,7 @@ sd_autolink__email(
 	for (rewind = 0; rewind < max_rewind; ++rewind) {
 		uint8_t c = data[-rewind - 1];
 
-		if (c < 0x80 && isalnum(c))
+		if (_isalnum(c))
 			continue;
 
 		if (strchr(".+-_", c) != NULL)
@@ -230,7 +230,7 @@ sd_autolink__email(
 	for (link_end = 0; link_end < size; ++link_end) {
 		uint8_t c = data[link_end];
 
-		if (c < 0x80 && isalnum(c))
+		if (_isalnum(c))
 			continue;
 
 		if (c == '@')
