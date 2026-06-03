@@ -439,6 +439,13 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal result, output
   end
 
+  def test_autolink_followed_by_multibyte_character
+    result = %(<p><a href="mailto:contact@example.com">contact@example.com</a>中</p>)
+    output = render("contact@example.com中", with: [:autolink])
+
+    assert_equal result, output
+  end
+
   def test_single_dashes_on_table_headers
     markdown = <<-Markdown.strip_heredoc
       | a | b |
