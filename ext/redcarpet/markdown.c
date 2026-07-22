@@ -760,24 +760,35 @@ char_linebreak(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t o
 }
 
 
-/* char_codespan • '`' parsing a code span (assuming codespan != 0) */
+/* codespan_length • length of the code span starting at data (data[0] == '`'), 0 if unclosed;
+ * stores the length of the backtick delimiter in *delim_len */
 static size_t
-char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
+codespan_length(const uint8_t *data, size_t size, size_t *delim_len)
 {
-	size_t end, nb = 0, i, f_begin, f_end;
+	size_t end, nb = 0, i = 0;
 
 	/* counting the number of backticks in the delimiter */
 	while (nb < size && data[nb] == '`')
 		nb++;
 
 	/* finding the next delimiter */
-	i = 0;
 	for (end = nb; end < size && i < nb; end++) {
 		if (data[end] == '`') i++;
 		else i = 0;
 	}
 
-	if (i < nb && end >= size)
+	*delim_len = nb;
+	return (i == nb) ? end : 0;
+}
+
+/* char_codespan • '`' parsing a code span (assuming codespan != 0) */
+static size_t
+char_codespan(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
+{
+	size_t end, nb, f_begin, f_end;
+
+	end = codespan_length(data, size, &nb);
+	if (!end)
 		return 0; /* no matching delimiter */
 
 	/* trimming outside whitespaces */
@@ -995,11 +1006,24 @@ char_autolink_url(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_
 	return link_len;
 }
 
+/* is_escaped • is data[i] preceded by an odd number of backslashes */
+static int
+is_escaped(const uint8_t *data, size_t i)
+{
+	size_t nb = 0;
+
+	while (nb < i && data[i - 1 - nb] == '\\')
+		nb++;
+
+	return nb % 2;
+}
+
 /* char_link • '[': parsing a link or an image */
 static size_t
 char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset, size_t size)
 {
 	int is_img = (offset && data[-1] == '!'), level;
+	int is_footnote_ref = (rndr->ext_flags & MKDEXT_FOOTNOTES) && size > 1 && data[1] == '^';
 	size_t i = 1, txt_e, link_b = 0, link_e = 0, title_b = 0, title_e = 0;
 	struct buf *content = 0;
 	struct buf *link = 0;
@@ -1018,8 +1042,19 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 		if (data[i] == '\n')
 			text_has_nl = 1;
 
-		else if (data[i - 1] == '\\')
+		else if ((data[i] == '`' || data[i] == '[' || data[i] == ']') && is_escaped(data, i))
 			continue;
+
+		else if (data[i] == '`' && rndr->cb.codespan && !is_footnote_ref) {
+			/* code spans bind more tightly than link brackets */
+			size_t delim_len;
+			size_t span = codespan_length(data + i, size - i, &delim_len);
+			if (span) {
+				if (memchr(data + i, '\n', span))
+					text_has_nl = 1;
+				i += span - 1;
+			}
+		}
 
 		else if (data[i] == '[')
 			level++;
@@ -1038,7 +1073,7 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 	i++;
 
 	/* footnote link */
-	if (rndr->ext_flags & MKDEXT_FOOTNOTES && data[1] == '^') {
+	if (is_footnote_ref) {
 		if (txt_e < 3)
 			goto cleanup;
 
