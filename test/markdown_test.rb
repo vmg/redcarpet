@@ -142,6 +142,69 @@ class MarkdownTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
+  def test_code_spans_take_precedence_over_link_brackets
+    output   = render("[`text](https://one.example)`](https://two.example)")
+    expected = %(<p><a href="https://two.example"><code>text](https://one.example)</code></a></p>)
+
+    assert_equal expected, output
+  end
+
+  def test_bracket_with_code_span_but_no_closing_bracket_is_not_a_link
+    output   = render("[foo`](/uri)`")
+    expected = "<p>[foo<code>](/uri)</code></p>"
+
+    assert_equal expected, output
+  end
+
+  def test_multi_backtick_code_spans_take_precedence_over_link_brackets
+    output   = render("[``text](https://one.example)``](https://two.example)")
+    expected = %(<p><a href="https://two.example"><code>text](https://one.example)</code></a></p>)
+
+    assert_equal expected, output
+  end
+
+  def test_unclosed_backtick_in_link_label_stays_literal
+    output   = render("[foo`bar](/uri)")
+    expected = "<p><a href=\"/uri\">foo`bar</a></p>"
+
+    assert_equal expected, output
+  end
+
+  def test_escaped_backslash_does_not_escape_following_code_span_in_link_label
+    output   = render("[a\\\\`](/one)`](/two)")
+    expected = %(<p><a href="/two">a\\<code>](/one)</code></a></p>)
+
+    assert_equal expected, output
+  end
+
+  def test_escaped_backtick_in_link_label_does_not_start_a_code_span
+    output   = render("[a\\`](/one)")
+    expected = %(<p><a href="/one">a`</a></p>)
+
+    assert_equal expected, output
+  end
+
+  def test_escaped_backtick_after_literal_backslash_in_link_label
+    output   = render("[a\\\\\\`](/one)")
+    expected = %(<p><a href="/one">a\\`</a></p>)
+
+    assert_equal expected, output
+  end
+
+  def test_code_spans_take_precedence_over_reference_link_brackets
+    output   = render("[`x](/one)`][ref]\n\n[ref]: /two")
+    expected = %(<p><a href="/two"><code>x](/one)</code></a></p>)
+
+    assert_equal expected, output
+  end
+
+  def test_code_spans_take_precedence_over_image_link_brackets
+    output   = render("![`x](/one)`](/two)")
+    expected = %(<p><img src="/two" alt="`x](/one)`"></p>)
+
+    assert_equal expected, output
+  end
+
   def test_whitespace_after_urls
     output   = render("Japan: http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm (yes, japan)", with: [:autolink])
     expected = %(<p>Japan: <a href="http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm">http://www.abc.net.au/news/events/japan-quake-2011/beforeafter.htm</a> (yes, japan)</p>)

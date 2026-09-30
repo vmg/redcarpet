@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+* Code spans now take precedence over link brackets, following the CommonMark
+  spec, so a `]` inside a code span no longer closes a link label.
+
+  Fixes #816.
+
+  *Mike Dalessio*
+
 ## Version 3.6.1
 
 * Migrate Markdown objects to the `TypedData` API.

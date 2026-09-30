@@ -182,6 +182,32 @@ class HTMLRenderTest < Redcarpet::TestCase
     assert_equal expected, output
   end
 
+  def test_backtick_in_footnote_reference_does_not_start_a_code_span
+    markdown = <<-Markdown.strip_heredoc
+      Here[^a`b] and `code`.
+
+      [^a`b]: note
+    Markdown
+
+    html = <<-HTML.chomp.strip_heredoc
+      <p>Here<sup id="fnref1"><a href="#fn1">1</a></sup> and <code>code</code>.</p>
+
+      <div class="footnotes">
+      <hr>
+      <ol>
+
+      <li id="fn1">
+      <p>note&nbsp;<a href="#fnref1">&#8617;</a></p>
+      </li>
+
+      </ol>
+      </div>
+    HTML
+
+    output = render(markdown, with: [:footnotes])
+    assert_equal html, output
+  end
+
   def test_autolink_short_domains
     markdown = "Example of uri ftp://auto/short/domains. Email auto@l.n and link http://a/u/t/o/s/h/o/r/t"
     output   = render(markdown, with: [:autolink])
