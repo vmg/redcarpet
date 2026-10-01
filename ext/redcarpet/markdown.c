@@ -149,6 +149,12 @@ struct sd_markdown {
 	unsigned int ext_flags;
 	size_t max_nesting;
 	int in_link_body;
+
+	/* Temporary state during render (for cleanup on exception) */
+	struct buf *render_text;
+
+	/* Set at end of successful render if work_bufs were imbalanced (bug) */
+	int had_imbalance;
 };
 
 /***************************
@@ -1126,7 +1132,7 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 			}
 			else if (data[i] == ')') {
 				if (nb_p == 0) break;
-				else nb_p--; i++;
+				else { nb_p--; i++; }
 			} else if (i >= 1 && _isspace(data[i-1]) && (data[i] == '\'' || data[i] == '"')) break;
 			else i++;
 		}
@@ -2856,6 +2862,8 @@ sd_markdown_new(
 	md->opaque = opaque;
 	md->max_nesting = max_nesting;
 	md->in_link_body = 0;
+	md->render_text = NULL;
+	md->had_imbalance = 0;
 
 	return md;
 }
@@ -2874,6 +2882,9 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	text = bufnew(64);
 	if (!text)
 		return;
+
+	/* Store text buffer for cleanup (in case of exception) */
+	md->render_text = text;
 
 	/* Preallocate enough space for our buffer to avoid expanding while copying */
 	bufgrow(text, doc_size);
@@ -2951,16 +2962,58 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	/* Null-terminate the buffer */
 	bufcstr(ob);
 
-	/* clean-up */
-	bufrelease(text);
+	/* Check for work_bufs imbalance (indicates a bug). This runs only if
+	 * we reached here without exception. Cleanup will reset the state. */
+	md->had_imbalance = (md->work_bufs[BUFFER_SPAN].size != 0 ||
+	                     md->work_bufs[BUFFER_BLOCK].size != 0);
+}
+
+/*
+ * sd_markdown_cleanup: Clean up after rendering completes.
+ *
+ * This MUST be called after sd_markdown_render completes, even if an exception
+ * occurred. Ruby callbacks can raise exceptions which use longjmp, bypassing
+ * C cleanup code. This function frees all render-time allocations and resets
+ * state for the next render.
+ *
+ * In Ruby C extensions, use rb_ensure() to guarantee this is called:
+ *   rb_ensure(do_render, args, cleanup_func, md);
+ *
+ * See: https://docs.ruby-lang.org/en/2.4.0/extension_rdoc.html
+ */
+void
+sd_markdown_cleanup(struct sd_markdown *md)
+{
+	int footnotes_enabled = md->ext_flags & MKDEXT_FOOTNOTES;
+
+	/* Free the temporary text buffer */
+	if (md->render_text) {
+		bufrelease(md->render_text);
+		md->render_text = NULL;
+	}
+
+	/* Free link references */
 	free_link_refs(md->refs);
+
+	/* Free footnotes if enabled */
 	if (footnotes_enabled) {
 		free_footnote_list(&md->footnotes_found, 1);
 		free_footnote_list(&md->footnotes_used, 0);
 	}
 
-	assert(md->work_bufs[BUFFER_SPAN].size == 0);
-	assert(md->work_bufs[BUFFER_BLOCK].size == 0);
+	/* Reset state for next render */
+	md->work_bufs[BUFFER_SPAN].size = 0;
+	md->work_bufs[BUFFER_BLOCK].size = 0;
+	md->in_link_body = 0;
+}
+
+/* Returns 1 if render detected a work_bufs imbalance (bug), 0 if OK. */
+int
+sd_markdown_had_imbalance(struct sd_markdown *md)
+{
+	int result = md->had_imbalance;
+	md->had_imbalance = 0;
+	return result;
 }
 
 void
