@@ -512,4 +512,49 @@ class MarkdownTest < Redcarpet::TestCase
 
     assert_match /<table>/, output
   end
+
+  def test_escaped_pipes_do_not_split_table_cells
+    markdown = <<-'Markdown'.strip_heredoc
+      | a | b |
+      | - | - |
+      | x\|y | z |
+    Markdown
+    output   = render(markdown, with: [:tables])
+
+    assert_includes output, "<td>x|y</td>\n<td>z</td>"
+  end
+
+  def test_escaped_pipes_do_not_split_code_spans_in_table_cells
+    markdown = <<-'Markdown'.strip_heredoc
+      | a | b |
+      | - | - |
+      | `x\|[click](javascript:alert(1))` | y |
+    Markdown
+    output   = render(markdown, with: [:tables])
+
+    assert_includes output, "<td><code>x|[click](javascript:alert(1))</code></td>\n<td>y</td>"
+  end
+
+  def test_escaped_pipes_after_a_backslash_in_code_spans_in_table_cells
+    markdown = <<-'Markdown'.strip_heredoc
+      | a | b |
+      | - | - |
+      | `x\\|y` | z |
+    Markdown
+    output   = render(markdown, with: [:tables])
+
+    assert_includes output, "<td><code>x\\|y</code></td>\n<td>z</td>"
+  end
+
+  def test_escaped_pipes_do_not_add_table_columns
+    markdown = <<-'Markdown'.strip_heredoc
+      | a\|b | c |
+      | - | - |
+      | d | e |
+    Markdown
+    output   = render(markdown, with: [:tables])
+
+    assert_includes output, "<th>a|b</th>\n<th>c</th>\n</tr>"
+    assert_includes output, "<td>d</td>\n<td>e</td>\n</tr>"
+  end
 end

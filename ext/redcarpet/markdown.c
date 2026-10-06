@@ -2276,6 +2276,12 @@ parse_htmlblock(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 	return tag_end;
 }
 
+static int
+is_table_delimiter(uint8_t *data, size_t i)
+{
+	return data[i] == '|' && (i == 0 || data[i - 1] != '\\');
+}
+
 static void
 parse_table_row(
 	struct buf *ob,
@@ -2298,17 +2304,18 @@ parse_table_row(
 		i++;
 
 	for (col = 0; col < columns && i < size; ++col) {
-		size_t cell_start, cell_end;
-		struct buf *cell_work;
+		size_t cell_start, cell_end, j;
+		struct buf *cell_work, *cell_text;
 
 		cell_work = rndr_newbuf(rndr, BUFFER_SPAN);
+		cell_text = rndr_newbuf(rndr, BUFFER_SPAN);
 
 		while (i < size && _isspace(data[i]))
 			i++;
 
 		cell_start = i;
 
-		while (i < size && data[i] != '|')
+		while (i < size && !is_table_delimiter(data, i))
 			i++;
 
 		cell_end = i - 1;
@@ -2316,10 +2323,18 @@ parse_table_row(
 		while (cell_end > cell_start && _isspace(data[cell_end]))
 			cell_end--;
 
-		parse_inline(cell_work, rndr, data + cell_start, 1 + cell_end - cell_start);
+		/* GFM unescapes pipes before inline parsing, even inside code spans */
+		for (j = cell_start; j <= cell_end; j++) {
+			if (data[j] == '\\' && j < cell_end && data[j + 1] == '|')
+				j++;
+			bufputc(cell_text, data[j]);
+		}
+
+		parse_inline(cell_work, rndr, cell_text->data, cell_text->size);
 		rndr->cb.table_cell(row_work, cell_work, col_data[col] | header_flag, rndr->opaque);
 
-		rndr_popbuf(rndr, BUFFER_SPAN);
+		rndr_popbuf(rndr, BUFFER_SPAN); /* cell_text */
+		rndr_popbuf(rndr, BUFFER_SPAN); /* cell_work */
 		i++;
 	}
 
@@ -2347,7 +2362,7 @@ parse_table_header(
 
 	pipes = 0;
 	while (i < size && data[i] != '\n')
-		if (data[i++] == '|')
+		if (is_table_delimiter(data, i++))
 			pipes++;
 
 	if (i == size || pipes == 0)
@@ -2361,7 +2376,7 @@ parse_table_header(
 	if (data[0] == '|')
 		pipes--;
 
-	if (header_end && data[header_end - 1] == '|')
+	if (header_end && is_table_delimiter(data, header_end - 1))
 		pipes--;
 
 	*columns = pipes + 1;
