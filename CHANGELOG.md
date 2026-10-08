@@ -9,6 +9,13 @@
 
   *Mike Dalessio*
 
+* A backslash-escaped pipe (`\|`) in a table row no longer splits the cell,
+  even inside a code span, following the GFM spec.
+
+  Fixes #477.
+
+  *Mike Dalessio*
+
 ## Version 3.6.1
 
 * Migrate Markdown objects to the `TypedData` API.
