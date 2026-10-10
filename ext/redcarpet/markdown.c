@@ -2083,6 +2083,10 @@ static void
 parse_footnote_def(struct buf *ob, struct sd_markdown *rndr, unsigned int num, uint8_t *data, size_t size)
 {
 	struct buf *work = 0;
+
+	if (!rndr->cb.footnote_def)
+		return;
+
 	work = rndr_newbuf(rndr, BUFFER_SPAN);
 
 	parse_block(work, rndr, data, size);
