@@ -25,9 +25,17 @@
 
 #include "buffer.h"
 
+#include <ctype.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+static inline int
+_isalnum(int c)
+{
+	return isalnum(c) && c < 0x7f;
+}
 
 enum {
 	SD_AUTOLINK_SHORT_DOMAINS = (1 << 0),
