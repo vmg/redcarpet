@@ -162,7 +162,7 @@ smartypants_squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previo
 
 		// Tom's, isn't, I'm, I'd
 		if ((t1 == 's' || t1 == 't' || t1 == 'm' || t1 == 'd') &&
-			(size == 3 || word_boundary(text[2]))) {
+			(size <= 3 || word_boundary(text[2]))) {
 			BUFPUTSL(ob, "&rsquo;");
 			return 0;
 		}
@@ -174,7 +174,7 @@ smartypants_squote(struct buf *ob, struct smartypants_data *smrt, uint8_t previo
 			if (((t1 == 'r' && t2 == 'e') ||
 				(t1 == 'l' && t2 == 'l') ||
 				(t1 == 'v' && t2 == 'e')) &&
-				(size == 4 || word_boundary(text[3]))) {
+				(size <= 4 || word_boundary(text[3]))) {
 				BUFPUTSL(ob, "&rsquo;");
 				return 0;
 			}
@@ -327,7 +327,7 @@ smartypants_cb__number(struct buf *ob, struct smartypants_data *smrt, uint8_t pr
 static size_t
 smartypants_cb__dquote(struct buf *ob, struct smartypants_data *smrt, uint8_t previous_char, const uint8_t *text, size_t size)
 {
-	if (!smartypants_quotes(ob, previous_char, size > 0 ? text[1] : 0, 'd', &smrt->in_dquote))
+	if (!smartypants_quotes(ob, previous_char, size > 1 ? text[1] : 0, 'd', &smrt->in_dquote))
 		BUFPUTSL(ob, "&quot;");
 
 	return 0;
@@ -382,7 +382,7 @@ smartypants_cb__ltag(struct buf *ob, struct smartypants_data *smrt, uint8_t prev
 	// Pretty tricky: since people may refer to something or someone
 	// with a link but use the possessive form right after it, we need
 	// to check whether a single quote is next to a closing "</a"> tag.
-	if (next_to_closing_a && strncmp("&#39;", text+(i+1), 5) == 0) {
+	if (next_to_closing_a && i + 1 + 5 <= size && strncmp("&#39;", text+(i+1), 5) == 0) {
 		bufput(ob, "&rsquo;", 7);
 		i += 5;
 	}
