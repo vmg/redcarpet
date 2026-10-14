@@ -774,8 +774,8 @@ sdhtml_toc_renderer(struct sd_callbacks *callbacks, struct html_renderopt *optio
 		NULL,
 		NULL,
 		NULL,
-		rndr_footnotes,
-		rndr_footnote_def,
+		NULL,
+		NULL,
 
 		NULL,
 		rndr_codespan,

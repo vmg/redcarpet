@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+* `HTML_TOC` no longer appends the footnotes block. A footnote is not a heading.
+
+  Fixes #815.
+
+  *Sasha Mitchell*
+
 * Code spans now take precedence over link brackets, following the CommonMark
   spec, so a `]` inside a code span no longer closes a link label.
 

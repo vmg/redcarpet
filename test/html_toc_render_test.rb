@@ -98,6 +98,23 @@ class HTMLTOCRenderTest < Redcarpet::TestCase
     assert_no_match %r{<strong>}, output
   end
 
+  def test_toc_does_not_include_footnotes
+    markdown = <<-Markdown.strip_heredoc
+      # Title
+
+      See the note.[^1]
+
+      [^1]: The note itself.
+    Markdown
+
+    output = render(markdown, with: [:footnotes])
+
+    assert_match "title", output
+    refute_match(/footnotes/, output)
+    refute_match(/The note itself/, output)
+    refute_match(/<hr/, output)
+  end
+
   def test_ignoring_fenced_code_blocks_comments
     markdown = <<-Markdown.strip_heredoc
     # Hello world !
