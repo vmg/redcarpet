@@ -257,6 +257,7 @@ end
 * list_item(text, list_type)
 * paragraph(text)
 * table(header, body)
+* table_caption(content)
 * table_row(content)
 * table_cell(content, alignment, header)
 

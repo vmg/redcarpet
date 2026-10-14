@@ -44,8 +44,12 @@ module Redcarpet
         text + "\n"
       end
 
-      def table(header, body)
-        "#{header}#{body}"
+      def table(caption, header, body)
+        "#{caption}#{header}#{body}"
+      end
+
+      def table_caption(content)
+        content + "\n"
       end
 
       def table_row(content)

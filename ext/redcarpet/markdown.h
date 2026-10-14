@@ -77,7 +77,8 @@ struct sd_callbacks {
 	void (*list)(struct buf *ob, const struct buf *text, int flags, void *opaque);
 	void (*listitem)(struct buf *ob, const struct buf *text, int flags, void *opaque);
 	void (*paragraph)(struct buf *ob, const struct buf *text, void *opaque);
-	void (*table)(struct buf *ob, const struct buf *header, const struct buf *body, void *opaque);
+	void (*table)(struct buf *ob, const struct buf *caption, const struct buf *header, const struct buf *body, void *opaque);
+	void (*table_caption)(struct buf *ob, const struct buf *text, void *opaque);
 	void (*table_row)(struct buf *ob, const struct buf *text, void *opaque);
 	void (*table_cell)(struct buf *ob, const struct buf *text, int flags, void *opaque);
 	void (*footnotes)(struct buf *ob, const struct buf *text, void *opaque);
