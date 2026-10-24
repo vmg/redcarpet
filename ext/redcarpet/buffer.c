@@ -163,6 +163,11 @@ bufput(struct buf *buf, const void *data, size_t len)
 {
 	assert(buf && buf->unit);
 
+	/* memcpy() requires a valid source even when len is zero, and an
+	 * empty table cell or blockquote line reaches here with data == NULL. */
+	if (len == 0)
+		return;
+
 	if (buf->size + len > buf->asize && bufgrow(buf, buf->size + len) < BUF_OK)
 		return;
 
