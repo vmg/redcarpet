@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+* Raise `required_ruby_version` to 2.1. The C extension uses
+  `RUBY_TYPED_FREE_IMMEDIATELY` and `RUBY_TYPED_WB_PROTECTED`, which Ruby 2.0
+  doesn't define, so installing on 2.0 failed at compile time.
+
+  Fixes #802.
+
+  *Andrew Barnes*
+
 * `HTML_TOC` no longer appends the footnotes block. A footnote is not a heading.
 
   Fixes #815.
