@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/vmg/redcarpet'
   s.authors = ["Natacha Porté", "Vicent Martí"]
   s.license = 'MIT'
-  s.required_ruby_version = '>= 1.9.2'
+  s.required_ruby_version = '>= 2.1'
   # = MANIFEST =
   s.files = %w[
     CHANGELOG.md
