@@ -336,14 +336,6 @@ free_footnote_list(struct footnote_list *list, int free_refs)
 	}
 }
 
-/*
- Wrap isalnum so that characters outside of the ASCII range don't count.
- */
-static inline int
-_isalnum(int c)
-{
-	return isalnum(c) && c < 0x7f;
-}
 
 /*
  * Check whether a char is a Markdown space.
