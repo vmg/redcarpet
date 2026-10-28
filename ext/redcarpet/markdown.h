@@ -136,6 +136,13 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 extern void
 sd_markdown_free(struct sd_markdown *md);
 
+extern void
+sd_markdown_cleanup(struct sd_markdown *md);
+
+/* Returns 1 if render detected work_bufs imbalance (bug), 0 if OK. */
+extern int
+sd_markdown_had_imbalance(struct sd_markdown *md);
+
 #ifdef __cplusplus
 }
 #endif
