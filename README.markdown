@@ -44,7 +44,7 @@ performs parsing of a document and uses the attached renderer to generate
 output.
 
 The `Redcarpet::Markdown` object is encouraged to be instantiated once with the
-required settings, and reused between parses.
+required settings, and reused between parses, within a given thread.
 
 ~~~~ ruby
 # Initializes a Markdown parser
@@ -122,6 +122,19 @@ Example:
 
 ~~~~ ruby
 markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true, tables: true)
+~~~~
+
+if you are using *multiple* threads that must all render markdown, you must
+instatiate the markdown processor and renderer once for each thread.
+Ruby provides `Thread.current` to do this easily.
+Here's an example:
+
+~~~~ ruby
+renderer = (Thread.current[:md_renderer] ||=
+            Redcarpet::Render::HTML.new(filter_html: true))
+markdown = (Thread.current[:md_processor] ||=
+            Redcarpet::Markdown.new(renderer, autolink: true))
+html = markdown.render("Your markdown here")
 ~~~~
 
 Darling, I packed you a couple renderers for lunch
