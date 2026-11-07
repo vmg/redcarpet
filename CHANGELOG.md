@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+* SmartyPants no longer reads past the end of the input in
+  `smartypants_cb__ltag` when a document ends at a tag boundary (an
+  unterminated `<`, or a trailing `</a>`). The out-of-bounds bytes were
+  masked by the NUL terminator of the Ruby string the binding passes, so
+  this was not exploitable through the gem, but the callback now bounds
+  both the `bufput` and the possessive-`&#39;` `strncmp` itself. A spurious
+  trailing NUL previously emitted for input ending in `<` is also gone.
+
+  *Richard Desmarais*
+
 * `HTML_TOC` no longer appends the footnotes block. A footnote is not a heading.
 
   Fixes #815.

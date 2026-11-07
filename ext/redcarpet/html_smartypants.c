@@ -377,12 +377,15 @@ smartypants_cb__ltag(struct buf *ob, struct smartypants_data *smrt, uint8_t prev
 		next_to_closing_a = 1;
 	}
 
-	bufput(ob, text, i + 1);
+	/* When no '>' was found, i == size; copy only the bytes we actually have
+	 * instead of reading one past the end of the input buffer. */
+	bufput(ob, text, i < size ? i + 1 : size);
 
 	// Pretty tricky: since people may refer to something or someone
 	// with a link but use the possessive form right after it, we need
 	// to check whether a single quote is next to a closing "</a"> tag.
-	if (next_to_closing_a && strncmp("&#39;", text+(i+1), 5) == 0) {
+	/* Only read the 5 bytes of "&#39;" when they are fully within the input. */
+	if (next_to_closing_a && i + 6 <= size && strncmp("&#39;", text + (i + 1), 5) == 0) {
 		bufput(ob, "&rsquo;", 7);
 		i += 5;
 	}
