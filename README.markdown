@@ -156,7 +156,9 @@ Initializes an HTML renderer. The following flags are available:
 that any existing tag will be escaped instead of being removed.
 
 * `:safe_links_only`: only generate links for protocols which are considered
-safe.
+safe. This check is part of the built-in rendering callbacks; see
+[Custom renderers and HTML safety](#custom-renderers-and-html-safety) when
+overriding them.
 
 * `:with_toc_data`: add HTML anchors to each header in the output HTML,
 to allow linking to each section.
@@ -226,6 +228,57 @@ class ManPage < Redcarpet::Render::Base
   # you get the drill -- keep going from here
 end
 ~~~~
+
+### Custom renderers and HTML safety
+
+`Redcarpet::Render::Safe` inherits from `HTML` and enables `escape_html` and
+`safe_links_only` by default. When customizing formatting, leave the built-in
+link callbacks in place whenever possible. For example, removing paragraph
+wrappers does not require generating links yourself:
+
+~~~~ ruby
+require 'redcarpet'
+
+class InlineSafe < Redcarpet::Render::Safe
+  def paragraph(text)
+    text
+  end
+end
+
+markdown = Redcarpet::Markdown.new(InlineSafe.new)
+markdown.render('[Example](https://example.com/)')
+# => '<a href="https://example.com/">Example</a>'
+
+markdown.render('[Example](javascript:alert(1))')
+# => '[Example](javascript:alert(1))'
+~~~~
+
+Overriding `link` or `autolink` replaces the corresponding built-in callback,
+including its URL validation and escaping. Inheriting from `Safe`, or passing
+`safe_links_only: true` to an `HTML` subclass, does not validate the output of
+your Ruby overrides. The native callbacks are not Ruby methods that an override
+can invoke with `super`.
+
+A custom callback that emits HTML must apply its own URL policy and escape
+attribute values for the HTML context it uses. HTML escaping alone does not
+reject a `javascript:` URL. Account for character references when handling
+callback arguments: for `[A &amp; B](https://example.com/?a=1&amp;b=2)`, the
+`link` callback receives a URL containing `&amp;`. Escaping that value again
+without accounting for the existing reference produces `&amp;amp;` and changes
+the query string's meaning. Decoding references also affects URL validation, so
+validate the URL that the resulting HTML will represent.
+
+Link content is rendered through the renderer's other callbacks before it is
+passed to `link`; it is not necessarily plain text. In a `StripDown` subclass,
+both the URL and label in the example above retain their character references.
+`StripDown` produces plain text and does not accept the HTML renderer's options.
+If you extend it to emit HTML, you are responsible for that HTML's safety.
+
+These options and examples do not sanitize arbitrary HTML returned by custom
+callbacks. Applications may also need additional policies for their output
+context and permitted URL schemes.
+
+### Rendering callbacks
 
 The following instance methods may be implemented by the renderer:
 
